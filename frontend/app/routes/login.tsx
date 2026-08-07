@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
+import { loginUser } from "../store/auth";
 
 export function meta() {
   return [
@@ -37,23 +38,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Invalid credentials");
-      }
-
+      const data = await loginUser(formData.email, formData.password);
       localStorage.setItem("token", data.access_token);
       navigate("/dashboard");
     } catch (err: any) {
