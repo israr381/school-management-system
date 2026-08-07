@@ -1,0 +1,4 @@
+# Pyrefly configuration file
+# Tells the Pyrefly language server/linter where to find the Python interpreter and its site-packages.
+
+python-interpreter-path = ".venv/bin/python"
