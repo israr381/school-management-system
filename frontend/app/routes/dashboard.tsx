@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import AdminDashboard from "../components/dashboards/AdminDashboard";
-import SuperAdminDashboard from "../components/dashboards/SuperAdminDashboard";
+import { useOutletContext } from "react-router";
+import AdminOverview from "../components/dashboards/AdminOverview";
+import SuperAdminOverview from "../components/dashboards/SuperAdminOverview";
 
 interface UserResponse {
   id: number;
@@ -16,6 +15,27 @@ interface UserResponse {
   } | null;
 }
 
+interface Tenant {
+  id: number;
+  name: string;
+  domain: string;
+  created_at: string;
+  user_count: number;
+}
+
+interface TenantApiResponse {
+  total_tenants: number;
+  total_users: number;
+  tenants: Tenant[];
+}
+
+interface DashboardContext {
+  user: UserResponse;
+  org: UserResponse["organization"];
+  tenantData: TenantApiResponse | null;
+  statsLoading: boolean;
+}
+
 export function meta() {
   return [
     { title: "Dashboard - EduManage" },
@@ -24,66 +44,17 @@ export function meta() {
 }
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-  const [user, setUser] = useState<UserResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, org, tenantData, statsLoading } = useOutletContext<DashboardContext>();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-
-      try {
-        const response = await fetch("http://localhost:8000/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Session expired");
-        }
-
-        const data = await response.json();
-        setUser(data);
-      } catch (error) {
-        localStorage.removeItem("token");
-        navigate("/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
-  if (loading) {
+  if (user.role === "superadmin") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative w-16 h-16">
-            <div className="absolute inset-0 rounded-full border-4 border-blue-500/20"></div>
-            <div className="absolute inset-0 rounded-full border-4 border-t-blue-500 animate-spin"></div>
-          </div>
-          <p className="text-gray-500 dark:text-gray-400 font-medium animate-pulse">Loading dashboard...</p>
-        </div>
-      </div>
+      <SuperAdminOverview 
+        user={user} 
+        tenantData={tenantData} 
+        statsLoading={statsLoading} 
+      />
     );
   }
 
-  if (!user) return null;
-
-  if (user.role === "superadmin") {
-    return <SuperAdminDashboard user={user} handleLogout={handleLogout} />;
-  }
-
-  return <AdminDashboard user={user} handleLogout={handleLogout} />;
+  return <AdminOverview user={user} org={org} />;
 }

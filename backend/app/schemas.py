@@ -56,3 +56,14 @@ class SuperAdminTenantsResponse(BaseModel):
     total_tenants: int
     total_users: int
     tenants: List[TenantResponse]
+
+class CreateOrganizationRequest(BaseModel):
+    organization_name: str = Field(..., min_length=1)
+    organization_domain: str = Field(..., min_length=3)
+    admin_full_name: str = Field(..., min_length=1)
+    admin_email: EmailStr
+    admin_password: str = Field(..., min_length=6)
+
+class OrganizationUpdate(BaseModel):
+    name: str = Field(..., min_length=1)
+    domain: str = Field(..., min_length=3)
