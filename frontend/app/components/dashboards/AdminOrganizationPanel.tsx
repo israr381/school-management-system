@@ -63,19 +63,19 @@ export default function AdminOrganizationPanel({ user, org, setOrg }: AdminOrgan
 
   return (
     <div className="max-w-xl mx-auto animate-fade-in py-6">
-      <div className="bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-2xl rounded-3xl p-8 relative overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl" />
+      <div className="bg-panel-bg border border-border-main/50 shadow-2xl rounded-3xl p-8 relative overflow-hidden">
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative">
           <div className="text-center mb-8">
             <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-100/50 dark:bg-blue-900/30 px-3 py-1 rounded-full uppercase tracking-wider">
               Management
             </span>
-            <h2 className="mt-4 text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            <h2 className="mt-4 text-3xl font-extrabold text-text-main tracking-tight">
               Organization Settings
             </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-sm text-text-muted">
               Manage and update your school profile settings below.
             </p>
           </div>
@@ -94,7 +94,7 @@ export default function AdminOrganizationPanel({ user, org, setOrg }: AdminOrgan
 
           <form onSubmit={handleFormSubmit} className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
                 Organization Name
               </label>
               <input
@@ -104,12 +104,12 @@ export default function AdminOrganizationPanel({ user, org, setOrg }: AdminOrgan
                 value={form.name}
                 onChange={handleInputChange}
                 placeholder="e.g. Oakridge Academy"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 text-gray-900 dark:text-white placeholder-gray-450 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
                 Organization Domain
               </label>
               <input
@@ -119,14 +119,14 @@ export default function AdminOrganizationPanel({ user, org, setOrg }: AdminOrgan
                 value={form.domain}
                 onChange={handleInputChange}
                 placeholder="e.g. oakridge.edu"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 text-gray-900 dark:text-white placeholder-gray-450 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               />
             </div>
 
             <button
               type="submit"
               disabled={formLoading}
-              className="w-full mt-4 py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center"
+              className="w-full mt-4 py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center cursor-pointer"
             >
               {formLoading ? (
                 <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">

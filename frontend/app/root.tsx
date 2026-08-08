@@ -15,6 +15,8 @@ import "./app.css";
 import Sidebar from "./components/Sidebar";
 import { fetchCurrentUser } from "./store/auth";
 import { fetchTenantStats } from "./store/organization";
+import { ThemeProvider } from "./context/ThemeContext";
+import ThemeToggle from "./components/ThemeToggle";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -37,9 +39,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const stored = localStorage.getItem('theme');
+                const theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                if (theme === 'dark') {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
       </head>
       <body>
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -149,13 +168,13 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen flex items-center justify-center bg-app-bg">
         <div className="flex flex-col items-center gap-4">
           <div className="relative w-16 h-16">
             <div className="absolute inset-0 rounded-full border-4 border-blue-500/20"></div>
             <div className="absolute inset-0 rounded-full border-4 border-t-blue-500 animate-spin"></div>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 font-medium animate-pulse">Loading system workspace...</p>
+          <p className="text-text-muted font-medium animate-pulse">Loading system workspace...</p>
         </div>
       </div>
     );
@@ -171,7 +190,7 @@ export default function App() {
   const isSuperAdmin = user.role === "superadmin";
 
   return (
-    <div className="h-screen overflow-hidden flex bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300 w-full animate-fade-in">
+    <div className="h-screen overflow-hidden flex bg-app-bg text-text-main transition-colors duration-300 w-full animate-fade-in">
       {/* Sidebar Component */}
       <Sidebar 
         isCollapsed={isCollapsed} 
@@ -183,12 +202,12 @@ export default function App() {
       {/* Main Container Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-8 flex items-center justify-between sticky top-0 z-10 transition-all duration-300">
+        <header className="h-16 bg-panel-bg border-b border-border-main px-8 flex items-center justify-between sticky top-0 z-10 transition-all duration-300">
           <div className="flex items-center gap-2">
             <span className={`text-sm font-semibold px-3 py-1.5 rounded-full border ${
               isSuperAdmin 
                 ? "bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-400 border-purple-200/50 dark:border-purple-900/30 uppercase tracking-wider text-xs" 
-                : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200/50 dark:border-gray-700/30"
+                : "bg-panel-bg text-text-muted border-border-main"
             }`}>
               {isSuperAdmin ? "System Admin Console" : (org?.name || "System Admin Space")}
             </span>
@@ -204,7 +223,7 @@ export default function App() {
               </div>
               <div className="hidden md:flex flex-col text-left">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white leading-none">{user.full_name}</span>
+                  <span className="text-sm font-semibold text-text-main leading-none">{user.full_name}</span>
                   <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
                     isSuperAdmin 
                       ? "bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300"
@@ -213,16 +232,21 @@ export default function App() {
                     {isSuperAdmin ? "super admin" : user.role.replace("_", " ")}
                   </span>
                 </div>
-                <span className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5 truncate max-w-[150px]">{user.email}</span>
+                <span className="text-[11px] text-text-muted mt-1.5 truncate max-w-[150px]">{user.email}</span>
               </div>
             </div>
 
-            <div className="w-[1px] h-6 bg-gray-200 dark:bg-gray-800" />
+            <div className="w-[1px] h-6 bg-border-main" />
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
+            <div className="w-[1px] h-6 bg-border-main" />
 
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all duration-200 border border-transparent hover:border-red-100 dark:hover:border-red-900/30"
+              className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all duration-200 border border-transparent hover:border-red-100 dark:hover:border-red-900/30 cursor-pointer"
             >
               <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>

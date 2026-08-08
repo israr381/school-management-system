@@ -57,31 +57,31 @@ export default function AdminOverview({ user, org }: AdminOverviewProps) {
           { title: "Classes", value: "0", change: "New workspace", icon: "🏫", color: "from-violet-500 to-pink-500" },
           { title: "System Status", value: "Active", change: "100% Uptime", icon: "⚡", color: "from-emerald-500 to-teal-500" },
         ].map((stat, idx) => (
-          <div key={idx} className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 transition-all">
+          <div key={idx} className="bg-panel-bg p-6 rounded-2xl border border-border-main/50 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-border-main transition-all">
             <div className="flex justify-between items-start">
-              <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">{stat.title}</span>
+              <span className="text-sm font-semibold text-text-muted">{stat.title}</span>
               <span className="text-2xl">{stat.icon}</span>
             </div>
             <div className="mt-4">
               <h3 className="text-3xl font-extrabold tracking-tight">{stat.value}</h3>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 font-medium">{stat.change}</p>
+              <p className="text-xs text-text-muted mt-1 font-medium">{stat.change}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Details list */}
-      <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200/50 dark:border-gray-800/50 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
+      <div className="bg-panel-bg rounded-3xl border border-border-main/50 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-border-main flex justify-between items-center bg-app-bg/50">
           <h3 className="font-bold text-lg">Dashboard Details</h3>
-          <span className="text-xs text-gray-400 dark:text-gray-500">Live Workspace Database</span>
+          <span className="text-xs text-text-muted">Live Workspace Database</span>
         </div>
         <div className="p-8 text-center flex flex-col items-center justify-center min-h-[300px]">
-          <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-gray-950 flex items-center justify-center text-3xl mb-4 border border-gray-100 dark:border-gray-800">
+          <div className="w-16 h-16 rounded-2xl bg-app-bg flex items-center justify-center text-3xl mb-4 border border-border-main">
             📁
           </div>
           <h4 className="font-semibold text-base mb-1">No data available for Dashboard</h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm">
+          <p className="text-sm text-text-muted max-w-sm">
             This workspace for {org?.name || "School"} was recently initialized. Add elements or invite staff members to see logs and analytics.
           </p>
         </div>
