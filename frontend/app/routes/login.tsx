@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { loginUser } from "../store/auth";
+import ThemeToggle from "../components/ThemeToggle";
 
 export function meta() {
   return [
@@ -49,22 +50,28 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-radial from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-950 p-6 transition-all duration-300">
-      <div className="w-full max-w-md bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-800/50 shadow-2xl rounded-3xl p-8 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-radial from-app-bg-radial-start to-app-bg-radial-end p-6 transition-all duration-300 relative">
+      
+      {/* Floating Theme Toggle */}
+      <div className="absolute top-6 right-6 z-10">
+        <ThemeToggle />
+      </div>
+
+      <div className="w-full max-w-md bg-panel-bg-translucent backdrop-blur-xl border border-border-main/50 shadow-2xl rounded-3xl p-8 relative overflow-hidden">
         
         {/* Glow effect */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl" />
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative">
           <div className="text-center mb-8">
             <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 bg-blue-100/50 dark:bg-blue-900/30 px-3 py-1 rounded-full uppercase tracking-wider">
               Welcome Back
             </span>
-            <h2 className="mt-4 text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            <h2 className="mt-4 text-3xl font-extrabold text-text-main tracking-tight">
               Sign In to Dashboard
             </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-sm text-text-muted">
               Enter your credentials to access your account
             </p>
           </div>
@@ -77,7 +84,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
                 Email Address
               </label>
               <input
@@ -87,13 +94,13 @@ export default function Login() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="john@example.com"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
+                className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
               />
             </div>
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted">
                   Password
                 </label>
               </div>
@@ -104,7 +111,7 @@ export default function Login() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
+                className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
               />
             </div>
 

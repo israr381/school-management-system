@@ -50,14 +50,14 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
 
   return (
     <aside 
-      className={`bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col justify-between transition-all duration-300 shrink-0 ${
+      className={`bg-panel-bg border-r border-border-main flex flex-col justify-between transition-all duration-300 shrink-0 ${
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
       <div>
         {/* Brand Header */}
         <div 
-          className={`h-16 flex items-center border-b border-gray-100 dark:border-gray-800/80 gap-3 transition-all duration-300 ${
+          className={`h-16 flex items-center border-b border-border-main/80 gap-3 transition-all duration-300 ${
             isCollapsed ? "justify-center px-0" : "justify-between px-6"
           }`}
         >
@@ -67,8 +67,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
             </div>
             {!isCollapsed && (
               <div className="animate-fade-in select-none">
-                <h1 className="font-bold text-base leading-none text-gray-900 dark:text-white">EduManage</h1>
-                <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase">
+                <h1 className="font-bold text-base leading-none text-text-main">EduManage</h1>
+                <span className="text-[10px] text-text-muted font-medium uppercase">
                   {isSuperAdmin ? "System Admin" : "WORKSPACE"}
                 </span>
               </div>
@@ -77,8 +77,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
           
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1.5 shrink-0 ${
-              isCollapsed ? "absolute left-[54px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm z-50 rounded-full p-1" : ""
+            className={`hover:bg-app-bg rounded-lg text-text-muted hover:text-text-main transition-colors p-1.5 shrink-0 ${
+              isCollapsed ? "absolute left-[54px] bg-panel-bg border border-border-main shadow-sm z-50 rounded-full p-1" : ""
             }`}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
@@ -106,7 +106,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
                 } ${
                   isActive
                     ? activeBgClass + " shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200"
+                    : "text-text-muted hover:bg-app-bg hover:text-text-main"
                 }`}
                 title={isCollapsed ? item.name : undefined}
               >
@@ -119,20 +119,20 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
       </div>
 
       {/* Footer Info */}
-      <div className="p-4 border-t border-gray-100 dark:border-gray-800/80">
+      <div className="p-4 border-t border-border-main/85">
         {isCollapsed ? (
           <div 
-            className="flex justify-center text-gray-450 dark:text-gray-500 font-bold text-xs" 
+            className="flex justify-center text-text-muted font-bold text-xs" 
             title={isSuperAdmin ? "Core System Panel" : `Domain: ${org?.domain || "system.local"}`}
           >
             {isSuperAdmin ? "⚙️" : "🌐"}
           </div>
         ) : (
-          <div className="bg-gray-50 dark:bg-gray-950 p-3.5 rounded-xl border border-gray-100 dark:border-gray-900 flex flex-col gap-1 animate-fade-in">
-            <span className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">
+          <div className="bg-app-bg p-3.5 rounded-xl border border-border-main flex flex-col gap-1 animate-fade-in">
+            <span className="text-[10px] uppercase font-bold text-text-muted tracking-wider">
               {isSuperAdmin ? "Environment" : "Domain"}
             </span>
-            <span className={`text-xs font-semibold truncate ${isSuperAdmin ? "text-purple-650 dark:text-purple-400" : "text-gray-700 dark:text-gray-300"}`}>
+            <span className={`text-xs font-semibold truncate ${isSuperAdmin ? "text-purple-650 dark:text-purple-400" : "text-text-main"}`}>
               {isSuperAdmin ? "Core System Panel" : (org?.domain || "system.local")}
             </span>
           </div>

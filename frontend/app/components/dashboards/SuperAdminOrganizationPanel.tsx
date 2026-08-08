@@ -81,11 +81,11 @@ export default function SuperAdminOrganizationPanel({
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
       {/* 1. Tenant Registry Table Section */}
-      <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200/50 dark:border-gray-800/50 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
+      <div className="bg-panel-bg rounded-3xl border border-border-main/50 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-border-main flex justify-between items-center bg-app-bg/50">
           <div>
             <h3 className="font-bold text-lg">Tenant Organization Registry</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">List of schools and workspaces created by users</p>
+            <p className="text-xs text-text-muted mt-0.5">List of schools and workspaces created by users</p>
           </div>
           <span className="text-xs bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-400 px-3 py-1 rounded-full font-bold">
             {statsLoading ? "..." : (tenantData?.tenants.length || 0)} Registered
@@ -93,14 +93,14 @@ export default function SuperAdminOrganizationPanel({
         </div>
 
         {statsLoading && !tenantData ? (
-          <div className="p-12 text-center text-gray-500 dark:text-gray-400 font-medium">
+          <div className="p-12 text-center text-text-muted font-medium">
             Loading tenants...
           </div>
         ) : tenantData && tenantData.tenants.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-800 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                <tr className="border-b border-border-main text-xs font-bold text-text-muted uppercase tracking-wider">
                   <th className="px-6 py-4">ID</th>
                   <th className="px-6 py-4">Organization Name</th>
                   <th className="px-6 py-4">Domain</th>
@@ -109,16 +109,16 @@ export default function SuperAdminOrganizationPanel({
                   <th className="px-6 py-4">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+              <tbody className="divide-y divide-border-main text-sm">
                 {tenantData.tenants.map((tenant) => (
-                  <tr key={tenant.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-950/50 transition-colors">
+                  <tr key={tenant.id} className="hover:bg-app-bg/50 transition-colors">
                     <td className="px-6 py-4 font-mono font-medium text-xs text-purple-600 dark:text-purple-400">
                       #{tenant.id}
                     </td>
-                    <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">
+                    <td className="px-6 py-4 font-bold text-text-main">
                       {tenant.name}
                     </td>
-                    <td className="px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                    <td className="px-6 py-4 font-semibold text-text-muted">
                       {tenant.domain}
                     </td>
                     <td className="px-6 py-4">
@@ -126,7 +126,7 @@ export default function SuperAdminOrganizationPanel({
                         👤 {tenant.user_count}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-xs text-gray-500 dark:text-gray-400">
+                    <td className="px-6 py-4 text-xs text-text-muted">
                       {new Date(tenant.created_at).toLocaleDateString(undefined, {
                         year: "numeric",
                         month: "short",
@@ -146,11 +146,11 @@ export default function SuperAdminOrganizationPanel({
           </div>
         ) : (
           <div className="p-12 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-gray-950 flex items-center justify-center text-3xl mx-auto mb-4 border border-gray-100 dark:border-gray-800">
+            <div className="w-16 h-16 rounded-2xl bg-app-bg flex items-center justify-center text-3xl mx-auto mb-4 border border-border-main">
               🏢
             </div>
             <h4 className="font-semibold text-base mb-1">No Tenants Found</h4>
-            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+            <p className="text-sm text-text-muted max-w-sm mx-auto">
               No organization registrations exist yet. Registered organizations will show here.
             </p>
           </div>
@@ -159,19 +159,19 @@ export default function SuperAdminOrganizationPanel({
 
       {/* 2. Add Organization Form Section */}
       <div className="max-w-xl mx-auto py-6">
-        <div className="bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50 shadow-2xl rounded-3xl p-8 relative overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl" />
+        <div className="bg-panel-bg border border-border-main/50 shadow-2xl rounded-3xl p-8 relative overflow-hidden">
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative">
             <div className="text-center mb-8">
               <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/30 px-3 py-1 rounded-full uppercase tracking-wider">
                 Administration
               </span>
-              <h2 className="mt-4 text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+              <h2 className="mt-4 text-3xl font-extrabold text-text-main tracking-tight">
                 Add New Organization
               </h2>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-2 text-sm text-text-muted">
                 Register a new school tenant and set up its primary administrator.
               </p>
             </div>
@@ -195,7 +195,7 @@ export default function SuperAdminOrganizationPanel({
                   1. Organization Details
                 </h3>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
                     Organization Name
                   </label>
                   <input
@@ -205,12 +205,12 @@ export default function SuperAdminOrganizationPanel({
                     value={form.organization_name}
                     onChange={handleInputChange}
                     placeholder="e.g. Oakridge Academy"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 text-gray-900 dark:text-white placeholder-gray-450 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                    className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
                     Organization Domain
                   </label>
                   <input
@@ -220,12 +220,12 @@ export default function SuperAdminOrganizationPanel({
                     value={form.organization_domain}
                     onChange={handleInputChange}
                     placeholder="e.g. oakridge.edu"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 text-gray-900 dark:text-white placeholder-gray-450 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                    className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                   />
                 </div>
               </div>
 
-              <hr className="border-gray-100 dark:border-gray-800 my-6" />
+              <hr className="border-border-main my-6" />
 
               {/* Admin account details */}
               <div className="space-y-4">
@@ -233,7 +233,7 @@ export default function SuperAdminOrganizationPanel({
                   2. Primary Admin Account
                 </h3>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
                     Admin Full Name
                   </label>
                   <input
@@ -243,12 +243,12 @@ export default function SuperAdminOrganizationPanel({
                     value={form.admin_full_name}
                     onChange={handleInputChange}
                     placeholder="e.g. Sarah Jenkins"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 text-gray-900 dark:text-white placeholder-gray-450 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                    className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
                     Admin Login Email
                   </label>
                   <input
@@ -258,12 +258,12 @@ export default function SuperAdminOrganizationPanel({
                     value={form.admin_email}
                     onChange={handleInputChange}
                     placeholder="e.g. s.jenkins@oakridge.edu"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 text-gray-900 dark:text-white placeholder-gray-450 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                    className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
                     Admin Password
                   </label>
                   <input
@@ -274,7 +274,7 @@ export default function SuperAdminOrganizationPanel({
                     value={form.admin_password}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-950/50 text-gray-900 dark:text-white placeholder-gray-450 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                    className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                   />
                 </div>
               </div>
@@ -282,7 +282,7 @@ export default function SuperAdminOrganizationPanel({
               <button
                 type="submit"
                 disabled={formLoading}
-                className="w-full mt-4 py-3.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center"
+                className="w-full mt-4 py-3.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center cursor-pointer"
               >
                 {formLoading ? (
                   <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
