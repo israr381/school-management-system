@@ -190,7 +190,7 @@ export default function App() {
   const isSuperAdmin = user.role === "superadmin";
 
   return (
-    <div className="h-screen overflow-hidden flex bg-app-bg text-text-main transition-colors duration-300 w-full animate-fade-in">
+    <div data-role={user.role} className="h-screen overflow-hidden flex bg-app-bg text-text-main transition-colors duration-300 w-full animate-fade-in">
       {/* Sidebar Component */}
       <Sidebar 
         isCollapsed={isCollapsed} 
@@ -204,11 +204,7 @@ export default function App() {
         {/* Top Header */}
         <header className="h-16 bg-panel-bg border-b border-border-main px-8 flex items-center justify-between sticky top-0 z-10 transition-all duration-300">
           <div className="flex items-center gap-2">
-            <span className={`text-sm font-semibold px-3 py-1.5 rounded-full border ${
-              isSuperAdmin 
-                ? "bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-400 border-purple-200/50 dark:border-purple-900/30 uppercase tracking-wider text-xs" 
-                : "bg-panel-bg text-text-muted border-border-main"
-            }`}>
+            <span className="text-sm font-semibold px-3 py-1.5 rounded-full border bg-role-badge-bg text-role-badge-text border-role-badge-border uppercase tracking-wider text-xs font-semibold">
               {isSuperAdmin ? "System Admin Console" : (org?.name || "System Admin Space")}
             </span>
           </div>
