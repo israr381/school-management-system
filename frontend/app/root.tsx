@@ -96,12 +96,12 @@ interface TenantApiResponse {
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const [user, setUser] = useState<UserResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [org, setOrg] = useState<UserResponse["organization"]>(null);
-  
+
   // Superadmin stats data managed at the root layout level
   const [tenantData, setTenantData] = useState<TenantApiResponse | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
@@ -180,7 +180,6 @@ export default function App() {
     );
   }
 
-  // If public route, just render the child component directly without sidebar layout
   if (isPublicRoute) {
     return <Outlet />;
   }
@@ -191,17 +190,14 @@ export default function App() {
 
   return (
     <div data-role={user.role} className="h-screen overflow-hidden flex bg-app-bg text-text-main transition-colors duration-300 w-full animate-fade-in">
-      {/* Sidebar Component */}
-      <Sidebar 
-        isCollapsed={isCollapsed} 
-        setIsCollapsed={setIsCollapsed} 
-        role={user.role} 
-        org={org} 
+      <Sidebar
+        isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
+        role={user.role}
+        org={org}
       />
 
-      {/* Main Container Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header */}
         <header className="h-16 bg-panel-bg border-b border-border-main px-8 flex items-center justify-between sticky top-0 z-10 transition-all duration-300">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold px-3 py-1.5 rounded-full border bg-role-badge-bg text-role-badge-text border-role-badge-border uppercase tracking-wider text-xs font-semibold">
@@ -210,21 +206,18 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-5">
-            {/* User Profile Badge */}
             <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-full bg-gradient-to-tr ${
-                isSuperAdmin ? "from-purple-500 to-indigo-500" : "from-blue-500 to-indigo-500"
-              } flex items-center justify-center text-white font-bold text-sm shadow-md`}>
+              <div className={`w-9 h-9 rounded-full bg-gradient-to-tr ${isSuperAdmin ? "from-purple-500 to-indigo-500" : "from-blue-500 to-indigo-500"
+                } flex items-center justify-center text-white font-bold text-sm shadow-md`}>
                 {user.full_name.charAt(0).toUpperCase()}
               </div>
               <div className="hidden md:flex flex-col text-left">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-text-main leading-none">{user.full_name}</span>
-                  <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
-                    isSuperAdmin 
-                      ? "bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300"
-                      : "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
-                  }`}>
+                  <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider ${isSuperAdmin
+                    ? "bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300"
+                    : "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+                    }`}>
                     {isSuperAdmin ? "super admin" : user.role.replace("_", " ")}
                   </span>
                 </div>
@@ -234,33 +227,30 @@ export default function App() {
 
             <div className="w-[1px] h-6 bg-border-main" />
 
-            {/* Theme Toggle */}
             <ThemeToggle />
 
             <div className="w-[1px] h-6 bg-border-main" />
 
-            {/* Logout Button */}
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all duration-200 border border-transparent hover:border-red-100 dark:hover:border-red-900/30 cursor-pointer"
             >
               <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
               Logout
             </button>
           </div>
         </header>
 
-        {/* Child Route Viewport Content */}
         <main className="flex-1 p-8 overflow-y-auto">
-          <Outlet context={{ 
-            user, 
-            org, 
-            setOrg, 
-            tenantData, 
-            statsLoading, 
-            refreshStats: handleRefreshStats 
+          <Outlet context={{
+            user,
+            org,
+            setOrg,
+            tenantData,
+            statsLoading,
+            refreshStats: handleRefreshStats
           }} />
         </main>
       </div>

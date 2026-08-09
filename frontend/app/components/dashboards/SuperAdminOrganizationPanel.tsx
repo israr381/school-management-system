@@ -21,12 +21,11 @@ interface SuperAdminOrganizationPanelProps {
   refreshStats: () => Promise<void>;
 }
 
-export default function SuperAdminOrganizationPanel({ 
-  tenantData, 
-  statsLoading, 
-  refreshStats 
+export default function SuperAdminOrganizationPanel({
+  tenantData,
+  statsLoading,
+  refreshStats
 }: SuperAdminOrganizationPanelProps) {
-  // Form states for creating organization
   const [form, setForm] = useState({
     organization_name: "",
     organization_domain: "",
@@ -69,7 +68,6 @@ export default function SuperAdminOrganizationPanel({
         admin_password: "",
       });
 
-      // Reload tenant statistics table
       await refreshStats();
     } catch (err: any) {
       setFormError(err.message || "Something went wrong during form submission.");
@@ -80,7 +78,6 @@ export default function SuperAdminOrganizationPanel({
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
-      {/* 1. Tenant Registry Table Section */}
       <div className="bg-panel-bg rounded-3xl border border-border-main/50 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-border-main flex justify-between items-center bg-app-bg/50">
           <div>
@@ -157,7 +154,6 @@ export default function SuperAdminOrganizationPanel({
         )}
       </div>
 
-      {/* 2. Add Organization Form Section */}
       <div className="max-w-xl mx-auto py-6">
         <div className="bg-panel-bg border border-border-main/50 shadow-2xl rounded-3xl p-8 relative overflow-hidden">
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -189,7 +185,6 @@ export default function SuperAdminOrganizationPanel({
             )}
 
             <form onSubmit={handleFormSubmit} className="space-y-5">
-              {/* Organization details */}
               <div className="space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
                   1. Organization Details
@@ -227,7 +222,6 @@ export default function SuperAdminOrganizationPanel({
 
               <hr className="border-border-main my-6" />
 
-              {/* Admin account details */}
               <div className="space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
                   2. Primary Admin Account

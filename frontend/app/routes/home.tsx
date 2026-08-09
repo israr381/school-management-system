@@ -21,8 +21,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-app-bg-radial-start to-app-bg-radial-end text-text-main flex flex-col justify-between transition-colors duration-300">
-      
-      {/* Navbar */}
+
       <header className="h-20 px-8 max-w-7xl w-full mx-auto flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/20">
@@ -41,11 +40,9 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <main className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="max-w-4xl text-center space-y-8 relative">
-          
-          {/* Decorative blur elements */}
+
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -53,7 +50,7 @@ export default function Home() {
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 uppercase tracking-widest">
               ✨ Next-Gen Administration
             </span>
-            
+
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-none bg-gradient-to-r from-text-main to-text-muted bg-clip-text text-transparent">
               Manage Your School <br />
               <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -75,7 +72,6 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Feature highlights */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 pt-12 max-w-3xl mx-auto text-left relative">
             {[
               { title: "Organization Domains", desc: "Isolate workspaces by domain." },
@@ -92,7 +88,6 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="py-8 border-t border-border-main text-center text-xs text-text-muted">
         © 2026 EduManage Inc. All rights reserved.
       </footer>

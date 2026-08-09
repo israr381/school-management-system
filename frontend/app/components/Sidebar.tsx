@@ -37,12 +37,10 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
     }
   ];
 
-  // Helper to check if a menu path is currently active
   const isTabActive = (itemPath: string) => {
     return currentPath === itemPath;
   };
 
-  // Determine theme colors based on role
   const isSuperAdmin = role === "superadmin";
   const activeBgClass = isSuperAdmin
     ? "bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400"
@@ -54,7 +52,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
         }`}
     >
       <div>
-        {/* Brand Header */}
         <div
           className={`h-16 flex items-center border-b border-border-main/80 gap-3 transition-all duration-300 ${isCollapsed ? "justify-center px-0" : "justify-between px-6"
             }`}
@@ -113,7 +110,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
         </nav>
       </div>
 
-      {/* Footer Info */}
       <div className="p-4 border-t border-border-main/85">
         {isCollapsed ? (
           <div

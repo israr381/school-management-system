@@ -34,7 +34,6 @@ interface SuperAdminOverviewProps {
 export default function SuperAdminOverview({ user, tenantData, statsLoading }: SuperAdminOverviewProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
-      {/* Welcome card */}
       <div className="relative bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-3xl p-8 text-white overflow-hidden shadow-xl shadow-purple-500/10">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full translate-x-1/4 -translate-y-1/4 blur-2xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-indigo-500/20 rounded-full translate-y-1/2 blur-xl pointer-events-none" />
@@ -52,7 +51,6 @@ export default function SuperAdminOverview({ user, tenantData, statsLoading }: S
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-panel-bg p-6 rounded-2xl border border-border-main/50 shadow-sm hover:shadow-md transition-all">
           <div className="flex justify-between items-start">
@@ -97,7 +95,6 @@ export default function SuperAdminOverview({ user, tenantData, statsLoading }: S
         </div>
       </div>
 
-      {/* System status widgets */}
       <div className="bg-panel-bg rounded-3xl border border-border-main/50 shadow-sm p-8 space-y-6">
         <h3 className="font-bold text-lg border-b border-border-main pb-3">Core Health Metrics</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

@@ -19,7 +19,6 @@ interface AdminOverviewProps {
 export default function AdminOverview({ user, org }: AdminOverviewProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
-      {/* Welcoming Banner Card */}
       <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 rounded-3xl p-8 text-white overflow-hidden shadow-xl shadow-blue-500/10">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full translate-x-1/4 -translate-y-1/4 blur-2xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-indigo-500/20 rounded-full translate-y-1/2 blur-xl pointer-events-none" />
@@ -49,7 +48,6 @@ export default function AdminOverview({ user, org }: AdminOverviewProps) {
         </div>
       </div>
 
-      {/* Quick Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
           { title: "Total Students", value: "0", change: "New workspace", icon: "📚", color: "from-blue-500 to-cyan-500" },
@@ -70,7 +68,6 @@ export default function AdminOverview({ user, org }: AdminOverviewProps) {
         ))}
       </div>
 
-      {/* Details list */}
       <div className="bg-panel-bg rounded-3xl border border-border-main/50 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-border-main flex justify-between items-center bg-app-bg/50">
           <h3 className="font-bold text-lg">Dashboard Details</h3>
