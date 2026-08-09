@@ -51,15 +51,13 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-radial from-app-bg-radial-start to-app-bg-radial-end p-6 transition-all duration-300 relative">
-      
-      {/* Floating Theme Toggle */}
+
       <div className="absolute top-6 right-6 z-10">
         <ThemeToggle />
       </div>
 
       <div className="w-full max-w-md bg-panel-bg-translucent backdrop-blur-xl border border-border-main/50 shadow-2xl rounded-3xl p-8 relative overflow-hidden">
-        
-        {/* Glow effect */}
+
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
 
