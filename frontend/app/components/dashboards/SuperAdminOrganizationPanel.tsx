@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
 import { createOrganization } from "../../store/organization";
+import Button from "../ui/Button";
+import Input from "../ui/Input";
 
 interface Tenant {
   id: number;
@@ -85,7 +86,7 @@ export default function SuperAdminOrganizationPanel({
             <h3 className="font-bold text-lg">Tenant Organization Registry</h3>
             <p className="text-xs text-text-muted mt-0.5">List of schools and workspaces created by users</p>
           </div>
-          <span className="text-xs bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-400 px-3 py-1 rounded-full font-bold">
+          <span className="text-xs bg-role-badge-bg text-role-badge-text px-3 py-1 rounded-full font-bold">
             {statsLoading ? "..." : (tenantData?.tenants.length || 0)} Registered
           </span>
         </div>
@@ -110,7 +111,7 @@ export default function SuperAdminOrganizationPanel({
               <tbody className="divide-y divide-border-main text-sm">
                 {tenantData.tenants.map((tenant) => (
                   <tr key={tenant.id} className="hover:bg-app-bg/50 transition-colors">
-                    <td className="px-6 py-4 font-mono font-medium text-xs text-purple-600 dark:text-purple-400">
+                    <td className="px-6 py-4 font-mono font-medium text-xs text-role-active-text">
                       #{tenant.id}
                     </td>
                     <td className="px-6 py-4 font-bold text-text-main">
@@ -120,7 +121,7 @@ export default function SuperAdminOrganizationPanel({
                       {tenant.domain}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-info-bg text-info">
                         👤 {tenant.user_count}
                       </span>
                     </td>
@@ -132,8 +133,8 @@ export default function SuperAdminOrganizationPanel({
                       }) || "Unknown"}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-success-bg text-success">
+                        <span className="w-1.5 h-1.5 rounded-full bg-stat-success" />
                         Active
                       </span>
                     </td>
@@ -157,12 +158,9 @@ export default function SuperAdminOrganizationPanel({
 
       <div className="max-w-xl mx-auto py-6">
         <div className="bg-panel-bg border border-border-main/50 shadow-2xl rounded-3xl p-8 relative overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
           <div className="relative">
             <div className="text-center mb-8">
-              <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/30 px-3 py-1 rounded-full uppercase tracking-wider">
+              <span className="text-xs font-semibold text-role-active-text bg-role-badge-bg/50 px-3 py-1 rounded-full uppercase tracking-wider">
                 Administration
               </span>
               <h2 className="mt-4 text-3xl font-extrabold text-text-main tracking-tight">
@@ -174,117 +172,84 @@ export default function SuperAdminOrganizationPanel({
             </div>
 
             {formError && (
-              <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 text-sm animate-pulse">
+              <div className="mb-6 p-4 rounded-xl bg-danger-bg border border-danger-border text-danger text-sm animate-pulse">
                 {formError}
               </div>
             )}
 
             {formSuccess && (
-              <div className="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-700 dark:text-emerald-400 text-sm">
+              <div className="mb-6 p-4 rounded-xl bg-success-bg border border-success-border text-success text-sm">
                 {formSuccess}
               </div>
             )}
 
             <form onSubmit={handleFormSubmit} className="space-y-5">
               <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-role-active-text">
                   1. Organization Details
                 </h3>
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-                    Organization Name
-                  </label>
-                  <input
-                    type="text"
-                    name="organization_name"
-                    required
-                    value={form.organization_name}
-                    onChange={handleInputChange}
-                    placeholder="e.g. Oakridge Academy"
-                    className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                  />
-                </div>
+                <Input
+                  type="text"
+                  name="organization_name"
+                  label="Organization Name"
+                  required
+                  value={form.organization_name}
+                  onChange={handleInputChange}
+                  placeholder="e.g. Oakridge Academy"
+                />
 
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-                    Organization Domain
-                  </label>
-                  <input
-                    type="text"
-                    name="organization_domain"
-                    required
-                    value={form.organization_domain}
-                    onChange={handleInputChange}
-                    placeholder="e.g. oakridge.edu"
-                    className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                  />
-                </div>
+                <Input
+                  type="text"
+                  name="organization_domain"
+                  label="Organization Domain"
+                  required
+                  value={form.organization_domain}
+                  onChange={handleInputChange}
+                  placeholder="e.g. oakridge.edu"
+                />
               </div>
 
               <hr className="border-border-main my-6" />
 
               <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-role-active-text">
                   2. Primary Admin Account
                 </h3>
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-                    Admin Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="admin_full_name"
-                    required
-                    value={form.admin_full_name}
-                    onChange={handleInputChange}
-                    placeholder="e.g. Sarah Jenkins"
-                    className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                  />
-                </div>
+                <Input
+                  type="text"
+                  name="admin_full_name"
+                  label="Admin Full Name"
+                  required
+                  value={form.admin_full_name}
+                  onChange={handleInputChange}
+                  placeholder="e.g. Sarah Jenkins"
+                />
 
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-                    Admin Login Email
-                  </label>
-                  <input
-                    type="email"
-                    name="admin_email"
-                    required
-                    value={form.admin_email}
-                    onChange={handleInputChange}
-                    placeholder="e.g. s.jenkins@oakridge.edu"
-                    className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                  />
-                </div>
+                <Input
+                  type="email"
+                  name="admin_email"
+                  label="Admin Login Email"
+                  required
+                  value={form.admin_email}
+                  onChange={handleInputChange}
+                  placeholder="e.g. s.jenkins@oakridge.edu"
+                />
 
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-                    Admin Password
-                  </label>
-                  <input
-                    type="password"
-                    name="admin_password"
-                    required
-                    minLength={6}
-                    value={form.admin_password}
-                    onChange={handleInputChange}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                  />
-                </div>
+                <Input
+                  type="password"
+                  name="admin_password"
+                  label="Admin Password"
+                  required
+                  minLength={6}
+                  value={form.admin_password}
+                  onChange={handleInputChange}
+                  placeholder="••••••••"
+                />
               </div>
 
-              <button
-                type="submit"
-                disabled={formLoading}
-                className="w-full mt-4 py-3.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center cursor-pointer"
-              >
-                {formLoading ? (
-                  <Loader2 className="animate-spin h-5 w-5 text-white" />
-                ) : (
-                  "Create Organization"
-                )}
-              </button>
+              <Button type="submit" loading={formLoading} fullWidth className="mt-4">
+                Create Organization
+              </Button>
             </form>
           </div>
         </div>

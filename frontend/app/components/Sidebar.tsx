@@ -35,9 +35,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
   };
 
   const isSuperAdmin = role === "superadmin";
-  const activeBgClass = isSuperAdmin
-    ? "bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400"
-    : "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400";
 
   return (
     <aside
@@ -84,7 +81,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
                 onClick={() => navigate(item.path)}
                 className={`w-full flex items-center rounded-xl text-sm font-medium transition-all duration-200 ${isCollapsed ? "justify-center p-3" : "gap-3 px-4 py-3"
                   } ${isActive
-                    ? activeBgClass + " shadow-sm"
+                    ? "bg-role-active-bg text-role-active-text shadow-sm"
                     : "text-text-muted hover:bg-app-bg hover:text-text-main"
                   }`}
                 title={isCollapsed ? item.name : undefined}
@@ -110,7 +107,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
             <span className="text-[10px] uppercase font-bold text-text-muted tracking-wider">
               {isSuperAdmin ? "Environment" : "Domain"}
             </span>
-            <span className={`text-xs font-semibold truncate ${isSuperAdmin ? "text-purple-650 dark:text-purple-400" : "text-text-main"}`}>
+            <span className={`text-xs font-semibold truncate ${isSuperAdmin ? "text-role-active-text" : "text-text-main"}`}>
               {isSuperAdmin ? "Core System Panel" : (org?.domain || "system.local")}
             </span>
           </div>

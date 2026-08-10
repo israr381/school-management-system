@@ -20,6 +20,7 @@ class UserSignup(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+    remember_me: bool = False
 
 class UserResponse(BaseModel):
     id: int
@@ -34,7 +35,12 @@ class UserResponse(BaseModel):
 
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = "bearer"
+    refresh_token: Optional[str] = None
+    remember_me: bool = False
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
 
 class TokenData(BaseModel):
     email: Optional[str] = None

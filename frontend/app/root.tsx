@@ -13,11 +13,12 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import Sidebar from "./components/Sidebar";
-import { fetchCurrentUser } from "./store/auth";
+import { fetchCurrentUser, clearAuthSession, getAccessToken, isRememberMeEnabled, refreshAccessToken, startTokenRefresh } from "./store/auth";
 import { fetchTenantStats } from "./store/organization";
 import { ThemeProvider } from "./context/ThemeContext";
 import { LogOut } from "lucide-react";
 import ThemeToggle from "./components/ThemeToggle";
+import Button from "./components/ui/Button";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -122,7 +123,7 @@ export default function App() {
   };
 
   const handleRefreshStats = async () => {
-    const token = localStorage.getItem("token");
+    const token = getAccessToken();
     if (token) {
       await fetchTenantData(token);
     }
@@ -135,7 +136,19 @@ export default function App() {
     }
 
     const fetchUser = async () => {
-      const token = localStorage.getItem("token");
+      let token = getAccessToken();
+
+      if (!token && isRememberMeEnabled()) {
+        try {
+          const refreshed = await refreshAccessToken();
+          token = refreshed.access_token;
+        } catch {
+          clearAuthSession();
+          navigate("/login");
+          return;
+        }
+      }
+
       if (!token) {
         navigate("/login");
         return;
@@ -146,11 +159,30 @@ export default function App() {
         setUser(data);
         setOrg(data.organization);
 
+        if (isRememberMeEnabled()) {
+          startTokenRefresh();
+        }
+
         if (data.role === "superadmin") {
           await fetchTenantData(token);
         }
       } catch (error) {
-        localStorage.removeItem("token");
+        if (isRememberMeEnabled()) {
+          try {
+            const refreshed = await refreshAccessToken();
+            const data = await fetchCurrentUser(refreshed.access_token);
+            setUser(data);
+            setOrg(data.organization);
+            startTokenRefresh();
+            if (data.role === "superadmin") {
+              await fetchTenantData(refreshed.access_token);
+            }
+            return;
+          } catch {
+            // fall through to logout
+          }
+        }
+        clearAuthSession();
         navigate("/login");
       } finally {
         setLoading(false);
@@ -161,7 +193,7 @@ export default function App() {
   }, [navigate, isPublicRoute]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    clearAuthSession();
     setUser(null);
     setOrg(null);
     navigate("/login");
@@ -201,44 +233,38 @@ export default function App() {
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-16 bg-panel-bg border-b border-border-main px-8 flex items-center justify-between sticky top-0 z-10 transition-all duration-300">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold px-3 py-1.5 rounded-full border bg-role-badge-bg text-role-badge-text border-role-badge-border uppercase tracking-wider text-xs font-semibold">
+            <span className="text-sm font-semibold px-3 py-1.5 rounded-full border bg-role-badge-bg text-role-badge-text border-role-badge-border uppercase tracking-wider">
               {isSuperAdmin ? "System Admin Console" : (org?.name || "System Admin Space")}
             </span>
           </div>
 
           <div className="flex items-center gap-5">
             <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-full bg-gradient-to-tr ${isSuperAdmin ? "from-purple-500 to-indigo-500" : "from-blue-500 to-indigo-500"
+              <div className={`w-9 h-9 rounded-full bg-linear-to-tr ${isSuperAdmin ? "from-purple-500 to-indigo-500" : "from-blue-500 to-indigo-500"
                 } flex items-center justify-center text-white font-bold text-sm shadow-md`}>
                 {user.full_name.charAt(0).toUpperCase()}
               </div>
               <div className="hidden md:flex flex-col text-left">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-text-main leading-none">{user.full_name}</span>
-                  <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider ${isSuperAdmin
-                    ? "bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300"
-                    : "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
-                    }`}>
+                  <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider bg-role-badge-bg text-role-badge-text">
                     {isSuperAdmin ? "super admin" : user.role.replace("_", " ")}
                   </span>
                 </div>
-                <span className="text-[11px] text-text-muted mt-1.5 truncate max-w-[150px]">{user.email}</span>
+                <span className="text-[11px] text-text-muted mt-1.5 truncate max-w-37.5">{user.email}</span>
               </div>
             </div>
 
-            <div className="w-[1px] h-6 bg-border-main" />
+            <div className="w-px h-6 bg-border-main" />
 
             <ThemeToggle />
 
-            <div className="w-[1px] h-6 bg-border-main" />
+            <div className="w-px h-6 bg-border-main" />
 
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all duration-200 border border-transparent hover:border-red-100 dark:hover:border-red-900/30 cursor-pointer"
-            >
+            <Button variant="danger" onClick={handleLogout}>
               <LogOut className="w-4.5 h-4.5" />
               Logout
-            </button>
+            </Button>
           </div>
         </header>
 
