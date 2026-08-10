@@ -47,7 +47,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
             }`}
         >
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className={`w-8 h-8 rounded-lg bg-gradient-to-tr ${isSuperAdmin ? "from-purple-600 to-indigo-600" : "from-blue-600 to-indigo-600"} flex items-center justify-center text-white font-black text-lg shadow-md shrink-0`}>
+            <div className={`w-8 h-8 rounded-lg bg-linear-to-tr ${isSuperAdmin ? "from-purple-600 to-indigo-600" : "from-blue-600 to-indigo-600"} flex items-center justify-center text-white font-black text-lg shadow-md shrink-0`}>
               {isSuperAdmin ? "S" : "E"}
             </div>
             {!isCollapsed && (
@@ -62,7 +62,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`hover:bg-app-bg rounded-lg text-text-muted hover:text-text-main transition-colors p-1.5 shrink-0 ${isCollapsed ? "absolute left-[54px] bg-panel-bg border border-border-main shadow-sm z-50 rounded-full p-1" : ""
+            className={`hover:bg-app-bg rounded-lg text-text-muted hover:text-text-main transition-colors p-1.5 shrink-0 ${isCollapsed ? "absolute left-13.5 bg-panel-bg border border-border-main shadow-sm z-50 rounded-full p-1" : ""
               }`}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
