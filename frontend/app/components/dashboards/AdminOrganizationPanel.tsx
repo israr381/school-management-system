@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
 import { updateOrganization } from "../../store/organization";
+import Button from "../ui/Button";
+import Input from "../ui/Input";
 
 interface UserResponse {
   id: number;
@@ -22,7 +23,6 @@ interface AdminOrganizationPanelProps {
 }
 
 export default function AdminOrganizationPanel({ user, org, setOrg }: AdminOrganizationPanelProps) {
-  // Form states for organization update
   const [form, setForm] = useState({
     name: org?.name || "",
     domain: org?.domain || "",
@@ -65,12 +65,9 @@ export default function AdminOrganizationPanel({ user, org, setOrg }: AdminOrgan
   return (
     <div className="max-w-xl mx-auto animate-fade-in py-6">
       <div className="bg-panel-bg border border-border-main/50 shadow-2xl rounded-3xl p-8 relative overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
         <div className="relative">
           <div className="text-center mb-8">
-            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-100/50 dark:bg-blue-900/30 px-3 py-1 rounded-full uppercase tracking-wider">
+            <span className="text-xs font-semibold text-role-active-text bg-role-badge-bg/50 px-3 py-1 rounded-full uppercase tracking-wider">
               Management
             </span>
             <h2 className="mt-4 text-3xl font-extrabold text-text-main tracking-tight">
@@ -82,59 +79,41 @@ export default function AdminOrganizationPanel({ user, org, setOrg }: AdminOrgan
           </div>
 
           {formError && (
-            <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 text-sm animate-pulse">
+            <div className="mb-6 p-4 rounded-xl bg-danger-bg border border-danger-border text-danger text-sm animate-pulse">
               {formError}
             </div>
           )}
 
           {formSuccess && (
-            <div className="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-700 dark:text-emerald-400 text-sm">
+            <div className="mb-6 p-4 rounded-xl bg-success-bg border border-success-border text-success text-sm">
               {formSuccess}
             </div>
           )}
 
           <form onSubmit={handleFormSubmit} className="space-y-5">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-                Organization Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                required
-                value={form.name}
-                onChange={handleInputChange}
-                placeholder="e.g. Oakridge Academy"
-                className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              />
-            </div>
+            <Input
+              type="text"
+              name="name"
+              label="Organization Name"
+              required
+              value={form.name}
+              onChange={handleInputChange}
+              placeholder="e.g. Oakridge Academy"
+            />
 
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
-                Organization Domain
-              </label>
-              <input
-                type="text"
-                name="domain"
-                required
-                value={form.domain}
-                onChange={handleInputChange}
-                placeholder="e.g. oakridge.edu"
-                className="w-full px-4 py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/65 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              />
-            </div>
+            <Input
+              type="text"
+              name="domain"
+              label="Organization Domain"
+              required
+              value={form.domain}
+              onChange={handleInputChange}
+              placeholder="e.g. oakridge.edu"
+            />
 
-            <button
-              type="submit"
-              disabled={formLoading}
-              className="w-full mt-4 py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center cursor-pointer"
-            >
-              {formLoading ? (
-                <Loader2 className="animate-spin h-5 w-5 text-white" />
-              ) : (
-                "Save Changes"
-              )}
-            </button>
+            <Button type="submit" loading={formLoading} fullWidth className="mt-4">
+              Save Changes
+            </Button>
           </form>
         </div>
       </div>

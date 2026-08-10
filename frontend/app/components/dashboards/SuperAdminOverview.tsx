@@ -34,7 +34,7 @@ interface SuperAdminOverviewProps {
 export default function SuperAdminOverview({ user, tenantData, statsLoading }: SuperAdminOverviewProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
-      <div className="relative bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-3xl p-8 text-white overflow-hidden shadow-xl shadow-purple-500/10">
+      <div className="relative bg-linear-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-3xl p-8 text-white overflow-hidden shadow-xl shadow-purple-500/10">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full translate-x-1/4 -translate-y-1/4 blur-2xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-indigo-500/20 rounded-full translate-y-1/2 blur-xl pointer-events-none" />
 
@@ -58,7 +58,7 @@ export default function SuperAdminOverview({ user, tenantData, statsLoading }: S
             <span className="text-2xl">🏢</span>
           </div>
           <div className="mt-4">
-            <h3 className="text-3xl font-extrabold tracking-tight text-purple-600 dark:text-purple-400">
+            <h3 className="text-3xl font-extrabold tracking-tight text-stat-primary">
               {statsLoading ? "..." : (tenantData?.total_tenants || 0)}
             </h3>
             <p className="text-xs text-text-muted mt-1 font-medium">Organizations / Schools</p>
@@ -71,7 +71,7 @@ export default function SuperAdminOverview({ user, tenantData, statsLoading }: S
             <span className="text-2xl">👥</span>
           </div>
           <div className="mt-4">
-            <h3 className="text-3xl font-extrabold tracking-tight text-indigo-600 dark:text-indigo-400">
+            <h3 className="text-3xl font-extrabold tracking-tight text-stat-secondary">
               {statsLoading ? "..." : (tenantData?.total_users || 0)}
             </h3>
             <p className="text-xs text-text-muted mt-1 font-medium">All User Accounts</p>
@@ -86,7 +86,7 @@ export default function SuperAdminOverview({ user, tenantData, statsLoading }: S
           <div className="mt-4 flex flex-col justify-end">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <h3 className="text-3xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">
+              <h3 className="text-3xl font-extrabold tracking-tight text-stat-success">
                 Operational
               </h3>
             </div>

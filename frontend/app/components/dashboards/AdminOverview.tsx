@@ -19,7 +19,7 @@ interface AdminOverviewProps {
 export default function AdminOverview({ user, org }: AdminOverviewProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
-      <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 rounded-3xl p-8 text-white overflow-hidden shadow-xl shadow-blue-500/10">
+      <div className="relative bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 rounded-3xl p-8 text-white overflow-hidden shadow-xl shadow-blue-500/10">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full translate-x-1/4 -translate-y-1/4 blur-2xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-indigo-500/20 rounded-full translate-y-1/2 blur-xl pointer-events-none" />
 
@@ -73,7 +73,7 @@ export default function AdminOverview({ user, org }: AdminOverviewProps) {
           <h3 className="font-bold text-lg">Dashboard Details</h3>
           <span className="text-xs text-text-muted">Live Workspace Database</span>
         </div>
-        <div className="p-8 text-center flex flex-col items-center justify-center min-h-[300px]">
+        <div className="p-8 text-center flex flex-col items-center justify-center min-h-75">
           <div className="w-16 h-16 rounded-2xl bg-app-bg flex items-center justify-center text-3xl mb-4 border border-border-main">
             📁
           </div>

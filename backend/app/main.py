@@ -115,7 +115,7 @@ def signup(user_data: schemas.UserSignup, db: Session = Depends(get_db)):
     
     # 5. Generate token
     access_token = auth.create_access_token(data={"sub": new_user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "remember_me": False}
 
 @app.post("/api/auth/login", response_model=schemas.Token)
 def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
@@ -125,9 +125,47 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect email or password"
         )
-        
+
     access_token = auth.create_access_token(data={"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
+    refresh_token = None
+    if login_data.remember_me:
+        refresh_token = auth.create_refresh_token(data={"sub": user.email})
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "refresh_token": refresh_token,
+        "remember_me": login_data.remember_me,
+    }
+
+@app.post("/api/auth/refresh", response_model=schemas.Token)
+def refresh_access_token(payload: schemas.RefreshTokenRequest, db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or expired refresh token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        token_data = auth.decode_token(payload.refresh_token, expected_type="refresh")
+        email = token_data.get("sub")
+    except Exception:
+        raise credentials_exception
+
+    if not email:
+        raise credentials_exception
+
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        raise credentials_exception
+
+    access_token = auth.create_access_token(data={"sub": user.email})
+    refresh_token = auth.create_refresh_token(data={"sub": user.email})
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "refresh_token": refresh_token,
+        "remember_me": True,
+    }
 
 @app.get("/api/auth/me", response_model=schemas.UserResponse)
 def get_me(current_user: models.User = Depends(auth.get_current_user)):

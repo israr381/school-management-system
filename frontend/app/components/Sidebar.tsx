@@ -35,9 +35,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
   };
 
   const isSuperAdmin = role === "superadmin";
-  const activeBgClass = isSuperAdmin
-    ? "bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400"
-    : "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400";
 
   return (
     <aside
@@ -50,7 +47,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
             }`}
         >
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className={`w-8 h-8 rounded-lg bg-gradient-to-tr ${isSuperAdmin ? "from-purple-600 to-indigo-600" : "from-blue-600 to-indigo-600"} flex items-center justify-center text-white font-black text-lg shadow-md shrink-0`}>
+            <div className={`w-8 h-8 rounded-lg bg-linear-to-tr ${isSuperAdmin ? "from-purple-600 to-indigo-600" : "from-blue-600 to-indigo-600"} flex items-center justify-center text-white font-black text-lg shadow-md shrink-0`}>
               {isSuperAdmin ? "S" : "E"}
             </div>
             {!isCollapsed && (
@@ -65,7 +62,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`hover:bg-app-bg rounded-lg text-text-muted hover:text-text-main transition-colors p-1.5 shrink-0 ${isCollapsed ? "absolute left-[54px] bg-panel-bg border border-border-main shadow-sm z-50 rounded-full p-1" : ""
+            className={`hover:bg-app-bg rounded-lg text-text-muted hover:text-text-main transition-colors p-1.5 shrink-0 ${isCollapsed ? "absolute left-13.5 bg-panel-bg border border-border-main shadow-sm z-50 rounded-full p-1" : ""
               }`}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
@@ -84,7 +81,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
                 onClick={() => navigate(item.path)}
                 className={`w-full flex items-center rounded-xl text-sm font-medium transition-all duration-200 ${isCollapsed ? "justify-center p-3" : "gap-3 px-4 py-3"
                   } ${isActive
-                    ? activeBgClass + " shadow-sm"
+                    ? "bg-role-active-bg text-role-active-text shadow-sm"
                     : "text-text-muted hover:bg-app-bg hover:text-text-main"
                   }`}
                 title={isCollapsed ? item.name : undefined}
@@ -110,7 +107,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
             <span className="text-[10px] uppercase font-bold text-text-muted tracking-wider">
               {isSuperAdmin ? "Environment" : "Domain"}
             </span>
-            <span className={`text-xs font-semibold truncate ${isSuperAdmin ? "text-purple-650 dark:text-purple-400" : "text-text-main"}`}>
+            <span className={`text-xs font-semibold truncate ${isSuperAdmin ? "text-role-active-text" : "text-text-main"}`}>
               {isSuperAdmin ? "Core System Panel" : (org?.domain || "system.local")}
             </span>
           </div>
