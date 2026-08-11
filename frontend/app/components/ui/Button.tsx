@@ -1,7 +1,7 @@
 import { Loader2 } from "lucide-react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type ButtonVariant = "primary" | "danger" | "ghost";
+type ButtonVariant = "primary" | "danger" | "ghost" | "outline";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -17,6 +17,8 @@ const variantClasses: Record<ButtonVariant, string> = {
     "px-3.5 py-2 text-sm font-medium text-danger hover:bg-danger-hover-bg rounded-xl border border-transparent hover:border-danger-border",
   ghost:
     "px-3.5 py-2 text-sm font-medium text-text-muted hover:bg-app-bg hover:text-text-main rounded-xl",
+  outline:
+    "px-3.5 py-2.5 text-sm font-medium text-text-main bg-panel-bg hover:bg-surface-soft rounded-lg border border-border-main",
 };
 
 export default function Button({

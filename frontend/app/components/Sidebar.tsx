@@ -1,4 +1,4 @@
-import { Building2, ChevronsLeft, LayoutDashboard } from "lucide-react";
+import { Building2, ChevronLeft, ChevronsLeft, LayoutDashboard } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 
 interface SidebarProps {
@@ -38,7 +38,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
 
   return (
     <aside
-      className={`bg-panel-bg border-r border-border-main flex flex-col justify-between transition-all duration-300 shrink-0 ${isCollapsed ? "w-20" : "w-64"
+      className={`bg-panel-bg border-r border-border-main flex flex-col justify-between transition-all duration-300 shrink-0 ${isCollapsed ? "w-20" : "w-60"
         }`}
     >
       <div>
@@ -62,11 +62,11 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`hover:bg-app-bg rounded-lg text-text-muted hover:text-text-main transition-colors p-1.5 shrink-0 ${isCollapsed ? "absolute left-13.5 bg-panel-bg border border-border-main shadow-sm z-50 rounded-full p-1" : ""
+            className={`cursor-pointer rounded-lg text-text-muted transition-colors shrink-0 ${isCollapsed ? "absolute left-17 bg-panel-bg border border-border-main shadow-sm z-50 rounded-full p-px" : "-"
               }`}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
-            <ChevronsLeft
+            <ChevronLeft
               className={`w-4 h-4 transition-transform duration-300 ${isCollapsed ? "rotate-180" : ""}`}
             />
           </button>
