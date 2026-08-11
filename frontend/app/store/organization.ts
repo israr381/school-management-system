@@ -53,3 +53,43 @@ export async function updateOrganization(token: string, orgData: any) {
   
   return data;
 }
+
+export async function updateOrganizationById(
+  token: string,
+  orgId: number,
+  orgData: { name: string; domain: string }
+) {
+  const response = await fetch(`${API_BASE_URL}/superadmin/organizations/${orgId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(orgData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to update organization.");
+  }
+
+  return data;
+}
+
+export async function deleteOrganization(token: string, orgId: number) {
+  const response = await fetch(`${API_BASE_URL}/superadmin/organizations/${orgId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to delete organization.");
+  }
+
+  return data;
+}

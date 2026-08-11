@@ -18,7 +18,7 @@ import { fetchTenantStats } from "./store/organization";
 import { ThemeProvider } from "./context/ThemeContext";
 import { LogOut } from "lucide-react";
 import ThemeToggle from "./components/ThemeToggle";
-import Button from "./components/ui/Button";
+import Button from "./components/button/Button";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },

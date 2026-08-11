@@ -1,10 +1,18 @@
 import { useMemo, useState } from "react";
-import { Building2, Plus, Search } from "lucide-react";
-import { createOrganization } from "../../store/organization";
-import Button from "../ui/Button";
-import Input from "../ui/Input";
-import Modal from "../ui/Modal";
-import Table, { type TableColumn } from "../ui/Table";
+import { Building2, MoreVertical, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { deleteOrganization } from "../../store/organization";
+import Button from "../button/Button";
+import Input from "../input/Input";
+import AddOrganizationModal from "../modals/add-organization/AddOrganizationModal";
+import EditOrganizationModal from "../modals/edit-organization/EditOrganizationModal";
+import Table, { type TableColumn } from "../table/Table";
+import { Button as UiButton } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 interface Tenant {
   id: number;
@@ -26,74 +34,52 @@ interface SuperAdminOrganizationPanelProps {
   refreshStats: () => Promise<void>;
 }
 
-const emptyForm = {
-  organization_name: "",
-  organization_domain: "",
-  admin_full_name: "",
-  admin_email: "",
-  admin_password: "",
-};
-
 export default function SuperAdminOrganizationPanel({
   tenantData,
   statsLoading,
   refreshStats,
 }: SuperAdminOrganizationPanelProps) {
   const [search, setSearch] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [form, setForm] = useState(emptyForm);
-  const [formLoading, setFormLoading] = useState(false);
-  const [formError, setFormError] = useState("");
-  const [formSuccess, setFormSuccess] = useState("");
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
+  const [actionError, setActionError] = useState("");
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const openModal = () => {
-    setForm(emptyForm);
-    setFormError("");
-    setFormSuccess("");
-    setModalOpen(true);
+  const openEditModal = (tenant: Tenant) => {
+    setEditingTenant(tenant);
+    setEditModalOpen(true);
   };
 
-  const closeModal = () => {
-    if (formLoading) return;
-    setModalOpen(false);
-    setFormError("");
-    setFormSuccess("");
+  const handleEditOpenChange = (open: boolean) => {
+    setEditModalOpen(open);
+    if (!open) {
+      setEditingTenant(null);
+    }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError("");
-    setFormSuccess("");
-    setFormLoading(true);
+  const handleDelete = async (tenant: Tenant) => {
+    const confirmed = window.confirm(
+      `Delete "${tenant.name}"? This will also remove its users.`
+    );
+    if (!confirmed) return;
 
     const token = localStorage.getItem("token");
     if (!token) {
-      setFormError("Authentication session expired. Please sign in again.");
-      setFormLoading(false);
+      setActionError("Authentication session expired. Please sign in again.");
       return;
     }
 
-    try {
-      await createOrganization(token, form);
-      setFormSuccess("Organization and admin account created successfully!");
-      setForm(emptyForm);
-      await refreshStats();
+    setActionError("");
+    setDeletingId(tenant.id);
 
-      window.setTimeout(() => {
-        setModalOpen(false);
-        setFormSuccess("");
-      }, 900);
+    try {
+      await deleteOrganization(token, tenant.id);
+      await refreshStats();
     } catch (err: any) {
-      setFormError(err.message || "Something went wrong during form submission.");
+      setActionError(err.message || "Failed to delete organization.");
     } finally {
-      setFormLoading(false);
+      setDeletingId(null);
     }
   };
 
@@ -104,12 +90,7 @@ export default function SuperAdminOrganizationPanel({
     if (!query) return tenants;
 
     return tenants.filter((tenant) => {
-      const haystack = [
-        String(tenant.id),
-        tenant.name,
-        tenant.domain,
-        String(tenant.user_count),
-      ]
+      const haystack = [tenant.name, tenant.domain, String(tenant.user_count)]
         .join(" ")
         .toLowerCase();
       return haystack.includes(query);
@@ -118,14 +99,6 @@ export default function SuperAdminOrganizationPanel({
 
   const columns = useMemo<TableColumn<Tenant>[]>(
     () => [
-      {
-        key: "id",
-        header: "ID",
-        sortable: true,
-        sortValue: (tenant) => tenant.id,
-        className: "font-mono font-medium text-xs text-role-active-text",
-        render: (tenant) => `#${tenant.id}`,
-      },
       {
         key: "name",
         header: "Organization Name",
@@ -169,8 +142,48 @@ export default function SuperAdminOrganizationPanel({
         className: "font-semibold text-success",
         render: () => "Active",
       },
+      {
+        key: "actions",
+        header: "Action",
+        headerClassName: "text-right",
+        className: "text-right",
+        render: (tenant) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <UiButton
+                  variant="ghost"
+                  size="icon-sm"
+                  className="cursor-pointer text-text-muted hover:text-text-main"
+                  disabled={deletingId === tenant.id}
+                  aria-label={`Actions for ${tenant.name}`}
+                />
+              }
+            >
+              <MoreVertical className="size-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-36">
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => openEditModal(tenant)}
+              >
+                <Pencil className="size-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                variant="destructive"
+                className="cursor-pointer"
+                onClick={() => handleDelete(tenant)}
+              >
+                <Trash2 className="size-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
     ],
-    []
+    [deletingId]
   );
 
   const showingLabel =
@@ -192,8 +205,8 @@ export default function SuperAdminOrganizationPanel({
 
         <Button
           type="button"
-          onClick={openModal}
-          className="!py-2.5 !px-4 !rounded-lg !text-sm shrink-0"
+          onClick={() => setAddModalOpen(true)}
+          className="py-2.5 px-4 rounded-lg text-sm shrink-0"
         >
           <Plus className="w-4 h-4" />
           Add Organization
@@ -213,10 +226,16 @@ export default function SuperAdminOrganizationPanel({
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search..."
             leftIcon={<Search className="w-4 h-4" />}
-            className="!py-2.5 !rounded-lg text-sm"
+            className="py-2.5 rounded-lg text-sm"
           />
         </div>
       </div>
+
+      {actionError && (
+        <div className="p-3.5 rounded-xl bg-danger-bg border border-danger-border text-danger text-sm">
+          {actionError}
+        </div>
+      )}
 
       <div className="overflow-hidden">
         {statsLoading && !tenantData ? (
@@ -245,8 +264,8 @@ export default function SuperAdminOrganizationPanel({
             {tenants.length === 0 && (
               <Button
                 type="button"
-                onClick={openModal}
-                className="!py-2.5 !px-4 !rounded-lg !text-sm"
+                onClick={() => setAddModalOpen(true)}
+                className="py-2.5 px-4 rounded-lg text-sm"
               >
                 <Plus className="w-4 h-4" />
                 Add Organization
@@ -256,106 +275,18 @@ export default function SuperAdminOrganizationPanel({
         )}
       </div>
 
-      <Modal
-        open={modalOpen}
-        onClose={closeModal}
-        title="Add New Organization"
-        description="Register a new school tenant and set up its primary administrator."
-        size="lg"
-      >
-        {formError && (
-          <div className="mb-5 p-3.5 rounded-xl bg-danger-bg border border-danger-border text-danger text-sm">
-            {formError}
-          </div>
-        )}
+      <AddOrganizationModal
+        open={addModalOpen}
+        onOpenChange={setAddModalOpen}
+        onSuccess={refreshStats}
+      />
 
-        {formSuccess && (
-          <div className="mb-5 p-3.5 rounded-xl bg-success-bg border border-success-border text-success text-sm">
-            {formSuccess}
-          </div>
-        )}
-
-        <form onSubmit={handleFormSubmit} className="space-y-5">
-          <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-role-active-text">
-              1. Organization Details
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                type="text"
-                name="organization_name"
-                label="Organization Name"
-                required
-                value={form.organization_name}
-                onChange={handleInputChange}
-                placeholder="e.g. Oakridge Academy"
-              />
-              <Input
-                type="text"
-                name="organization_domain"
-                label="Organization Domain"
-                required
-                value={form.organization_domain}
-                onChange={handleInputChange}
-                placeholder="e.g. oakridge.edu"
-              />
-            </div>
-          </div>
-
-          <hr className="border-border-main" />
-
-          <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-role-active-text">
-              2. Primary Admin Account
-            </h3>
-            <Input
-              type="text"
-              name="admin_full_name"
-              label="Admin Full Name"
-              required
-              value={form.admin_full_name}
-              onChange={handleInputChange}
-              placeholder="e.g. Sarah Jenkins"
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                type="email"
-                name="admin_email"
-                label="Admin Login Email"
-                required
-                value={form.admin_email}
-                onChange={handleInputChange}
-                placeholder="e.g. s.jenkins@oakridge.edu"
-              />
-              <Input
-                type="password"
-                name="admin_password"
-                label="Admin Password"
-                required
-                minLength={6}
-                value={form.admin_password}
-                onChange={handleInputChange}
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={closeModal}
-              disabled={formLoading}
-              className="!rounded-xl"
-            >
-              Cancel
-            </Button>
-            <Button type="submit" loading={formLoading} className="!rounded-xl !py-2.5 !px-5">
-              Create Organization
-            </Button>
-          </div>
-        </form>
-      </Modal>
+      <EditOrganizationModal
+        open={editModalOpen}
+        organization={editingTenant}
+        onOpenChange={handleEditOpenChange}
+        onSuccess={refreshStats}
+      />
     </div>
   );
 }

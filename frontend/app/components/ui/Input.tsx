@@ -1,55 +1,20 @@
-import type { InputHTMLAttributes, ReactNode } from "react";
+import * as React from "react"
+import { Input as InputPrimitive } from "@base-ui/react/input"
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  labelAction?: ReactNode;
-  leftIcon?: ReactNode;
-  rightAction?: ReactNode;
-}
+import { cn } from "~/lib/utils"
 
-export default function Input({
-  label,
-  labelAction,
-  leftIcon,
-  rightAction,
-  id,
-  className = "",
-  ...props
-}: InputProps) {
-  const inputId = id || props.name;
-
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
-    <div>
-      {(label || labelAction) && (
-        <div className={`flex items-center mb-2 ${labelAction ? "justify-between" : ""}`}>
-          {label && (
-            <label
-              htmlFor={inputId}
-              className="block text-sm font-medium text-text-main"
-            >
-              {label}
-            </label>
-          )}
-          {labelAction}
-        </div>
+    <InputPrimitive
+      type={type}
+      data-slot="input"
+      className={cn(
+        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        className
       )}
-      <div className="relative">
-        {leftIcon && (
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-icon-muted pointer-events-none">
-            {leftIcon}
-          </span>
-        )}
-        <input
-          id={inputId}
-          className={`w-full py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/70 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all ${leftIcon ? "pl-11" : "pl-4"} ${rightAction ? "pr-11" : "pr-4"} ${className}`}
-          {...props}
-        />
-        {rightAction && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2">
-            {rightAction}
-          </span>
-        )}
-      </div>
-    </div>
-  );
+      {...props}
+    />
+  )
 }
+
+export { Input }
