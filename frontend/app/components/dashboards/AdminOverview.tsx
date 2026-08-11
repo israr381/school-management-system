@@ -18,7 +18,7 @@ interface AdminOverviewProps {
 
 export default function AdminOverview({ user, org }: AdminOverviewProps) {
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
+    <div className=" space-y-8 animate-fade-in">
       <div className="relative bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 rounded-3xl p-8 text-white overflow-hidden shadow-xl shadow-blue-500/10">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full translate-x-1/4 -translate-y-1/4 blur-2xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-indigo-500/20 rounded-full translate-y-1/2 blur-xl pointer-events-none" />
