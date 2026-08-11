@@ -1,4 +1,4 @@
-import { Building2, ChevronLeft, ChevronsLeft, LayoutDashboard } from "lucide-react";
+import { Building2, ChevronLeft, LayoutDashboard, Settings } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 
 interface SidebarProps {
@@ -27,6 +27,11 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
       name: "Organization",
       path: "/organization",
       icon: <Building2 className="w-5 h-5" />,
+    },
+    {
+      name: "Settings",
+      path: "/settings",
+      icon: <Settings className="w-5 h-5" />,
     },
   ];
 
@@ -79,7 +84,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
               <button
                 key={item.name}
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center rounded-xl text-sm font-medium transition-all duration-200 ${isCollapsed ? "justify-center p-3" : "gap-3 px-4 py-3"
+                className={`cursor-pointer w-full flex items-center rounded-xl text-sm font-medium transition-all duration-200 ${isCollapsed ? "justify-center p-3" : "gap-3 px-4 py-3"
                   } ${isActive
                     ? "bg-role-active-bg text-role-active-text shadow-sm"
                     : "text-text-muted hover:bg-app-bg hover:text-text-main"

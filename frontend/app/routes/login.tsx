@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { loginUser, persistAuthSession } from "../store/auth";
 import ThemeToggle from "../components/ThemeToggle";
-import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
+import Button from "../components/button/Button";
+import Input from "../components/input/Input";
 import loginIllustration from "../assets/login-illustration.png";
 
 export function meta() {
