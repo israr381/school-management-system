@@ -13,12 +13,11 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
+import PageTransition from "./components/PageTransition";
 import { fetchCurrentUser, clearAuthSession, getAccessToken, isRememberMeEnabled, refreshAccessToken, startTokenRefresh } from "./store/auth";
 import { fetchTenantStats } from "./store/organization";
 import { ThemeProvider } from "./context/ThemeContext";
-import { LogOut } from "lucide-react";
-import ThemeToggle from "./components/ThemeToggle";
-import Button from "./components/button/Button";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -46,8 +45,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             __html: `
               try {
                 const stored = localStorage.getItem('theme');
-                const theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                if (theme === 'dark') {
+                const preference = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
+                const isDark = preference === 'dark' || (preference === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                if (isDark) {
                   document.documentElement.classList.add('dark');
                 } else {
                   document.documentElement.classList.remove('dark');
@@ -204,8 +204,8 @@ export default function App() {
       <div className="min-h-screen flex items-center justify-center bg-app-bg">
         <div className="flex flex-col items-center gap-4">
           <div className="relative w-16 h-16">
-            <div className="absolute inset-0 rounded-full border-4 border-blue-500/20"></div>
-            <div className="absolute inset-0 rounded-full border-4 border-t-blue-500 animate-spin"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-brand/20"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-t-brand animate-spin"></div>
           </div>
           <p className="text-text-muted font-medium animate-pulse">Loading system workspace...</p>
         </div>
@@ -231,52 +231,23 @@ export default function App() {
       />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-panel-bg border-b border-border-main px-8 flex items-center justify-between sticky top-0 z-10 transition-all duration-300">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold px-3 py-1.5 rounded-full border bg-role-badge-bg text-role-badge-text border-role-badge-border uppercase tracking-wider">
-              {isSuperAdmin ? "System Admin Console" : (org?.name || "System Admin Space")}
-            </span>
-          </div>
+        <Header
+          user={user}
+          isSuperAdmin={isSuperAdmin}
+          onLogout={handleLogout}
+        />
 
-          <div className="flex items-center gap-5">
-            <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-full bg-linear-to-tr ${isSuperAdmin ? "from-purple-500 to-indigo-500" : "from-blue-500 to-indigo-500"
-                } flex items-center justify-center text-white font-bold text-sm shadow-md`}>
-                {user.full_name.charAt(0).toUpperCase()}
-              </div>
-              <div className="hidden md:flex flex-col text-left">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-text-main leading-none">{user.full_name}</span>
-                  <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider bg-role-badge-bg text-role-badge-text">
-                    {isSuperAdmin ? "super admin" : user.role.replace("_", " ")}
-                  </span>
-                </div>
-                <span className="text-[11px] text-text-muted mt-1.5 truncate max-w-37.5">{user.email}</span>
-              </div>
-            </div>
-
-            <div className="w-px h-6 bg-border-main" />
-
-            <ThemeToggle />
-
-            <div className="w-px h-6 bg-border-main" />
-
-            <Button variant="danger" onClick={handleLogout}>
-              <LogOut className="w-4.5 h-4.5" />
-              Logout
-            </Button>
-          </div>
-        </header>
-
-        <main className="flex-1 p-8 overflow-y-auto">
-          <Outlet context={{
-            user,
-            org,
-            setOrg,
-            tenantData,
-            statsLoading,
-            refreshStats: handleRefreshStats
-          }} />
+        <main className="flex-1 overflow-y-auto p-5 lg:p-8">
+          <PageTransition
+            context={{
+              user,
+              org,
+              setOrg,
+              tenantData,
+              statsLoading,
+              refreshStats: handleRefreshStats,
+            }}
+          />
         </main>
       </div>
     </div>

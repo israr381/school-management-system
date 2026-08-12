@@ -19,7 +19,7 @@ import loginIllustration from "../assets/login-illustration.png";
 
 export function meta() {
   return [
-    { title: "Sign In - EduManage" },
+    { title: "Sign In - Opelae School" },
     { name: "description", content: "Access your dashboard and manage school operations." },
   ];
 }
@@ -80,19 +80,21 @@ export default function Login() {
 
       <section className="relative hidden lg:flex flex-col justify-between min-h-screen p-8 md:p-12 xl:p-16 bg-surface-soft">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-brand text-white flex items-center justify-center shadow-md shadow-brand/25">
-            <GraduationCap className="w-5 h-5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/25">
+            <GraduationCap className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-bold text-sm leading-tight text-text-main">School Management</p>
-            <p className="text-xs text-text-muted leading-tight">App</p>
+            <p className="text-sm font-bold leading-tight text-text-main">Opelae School</p>
+            <p className="text-xs leading-tight text-text-muted">Management System</p>
           </div>
         </div>
 
         <div className="mt-10 lg:mt-0 space-y-5 max-w-lg">
           <h1 className="text-3xl md:text-4xl xl:text-5xl font-extrabold tracking-tight leading-[1.15]">
             Smart School.{" "}
-            <span className="text-brand">Better Future.</span>
+            <span className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Better Future.
+            </span>
           </h1>
           <p className="text-text-muted text-sm md:text-base leading-relaxed">
             Manage students, staff, classes, attendance, exams and much more in one place.

@@ -1,4 +1,5 @@
-import { useTheme } from "../../context/ThemeContext";
+import { Monitor, Moon, Sun } from "lucide-react";
+import { useTheme, type ThemePreference } from "../../context/ThemeContext";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -13,10 +14,16 @@ import { Separator } from "~/components/ui/separator";
 import { Switch } from "~/components/ui/switch";
 import { cn } from "~/lib/utils";
 
-const themes = [
-  { id: "light", label: "Light", description: "Clean daylight surface" },
-  { id: "dark", label: "Dark", description: "Low-glare evening mode" },
-] as const;
+const themes: {
+  id: ThemePreference;
+  label: string;
+  description: string;
+  icon: typeof Sun;
+}[] = [
+  { id: "light", label: "Light", description: "Clean daylight surface", icon: Sun },
+  { id: "dark", label: "Dark", description: "Low-glare evening mode", icon: Moon },
+  { id: "system", label: "System", description: "Match your device settings", icon: Monitor },
+];
 
 export default function AppearanceSettings() {
   const { theme, setTheme } = useTheme();
@@ -31,9 +38,10 @@ export default function AppearanceSettings() {
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-4">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-3">
             {themes.map((option) => {
               const isActive = theme === option.id;
+              const Icon = option.icon;
               return (
                 <button
                   key={option.id}
@@ -46,6 +54,7 @@ export default function AppearanceSettings() {
                       : "border-border-main bg-surface-soft hover:border-brand/40"
                   )}
                 >
+                  <Icon className={`mb-2 h-5 w-5 ${isActive ? "text-brand" : "text-icon-muted"}`} />
                   <p className="text-sm font-semibold text-text-main">{option.label}</p>
                   <p className="mt-1 text-xs text-text-muted">{option.description}</p>
                 </button>
