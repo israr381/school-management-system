@@ -19,6 +19,7 @@ import AddOrganizationModal from "../modals/add-organization/AddOrganizationModa
 import EditOrganizationModal from "../modals/edit-organization/EditOrganizationModal";
 import Pagination, { paginateItems } from "../pagination/Pagination";
 import Table, { type TableColumn } from "../table/Table";
+import OrganizationAvatar from "./OrganizationAvatar";
 import { Button as UiButton } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -31,6 +32,7 @@ interface Tenant {
   id: number;
   name: string;
   domain: string;
+  logo_url?: string | null;
   created_at: string;
   user_count: number;
 }
@@ -49,15 +51,6 @@ interface SuperAdminOrganizationPanelProps {
 
 const kpiIcons = [Building2, Users, Activity, Globe];
 const PAGE_SIZE_OPTIONS = [7, 10, 20, 50];
-
-function orgInitials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
 
 function StatusBadge({ active }: { active: boolean }) {
   return (
@@ -166,14 +159,11 @@ export default function SuperAdminOrganizationPanel({
         sortValue: (tenant) => tenant.name,
         render: (tenant) => (
           <div className="flex items-center gap-3">
-            <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-white"
-              style={{
-                background: "linear-gradient(135deg, var(--gradient-from), var(--gradient-to))",
-              }}
-            >
-              {orgInitials(tenant.name)}
-            </div>
+            <OrganizationAvatar
+              name={tenant.name}
+              logoUrl={tenant.logo_url}
+              className="h-10 w-10 rounded-sm text-sm"
+            />
             <div className="min-w-0">
               <p className="truncate font-semibold text-text-main">{tenant.name}</p>
               <p className="truncate text-xs font-normal text-text-muted">{tenant.domain}</p>
@@ -276,7 +266,7 @@ export default function SuperAdminOrganizationPanel({
       : `Showing ${startIndex}-${endIndex} of ${filteredTenants.length} organizations`;
 
   return (
-    <div className="mx-auto max-w-350 space-y-5 animate-fade-in">
+    <div className="mx-auto max-w-350 space-y-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-text-main sm:text-[28px]">
@@ -329,8 +319,8 @@ export default function SuperAdminOrganizationPanel({
         </div>
       )}
 
-      <div className="dashboard-card overflow-hidden">
-        <div className="flex flex-col gap-4 border-b border-border-main/60 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="overflow-hidden">
+        <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-[15px] font-semibold text-text-main">All Organizations</h2>
             <p className="mt-0.5 text-xs text-text-muted">{showingLabel}</p>
@@ -343,7 +333,7 @@ export default function SuperAdminOrganizationPanel({
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, domain, or users..."
               leftIcon={<Search className="h-4 w-4" />}
-              className="rounded-xl py-2.5 text-sm"
+              className="rounded-md py-2.5 text-sm"
             />
           </div>
         </div>

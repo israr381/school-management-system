@@ -15,6 +15,7 @@ interface SidebarProps {
     id: number;
     name: string;
     domain: string;
+    logo_url?: string | null;
   } | null;
 }
 
@@ -51,8 +52,16 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
           }`}
         >
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-linear-to-br from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/25">
-              <GraduationCap className="h-5 w-5" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-linear-to-br from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/25">
+              {!isSuperAdmin && org?.logo_url ? (
+                <img
+                  src={org.logo_url}
+                  alt={`${brandName} logo`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <GraduationCap className="h-5 w-5" />
+              )}
             </div>
             {!isCollapsed && (
               <div className="select-none">

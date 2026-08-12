@@ -2,6 +2,7 @@ export interface Tenant {
   id: number;
   name: string;
   domain: string;
+  logo_url?: string | null;
   created_at: string;
   user_count: number;
 }
@@ -118,6 +119,7 @@ export function getRecentOrganizations(tenants: Tenant[]) {
       description: `Registered at ${t.domain}`,
       time: formatRelativeTime(t.created_at),
       domain: t.domain,
+      logo_url: t.logo_url,
     }));
 }
 
@@ -130,6 +132,7 @@ export function getTopOrganizations(tenants: Tenant[]) {
       name: t.name,
       domain: t.domain,
       users: t.user_count,
+      logo_url: t.logo_url,
     }));
 }
 

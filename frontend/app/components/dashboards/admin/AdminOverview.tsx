@@ -37,7 +37,7 @@ export default function AdminOverview({ user, org }: AdminOverviewProps) {
   const schoolName = org?.name ?? "Opelae School";
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-5 animate-fade-in">
+    <div className="mx-auto max-w-[1400px] space-y-5">
       <DashboardHero userName={user.full_name} schoolName={schoolName} />
 
       {/* KPI Cards */}

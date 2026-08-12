@@ -41,6 +41,12 @@ Create a PostgreSQL database named `school-management-system`. Ensure the connec
 The backend expects a `.env` file at [backend/.env](file:///Applications/Programing/Personal/school-management-system/backend/.env):
 ```env
 DATABASE_URL="postgresql://<username>:<password>@localhost:5432/school-management-system"
+JWT_SECRET="your-secret-key"
+
+# Cloudinary (required for organization logo uploads)
+CLOUDINARY_CLOUD_NAME="your-cloud-name"
+CLOUDINARY_API_KEY="your-api-key"
+CLOUDINARY_API_SECRET="your-api-secret"
 ```
 
 ### 2. Startup Command Scripts

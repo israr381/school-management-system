@@ -14,7 +14,6 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
-import PageTransition from "./components/PageTransition";
 import { fetchCurrentUser, clearAuthSession, getAccessToken, isRememberMeEnabled, refreshAccessToken, startTokenRefresh } from "./store/auth";
 import { fetchTenantStats } from "./store/organization";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -78,6 +77,7 @@ interface UserResponse {
     id: number;
     name: string;
     domain: string;
+    logo_url?: string | null;
   } | null;
 }
 
@@ -238,7 +238,7 @@ export default function App() {
         />
 
         <main className="flex-1 overflow-y-auto p-5 lg:p-8">
-          <PageTransition
+          <Outlet
             context={{
               user,
               org,

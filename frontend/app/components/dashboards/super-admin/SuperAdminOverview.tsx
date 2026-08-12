@@ -38,7 +38,7 @@ export default function SuperAdminOverview({
   const tenants = tenantData?.tenants ?? [];
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-5 animate-fade-in">
+    <div className="mx-auto max-w-[1400px] space-y-5">
       <SuperAdminHero
         userName={user.full_name}
         tenantData={tenantData}
@@ -73,7 +73,6 @@ export default function SuperAdminOverview({
         })}
       </div>
 
-      {/* Charts Row */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5">
         <div className="lg:col-span-2">
           <OrganizationGrowthCard tenants={tenants} />
@@ -83,7 +82,6 @@ export default function SuperAdminOverview({
         </div>
       </div>
 
-      {/* Lists Row */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 lg:gap-5">
         <RecentOrganizationsCard tenants={tenants} />
         <SystemUpdatesCard tenants={tenants} />

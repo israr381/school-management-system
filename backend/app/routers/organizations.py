@@ -1,8 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import asyncio
+
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app import auth, models, schemas
 from app.database import get_db
+from app.services.cloudinary_service import (
+    assert_org_logo_public_id,
+    assert_staging_public_id,
+    delete_organization_logo,
+    upload_organization_logo_staging,
+    validate_logo_file,
+)
 
 router = APIRouter(tags=["organizations"])
 
@@ -29,6 +38,7 @@ def get_superadmin_tenants(
                 id=org.id,
                 name=org.name,
                 domain=org.domain,
+                logo_url=org.logo_url,
                 created_at=org.created_at,
                 user_count=u_count,
             )
@@ -231,3 +241,93 @@ def update_organization(
     db.commit()
     db.refresh(org)
     return org
+
+
+def _get_admin_organization(
+    db: Session, current_user: models.User
+) -> models.Organization:
+    if current_user.role != "admin" and current_user.role != "superadmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can manage organization details",
+        )
+
+    if not current_user.organization_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User is not associated with any organization",
+        )
+
+    org = (
+        db.query(models.Organization)
+        .filter(models.Organization.id == current_user.organization_id)
+        .first()
+    )
+    if not org:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Organization not found",
+        )
+
+    return org
+
+
+@router.post("/api/organization/logo/staging", response_model=schemas.LogoStagingResponse)
+async def upload_organization_logo_staging_endpoint(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user),
+):
+    org = _get_admin_organization(db, current_user)
+
+    file_bytes = await file.read()
+    validate_logo_file(file.content_type, len(file_bytes))
+
+    logo_url, logo_public_id = await asyncio.to_thread(
+        upload_organization_logo_staging,
+        file_bytes,
+        org.id,
+    )
+    return schemas.LogoStagingResponse(
+        logo_url=logo_url,
+        logo_public_id=logo_public_id,
+    )
+
+
+@router.put("/api/organization/logo", response_model=schemas.OrganizationResponse)
+async def commit_organization_logo(
+    logo_data: schemas.OrganizationLogoCommit,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user),
+):
+    org = _get_admin_organization(db, current_user)
+
+    if logo_data.logo_url and logo_data.logo_public_id:
+        assert_org_logo_public_id(org.id, logo_data.logo_public_id)
+
+        if org.logo_public_id and org.logo_public_id != logo_data.logo_public_id:
+            await asyncio.to_thread(delete_organization_logo, org.logo_public_id)
+
+        org.logo_url = logo_data.logo_url
+        org.logo_public_id = logo_data.logo_public_id
+    else:
+        if org.logo_public_id:
+            await asyncio.to_thread(delete_organization_logo, org.logo_public_id)
+        org.logo_url = None
+        org.logo_public_id = None
+
+    db.commit()
+    db.refresh(org)
+    return org
+
+
+@router.delete("/api/organization/logo/staging", status_code=status.HTTP_204_NO_CONTENT)
+async def discard_organization_logo_staging(
+    public_id: str = Query(..., min_length=1),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user),
+):
+    org = _get_admin_organization(db, current_user)
+    assert_staging_public_id(org.id, public_id)
+    await asyncio.to_thread(delete_organization_logo, public_id)
+    return None
