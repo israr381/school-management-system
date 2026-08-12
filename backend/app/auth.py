@@ -11,8 +11,26 @@ from app.models import User
 
 SECRET_KEY = os.getenv("JWT_SECRET", "db3a5b6c8d7e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 600  
+ACCESS_TOKEN_EXPIRE_MINUTES = 600
 REFRESH_TOKEN_EXPIRE_DAYS = 7
+
+
+def organization_is_active(user: User) -> bool:
+    if user.role == "superadmin":
+        return True
+    if not user.organization_id:
+        return True
+    org = user.organization
+    return org is None or bool(org.is_active)
+
+
+def enforce_active_organization(user: User) -> None:
+    if not organization_is_active(user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Organization access has been disabled",
+        )
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
@@ -73,4 +91,6 @@ def get_current_user(token: Optional[str] = Depends(oauth2_scheme), db: Session 
     user = db.query(User).filter(User.email == email).first()
     if user is None:
         raise credentials_exception
+
+    enforce_active_organization(user)
     return user

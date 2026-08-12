@@ -22,7 +22,7 @@ const tabs = [
 
 export default function SettingsPanel({ user }: SettingsPanelProps) {
   return (
-    <div className="  space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider text-brand mb-1">
           Account

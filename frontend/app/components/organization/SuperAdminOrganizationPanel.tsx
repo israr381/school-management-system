@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Activity,
+  Ban,
   Building2,
   Globe,
   Loader2,
@@ -8,10 +9,11 @@ import {
   Pencil,
   Plus,
   Search,
+  ShieldCheck,
   Trash2,
   Users,
 } from "lucide-react";
-import { deleteOrganization } from "../../store/organization";
+import { deleteOrganization, toggleOrganizationStatus } from "../../store/organization";
 import { getSuperAdminKpis } from "../dashboards/super-admin/systemData";
 import Button from "../button/Button";
 import Input from "../input/Input";
@@ -19,6 +21,7 @@ import AddOrganizationModal from "../modals/add-organization/AddOrganizationModa
 import EditOrganizationModal from "../modals/edit-organization/EditOrganizationModal";
 import Pagination, { paginateItems } from "../pagination/Pagination";
 import Table, { type TableColumn } from "../table/Table";
+import OrganizationAvatar from "./OrganizationAvatar";
 import { Button as UiButton } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -31,6 +34,8 @@ interface Tenant {
   id: number;
   name: string;
   domain: string;
+  logo_url?: string | null;
+  is_active?: boolean;
   created_at: string;
   user_count: number;
 }
@@ -50,15 +55,6 @@ interface SuperAdminOrganizationPanelProps {
 const kpiIcons = [Building2, Users, Activity, Globe];
 const PAGE_SIZE_OPTIONS = [7, 10, 20, 50];
 
-function orgInitials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
-
 function StatusBadge({ active }: { active: boolean }) {
   return (
     <span
@@ -71,7 +67,7 @@ function StatusBadge({ active }: { active: boolean }) {
       <span
         className={`h-1.5 w-1.5 rounded-full ${active ? "bg-success animate-pulse" : "bg-icon-muted"}`}
       />
-      {active ? "Active" : "Inactive"}
+      {active ? "Active" : "Disabled"}
     </span>
   );
 }
@@ -89,6 +85,7 @@ export default function SuperAdminOrganizationPanel({
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
   const [actionError, setActionError] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
 
   const tenants = tenantData?.tenants ?? [];
   const kpiCards = getSuperAdminKpis(tenantData, statsLoading);
@@ -129,6 +126,39 @@ export default function SuperAdminOrganizationPanel({
     }
   };
 
+  const handleToggleStatus = async (tenant: Tenant) => {
+    const isActive = tenant.is_active !== false;
+    const action = isActive ? "disable" : "enable";
+    const confirmed = window.confirm(
+      `${action === "disable" ? "Disable" : "Enable"} "${tenant.name}"? ${
+        action === "disable"
+          ? "Users in this organization will not be able to sign in."
+          : "Users in this organization will be able to sign in again."
+      }`,
+    );
+    if (!confirmed) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setActionError("Authentication session expired. Please sign in again.");
+      return;
+    }
+
+    setActionError("");
+    setTogglingId(tenant.id);
+
+    try {
+      await toggleOrganizationStatus(token, tenant.id, !isActive);
+      await refreshStats();
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to update organization status.";
+      setActionError(message);
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
   const filteredTenants = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return tenants;
@@ -166,14 +196,11 @@ export default function SuperAdminOrganizationPanel({
         sortValue: (tenant) => tenant.name,
         render: (tenant) => (
           <div className="flex items-center gap-3">
-            <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-white"
-              style={{
-                background: "linear-gradient(135deg, var(--gradient-from), var(--gradient-to))",
-              }}
-            >
-              {orgInitials(tenant.name)}
-            </div>
+            <OrganizationAvatar
+              name={tenant.name}
+              logoUrl={tenant.logo_url}
+              className="h-10 w-10 rounded-sm text-sm"
+            />
             <div className="min-w-0">
               <p className="truncate font-semibold text-text-main">{tenant.name}</p>
               <p className="truncate text-xs font-normal text-text-muted">{tenant.domain}</p>
@@ -223,7 +250,7 @@ export default function SuperAdminOrganizationPanel({
       {
         key: "status",
         header: "Status",
-        render: (tenant) => <StatusBadge active={tenant.user_count > 0} />,
+        render: (tenant) => <StatusBadge active={tenant.is_active !== false} />,
       },
       {
         key: "actions",
@@ -238,12 +265,12 @@ export default function SuperAdminOrganizationPanel({
                   variant="ghost"
                   size="icon-sm"
                   className="cursor-pointer text-text-muted hover:bg-surface-soft hover:text-text-main"
-                  disabled={deletingId === tenant.id}
+                  disabled={deletingId === tenant.id || togglingId === tenant.id}
                   aria-label={`Actions for ${tenant.name}`}
                 />
               }
             >
-              {deletingId === tenant.id ? (
+              {deletingId === tenant.id || togglingId === tenant.id ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
                 <MoreVertical className="size-4" />
@@ -254,6 +281,23 @@ export default function SuperAdminOrganizationPanel({
                 <Pencil className="size-4" />
                 Edit
               </DropdownMenuItem>
+              {tenant.is_active !== false ? (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => handleToggleStatus(tenant)}
+                >
+                  <Ban className="size-4" />
+                  Disable
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => handleToggleStatus(tenant)}
+                >
+                  <ShieldCheck className="size-4" />
+                  Enable
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 variant="destructive"
                 className="cursor-pointer"
@@ -267,7 +311,7 @@ export default function SuperAdminOrganizationPanel({
         ),
       },
     ],
-    [deletingId],
+    [deletingId, togglingId],
   );
 
   const showingLabel =
@@ -276,7 +320,7 @@ export default function SuperAdminOrganizationPanel({
       : `Showing ${startIndex}-${endIndex} of ${filteredTenants.length} organizations`;
 
   return (
-    <div className="mx-auto max-w-350 space-y-5 animate-fade-in">
+    <div className="mx-auto max-w-350 space-y-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-text-main sm:text-[28px]">
@@ -329,8 +373,8 @@ export default function SuperAdminOrganizationPanel({
         </div>
       )}
 
-      <div className="dashboard-card overflow-hidden">
-        <div className="flex flex-col gap-4 border-b border-border-main/60 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="overflow-hidden">
+        <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-[15px] font-semibold text-text-main">All Organizations</h2>
             <p className="mt-0.5 text-xs text-text-muted">{showingLabel}</p>
@@ -343,7 +387,7 @@ export default function SuperAdminOrganizationPanel({
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, domain, or users..."
               leftIcon={<Search className="h-4 w-4" />}
-              className="rounded-xl py-2.5 text-sm"
+              className="rounded-md py-2.5 text-sm"
             />
           </div>
         </div>

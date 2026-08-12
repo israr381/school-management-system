@@ -121,10 +121,10 @@ export default function Table<T>({
   }
 
   return (
-    <div className={`overflow-x-auto ${className}`}>
+    <div className={`overflow-x-auto px-5 ${className}`}>
       <table className="w-full text-left border-separate border-spacing-0">
         <thead>
-          <tr className="bg-surface-soft text-sm font-medium text-text-main">
+          <tr>
             {columns.map((column, index) => {
               const isActive = sortKey === column.key;
               const direction = isActive ? sortDirection : null;
@@ -134,9 +134,9 @@ export default function Table<T>({
               return (
                 <th
                   key={column.key}
-                  className={`px-5 py-3.5 whitespace-nowrap ${
-                    isFirst ? "rounded-l-xl pl-6" : ""
-                  } ${isLast ? "rounded-r-xl pr-6" : ""} ${column.headerClassName ?? ""}`}
+                  className={`bg-brand-soft px-5 py-3.5 text-sm font-medium whitespace-nowrap text-text-main ${
+                    isFirst ? "rounded-l-lg pl-6" : ""
+                  } ${isLast ? "rounded-r-lg pr-6" : ""} ${column.headerClassName ?? ""}`}
                   aria-sort={
                     column.sortable
                       ? direction === "asc"

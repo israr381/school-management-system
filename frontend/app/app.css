@@ -374,36 +374,6 @@ body {
   box-shadow: 0 4px 14px -3px rgba(79, 70, 229, 0.45);
 }
 
-@keyframes page-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes page-fade-out {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-}
-
-.page-fade-in {
-  animation: page-fade-in 200ms ease-out forwards;
-}
-
-.page-fade-out {
-  animation: page-fade-out 160ms ease-in forwards;
-}
-
 .table-card {
   @apply bg-panel-bg rounded-2xl border border-border-main/60;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);

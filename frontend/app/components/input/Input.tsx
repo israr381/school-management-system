@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
+import { cn } from "../../lib/utils";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -41,7 +42,12 @@ export default function Input({
         )}
         <input
           id={inputId}
-          className={`w-full py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/70 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all ${leftIcon ? "pl-11" : "pl-4"} ${rightAction ? "pr-11" : "pr-4"} ${className}`}
+          className={cn(
+            "w-full py-3 rounded-xl border border-border-main bg-input-bg text-text-main placeholder-text-muted/70 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all",
+            leftIcon ? "pl-11" : "pl-4",
+            rightAction ? "pr-11" : "pr-4",
+            className,
+          )}
           {...props}
         />
         {rightAction && (

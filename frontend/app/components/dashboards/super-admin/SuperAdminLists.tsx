@@ -1,6 +1,7 @@
-import { Building2, Calendar, Globe, Server } from "lucide-react";
+import { Calendar, Server } from "lucide-react";
 import { Link } from "react-router";
 import Button from "../../button/Button";
+import OrganizationAvatar from "../../organization/OrganizationAvatar";
 import {
   getRecentOrganizations,
   getSystemUpdates,
@@ -24,9 +25,11 @@ export function RecentOrganizationsCard({ tenants }: SuperAdminListsProps) {
         <ul className="flex-1 space-y-5">
           {recent.map((item) => (
             <li key={item.title} className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
-                <Building2 className="h-[18px] w-[18px]" />
-              </div>
+              <OrganizationAvatar
+                name={item.title}
+                logoUrl={item.logo_url}
+                className="h-10 w-10 rounded-xl text-xs"
+              />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-text-main">{item.title}</p>
                 <p className="mt-0.5 text-xs leading-relaxed text-text-muted">{item.description}</p>
@@ -90,12 +93,11 @@ export function TopOrganizationsCard({ tenants }: SuperAdminListsProps) {
           {top.map((org) => (
             <li key={org.name} className="flex items-center gap-3">
               <div className="relative shrink-0">
-                <div
-                  className="flex h-10 w-10 items-center justify-center rounded-full text-white ring-2 ring-border-main/60"
-                  style={{ background: "linear-gradient(135deg, var(--gradient-from), var(--gradient-to))" }}
-                >
-                  <Globe className="h-4 w-4" />
-                </div>
+                <OrganizationAvatar
+                  name={org.name}
+                  logoUrl={org.logo_url}
+                  className="h-10 w-10 rounded-full text-xs ring-2 ring-border-main/60"
+                />
                 {org.rank <= 3 && (
                   <span
                     className={`absolute -bottom-1 -left-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${rankBadgeStyles[org.rank]}`}

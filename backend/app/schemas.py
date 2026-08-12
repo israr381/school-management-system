@@ -6,6 +6,8 @@ class OrganizationResponse(BaseModel):
     id: int
     name: str
     domain: str
+    logo_url: Optional[str] = None
+    is_active: bool = True
 
     class Config:
         from_attributes = True
@@ -52,6 +54,8 @@ class TenantResponse(BaseModel):
     id: int
     name: str
     domain: str
+    logo_url: Optional[str] = None
+    is_active: bool = True
     created_at: datetime
     user_count: int
 
@@ -73,3 +77,14 @@ class CreateOrganizationRequest(BaseModel):
 class OrganizationUpdate(BaseModel):
     name: str = Field(..., min_length=1)
     domain: str = Field(..., min_length=3)
+
+class LogoStagingResponse(BaseModel):
+    logo_url: str
+    logo_public_id: str
+
+class OrganizationLogoCommit(BaseModel):
+    logo_url: Optional[str] = None
+    logo_public_id: Optional[str] = None
+
+class OrganizationStatusUpdate(BaseModel):
+    is_active: bool
