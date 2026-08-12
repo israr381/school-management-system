@@ -19,3 +19,9 @@ def ensure_organization_logo_columns() -> None:
             connection.execute(
                 text("ALTER TABLE organizations ADD COLUMN logo_public_id VARCHAR")
             )
+        if "is_active" not in columns:
+            connection.execute(
+                text(
+                    "ALTER TABLE organizations ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE"
+                )
+            )

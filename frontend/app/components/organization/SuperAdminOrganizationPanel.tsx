@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Activity,
+  Ban,
   Building2,
   Globe,
   Loader2,
@@ -8,10 +9,11 @@ import {
   Pencil,
   Plus,
   Search,
+  ShieldCheck,
   Trash2,
   Users,
 } from "lucide-react";
-import { deleteOrganization } from "../../store/organization";
+import { deleteOrganization, toggleOrganizationStatus } from "../../store/organization";
 import { getSuperAdminKpis } from "../dashboards/super-admin/systemData";
 import Button from "../button/Button";
 import Input from "../input/Input";
@@ -33,6 +35,7 @@ interface Tenant {
   name: string;
   domain: string;
   logo_url?: string | null;
+  is_active?: boolean;
   created_at: string;
   user_count: number;
 }
@@ -64,7 +67,7 @@ function StatusBadge({ active }: { active: boolean }) {
       <span
         className={`h-1.5 w-1.5 rounded-full ${active ? "bg-success animate-pulse" : "bg-icon-muted"}`}
       />
-      {active ? "Active" : "Inactive"}
+      {active ? "Active" : "Disabled"}
     </span>
   );
 }
@@ -82,6 +85,7 @@ export default function SuperAdminOrganizationPanel({
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
   const [actionError, setActionError] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
 
   const tenants = tenantData?.tenants ?? [];
   const kpiCards = getSuperAdminKpis(tenantData, statsLoading);
@@ -119,6 +123,39 @@ export default function SuperAdminOrganizationPanel({
       setActionError(message);
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleToggleStatus = async (tenant: Tenant) => {
+    const isActive = tenant.is_active !== false;
+    const action = isActive ? "disable" : "enable";
+    const confirmed = window.confirm(
+      `${action === "disable" ? "Disable" : "Enable"} "${tenant.name}"? ${
+        action === "disable"
+          ? "Users in this organization will not be able to sign in."
+          : "Users in this organization will be able to sign in again."
+      }`,
+    );
+    if (!confirmed) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setActionError("Authentication session expired. Please sign in again.");
+      return;
+    }
+
+    setActionError("");
+    setTogglingId(tenant.id);
+
+    try {
+      await toggleOrganizationStatus(token, tenant.id, !isActive);
+      await refreshStats();
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to update organization status.";
+      setActionError(message);
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -213,7 +250,7 @@ export default function SuperAdminOrganizationPanel({
       {
         key: "status",
         header: "Status",
-        render: (tenant) => <StatusBadge active={tenant.user_count > 0} />,
+        render: (tenant) => <StatusBadge active={tenant.is_active !== false} />,
       },
       {
         key: "actions",
@@ -228,12 +265,12 @@ export default function SuperAdminOrganizationPanel({
                   variant="ghost"
                   size="icon-sm"
                   className="cursor-pointer text-text-muted hover:bg-surface-soft hover:text-text-main"
-                  disabled={deletingId === tenant.id}
+                  disabled={deletingId === tenant.id || togglingId === tenant.id}
                   aria-label={`Actions for ${tenant.name}`}
                 />
               }
             >
-              {deletingId === tenant.id ? (
+              {deletingId === tenant.id || togglingId === tenant.id ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
                 <MoreVertical className="size-4" />
@@ -244,6 +281,23 @@ export default function SuperAdminOrganizationPanel({
                 <Pencil className="size-4" />
                 Edit
               </DropdownMenuItem>
+              {tenant.is_active !== false ? (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => handleToggleStatus(tenant)}
+                >
+                  <Ban className="size-4" />
+                  Disable
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => handleToggleStatus(tenant)}
+                >
+                  <ShieldCheck className="size-4" />
+                  Enable
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 variant="destructive"
                 className="cursor-pointer"
@@ -257,7 +311,7 @@ export default function SuperAdminOrganizationPanel({
         ),
       },
     ],
-    [deletingId],
+    [deletingId, togglingId],
   );
 
   const showingLabel =

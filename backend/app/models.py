@@ -11,6 +11,7 @@ class Organization(Base):
     domain = Column(String, unique=True, index=True, nullable=False)
     logo_url = Column(String, nullable=True)
     logo_public_id = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

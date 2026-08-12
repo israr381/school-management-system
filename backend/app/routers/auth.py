@@ -78,6 +78,12 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
             detail="Incorrect email or password",
         )
 
+    if user.organization_id and user.organization and not user.organization.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This organization has been disabled. Please contact support.",
+        )
+
     access_token = auth.create_access_token(data={"sub": user.email})
     refresh_token = None
     if login_data.remember_me:
@@ -110,6 +116,12 @@ def refresh_access_token(payload: schemas.RefreshTokenRequest, db: Session = Dep
     user = db.query(models.User).filter(models.User.email == email).first()
     if not user:
         raise credentials_exception
+
+    if user.organization_id and user.organization and not user.organization.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This organization has been disabled. Please contact support.",
+        )
 
     access_token = auth.create_access_token(data={"sub": user.email})
     refresh_token = auth.create_refresh_token(data={"sub": user.email})

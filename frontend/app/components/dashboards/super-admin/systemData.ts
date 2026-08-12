@@ -3,6 +3,7 @@ export interface Tenant {
   name: string;
   domain: string;
   logo_url?: string | null;
+  is_active?: boolean;
   created_at: string;
   user_count: number;
 }
@@ -18,7 +19,8 @@ const CHART_COLORS = ["#6366f1", "#3b82f6", "#10b981", "#f97316", "#ec4899", "#8
 export function getSuperAdminKpis(tenantData: TenantApiResponse | null, loading: boolean) {
   const totalOrgs = tenantData?.total_tenants ?? 0;
   const totalUsers = tenantData?.total_users ?? 0;
-  const activeOrgs = tenantData?.tenants.filter((t) => t.user_count > 0).length ?? 0;
+  const activeOrgs =
+    tenantData?.tenants.filter((t) => t.is_active !== false).length ?? 0;
   const avgUsers = totalOrgs > 0 ? Math.round(totalUsers / totalOrgs) : 0;
 
   const loadingValue = "...";
@@ -50,7 +52,8 @@ export function getSuperAdminKpis(tenantData: TenantApiResponse | null, loading:
 export function getHeroQuickStats(tenantData: TenantApiResponse | null, loading: boolean) {
   const totalOrgs = tenantData?.total_tenants ?? 0;
   const totalUsers = tenantData?.total_users ?? 0;
-  const activeOrgs = tenantData?.tenants.filter((t) => t.user_count > 0).length ?? 0;
+  const activeOrgs =
+    tenantData?.tenants.filter((t) => t.is_active !== false).length ?? 0;
 
   return [
     { label: "Total Organizations", value: loading ? "..." : totalOrgs.toLocaleString() },

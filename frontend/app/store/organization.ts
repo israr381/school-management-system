@@ -178,3 +178,36 @@ export async function deleteOrganization(token: string, orgId: number) {
 
   return data;
 }
+
+export interface TenantPayload {
+  id: number;
+  name: string;
+  domain: string;
+  logo_url?: string | null;
+  is_active: boolean;
+  created_at: string;
+  user_count: number;
+}
+
+export async function toggleOrganizationStatus(
+  token: string,
+  orgId: number,
+  isActive: boolean,
+): Promise<TenantPayload> {
+  const response = await fetch(`${API_BASE_URL}/superadmin/organizations/${orgId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ is_active: isActive }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to update organization status.");
+  }
+
+  return data;
+}

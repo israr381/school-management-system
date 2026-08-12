@@ -39,6 +39,7 @@ def get_superadmin_tenants(
                 name=org.name,
                 domain=org.domain,
                 logo_url=org.logo_url,
+                is_active=org.is_active,
                 created_at=org.created_at,
                 user_count=u_count,
             )
@@ -168,6 +169,47 @@ def update_organization_by_id(
     db.commit()
     db.refresh(org)
     return org
+
+
+@router.patch(
+    "/api/superadmin/organizations/{org_id}/status",
+    response_model=schemas.TenantResponse,
+)
+def update_organization_status(
+    org_id: int,
+    status_data: schemas.OrganizationStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user),
+):
+    if current_user.role != "superadmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only super admins can update organization status",
+        )
+
+    org = db.query(models.Organization).filter(models.Organization.id == org_id).first()
+    if not org:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Organization not found",
+        )
+
+    org.is_active = status_data.is_active
+    db.commit()
+    db.refresh(org)
+
+    user_count = (
+        db.query(models.User).filter(models.User.organization_id == org.id).count()
+    )
+    return schemas.TenantResponse(
+        id=org.id,
+        name=org.name,
+        domain=org.domain,
+        logo_url=org.logo_url,
+        is_active=org.is_active,
+        created_at=org.created_at,
+        user_count=user_count,
+    )
 
 
 @router.delete("/api/superadmin/organizations/{org_id}")
