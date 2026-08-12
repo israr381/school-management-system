@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router";
-  import SuperAdminOrganizationPanel from "../components/dashboards/SuperAdminOrganizationPanel";
+import SuperAdminOrganizationPanel from "../components/organization/SuperAdminOrganizationPanel";
 
 interface Tenant {
   id: number;
@@ -23,8 +23,8 @@ interface OrganizationContext {
 
 export function meta() {
   return [
-    { title: "Organization Profile - EduManage" },
-    { name: "description", content: "Manage organization details." },
+    { title: "Organizations - Opelae School" },
+    { name: "description", content: "Manage platform organizations." },
   ];
 }
 

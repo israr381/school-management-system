@@ -1,6 +1,6 @@
 import { useOutletContext } from "react-router";
-import AdminOverview from "../components/dashboards/AdminOverview";
-import SuperAdminOverview from "../components/dashboards/SuperAdminOverview";
+import AdminOverview from "../components/dashboards/admin/AdminOverview";
+import SuperAdminOverview from "../components/dashboards/super-admin/SuperAdminOverview";
 
 interface UserResponse {
   id: number;
@@ -38,8 +38,8 @@ interface DashboardContext {
 
 export function meta() {
   return [
-    { title: "Dashboard - EduManage" },
-    { name: "description", content: "EduManage workspace dashboard." },
+    { title: "Dashboard - Opelae School" },
+    { name: "description", content: "Opelae School management dashboard." },
   ];
 }
 
