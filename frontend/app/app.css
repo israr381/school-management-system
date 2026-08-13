@@ -390,3 +390,40 @@ body {
 .page-breadcrumb span {
   @apply text-brand;
 }
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(1.25rem) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(1.25rem) translateY(-6px);
+  }
+}
+
+.toast-item-in {
+  animation: toast-in 0.28s ease-out both;
+}
+
+.toast-item-out {
+  animation: toast-out 0.28s ease-in both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-item-in,
+  .toast-item-out {
+    animation: none;
+  }
+}

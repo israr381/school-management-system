@@ -1,5 +1,6 @@
 import { Bell, Lock, Palette, UserRound } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import type { UserPayload } from "../../store/user";
 import AppearanceSettings from "./AppearanceSettings";
 import NotificationSettings from "./NotificationSettings";
 import ProfileSettings from "./ProfileSettings";
@@ -10,7 +11,9 @@ interface SettingsPanelProps {
     full_name: string;
     email: string;
     role: string;
+    avatar_url?: string | null;
   };
+  onUserChange?: (user: UserPayload) => void;
 }
 
 const tabs = [
@@ -20,7 +23,7 @@ const tabs = [
   { value: "notifications", label: "Notifications", icon: Bell },
 ] as const;
 
-export default function SettingsPanel({ user }: SettingsPanelProps) {
+export default function SettingsPanel({ user, onUserChange }: SettingsPanelProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -53,11 +56,7 @@ export default function SettingsPanel({ user }: SettingsPanelProps) {
         </TabsList>
 
         <TabsContent value="profile" className="mt-0 outline-none">
-          <ProfileSettings
-            fullName={user.full_name}
-            email={user.email}
-            role={user.role}
-          />
+          <ProfileSettings user={user} onUserChange={onUserChange} />
         </TabsContent>
 
         <TabsContent value="appearance" className="mt-0 outline-none">

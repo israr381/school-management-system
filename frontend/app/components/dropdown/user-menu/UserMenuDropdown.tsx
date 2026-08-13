@@ -1,4 +1,4 @@
-import { ChevronDown, LogOut, Settings, Shield } from "lucide-react";
+import { LogOut, Settings, Shield } from "lucide-react";
 import { useNavigate } from "react-router";
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import UserAvatar from "../../settings/UserAvatar";
 import ThemeSelector from "./ThemeSelector";
 
 interface UserMenuDropdownProps {
@@ -16,6 +17,7 @@ interface UserMenuDropdownProps {
     full_name: string;
     email: string;
     role: string;
+    avatar_url?: string | null;
   };
   roleLabel: string;
   onLogout: () => void;
@@ -39,10 +41,11 @@ export default function UserMenuDropdown({
           />
         }
       >
-        <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-indigo-500 to-purple-600 text-sm font-bold text-white shadow-md ring-2 ring-indigo-500/20">
-          {user.full_name.charAt(0).toUpperCase()}
-          {/* <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-panel-bg bg-success" /> */}
-        </div>
+        <UserAvatar
+          name={user.full_name}
+          avatarUrl={user.avatar_url}
+          className="h-9 w-9 text-sm"
+        />
         <div className="hidden min-w-0 flex-col text-left sm:flex">
           <span className="truncate text-sm font-semibold leading-none text-text-main">
             {user.full_name}
@@ -59,9 +62,11 @@ export default function UserMenuDropdown({
         <div className="relative overflow-hidden px-4 pb-4 pt-5">
           <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-indigo-500/10 via-purple-500/5 to-transparent" />
           <div className="relative flex items-start gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-purple-600 text-base font-bold text-white shadow-lg shadow-indigo-500/30">
-              {user.full_name.charAt(0).toUpperCase()}
-            </div>
+            <UserAvatar
+              name={user.full_name}
+              avatarUrl={user.avatar_url}
+              className="h-12 w-12 text-base shadow-lg shadow-indigo-500/30"
+            />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-bold text-text-main">{user.full_name}</p>
               <p className="mt-0.5 truncate text-xs text-text-muted">{user.email}</p>

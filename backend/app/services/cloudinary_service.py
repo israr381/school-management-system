@@ -148,6 +148,54 @@ def upload_organization_logo_staging(file_bytes: bytes, org_id: int) -> Tuple[st
 
 
 def delete_organization_logo(public_id: str | None) -> None:
+    _delete_uploaded_image(public_id, "delete the logo")
+
+
+def _user_staging_prefix(user_id: int) -> str:
+    return f"users/{user_id}/staging/"
+
+
+def assert_user_staging_public_id(user_id: int, public_id: str) -> None:
+    if not public_id.startswith(_user_staging_prefix(user_id)):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid staging avatar reference.",
+        )
+
+
+def assert_user_avatar_public_id(user_id: int, public_id: str) -> None:
+    if not public_id.startswith(f"users/{user_id}/"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid user avatar reference.",
+        )
+
+
+def upload_user_avatar_staging(file_bytes: bytes, user_id: int) -> Tuple[str, str]:
+    _ensure_cloudinary_configured()
+
+    try:
+        result = cloudinary.uploader.upload(
+            file_bytes,
+            folder=f"users/{user_id}/staging",
+            public_id=uuid.uuid4().hex,
+            resource_type="image",
+            timeout=60,
+        )
+    except CloudinaryError as error:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=_cloudinary_error_detail("upload the avatar", error),
+        ) from error
+
+    return result["secure_url"], result["public_id"]
+
+
+def delete_user_avatar(public_id: str | None) -> None:
+    _delete_uploaded_image(public_id, "delete the avatar")
+
+
+def _delete_uploaded_image(public_id: str | None, action: str) -> None:
     if not public_id:
         return
 
@@ -157,5 +205,5 @@ def delete_organization_logo(public_id: str | None) -> None:
     except CloudinaryError as error:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=_cloudinary_error_detail("delete the logo", error),
+            detail=_cloudinary_error_detail(action, error),
         ) from error
