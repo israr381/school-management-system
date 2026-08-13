@@ -17,6 +17,7 @@ import Header from "./components/Header";
 import { fetchCurrentUser, clearAuthSession, getAccessToken, isRememberMeEnabled, refreshAccessToken, startTokenRefresh } from "./store/auth";
 import { fetchTenantStats } from "./store/organization";
 import { ThemeProvider } from "./context/ThemeContext";
+import Toaster from "./components/toast/Toaster";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -59,6 +60,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <ThemeProvider>
           {children}
+          <Toaster />
         </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
@@ -72,6 +74,7 @@ interface UserResponse {
   email: string;
   full_name: string;
   role: string;
+  avatar_url?: string | null;
   organization_id: number | null;
   organization: {
     id: number;
@@ -241,6 +244,7 @@ export default function App() {
           <Outlet
             context={{
               user,
+              setUser,
               org,
               setOrg,
               tenantData,

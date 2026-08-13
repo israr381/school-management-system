@@ -8,6 +8,7 @@ interface HeaderProps {
     full_name: string;
     email: string;
     role: string;
+    avatar_url?: string | null;
   };
   isSuperAdmin: boolean;
   onLogout: () => void;

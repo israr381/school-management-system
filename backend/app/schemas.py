@@ -29,6 +29,7 @@ class UserResponse(BaseModel):
     email: EmailStr
     full_name: str
     role: str
+    avatar_url: Optional[str] = None
     organization_id: Optional[int] = None
     organization: Optional[OrganizationResponse] = None
 
@@ -88,3 +89,11 @@ class OrganizationLogoCommit(BaseModel):
 
 class OrganizationStatusUpdate(BaseModel):
     is_active: bool
+
+class AvatarStagingResponse(BaseModel):
+    avatar_url: str
+    avatar_public_id: str
+
+class UserAvatarCommit(BaseModel):
+    avatar_url: Optional[str] = None
+    avatar_public_id: Optional[str] = None
