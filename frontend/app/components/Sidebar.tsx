@@ -37,7 +37,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
   ];
 
   const isSuperAdmin = role === "superadmin";
-  const brandName = isSuperAdmin ? "Opelae System" : org?.name || "Opelae School";
+  const brandName = isSuperAdmin ? "Super Admin" : org?.name || "Super Admin";
 
   return (
     <aside
@@ -67,7 +67,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
               <div className="select-none">
                 <h1 className="text-base font-bold leading-none text-text-main">{brandName}</h1>
                 <span className="text-[10px] font-medium uppercase tracking-wider text-text-muted">
-                  {isSuperAdmin ? "Admin Console" : "School Portal"}
+                  School Portal
                 </span>
               </div>
             )}
@@ -87,7 +87,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
         {isCollapsed && (
           <button
             onClick={() => setIsCollapsed(false)}
-            className="absolute left-17 z-50 cursor-pointer rounded-full border border-border-main bg-panel-bg p-px shadow-sm transition-transform duration-150 hover:scale-105"
+            className="absolute left-17 top-6 z-50 cursor-pointer rounded-full border border-border-main bg-panel-bg p-[2px] shadow-sm transition-transform duration-150 hover:scale-105"
             title="Expand Sidebar"
           >
             <ChevronLeft className="h-4 w-4 rotate-180 text-text-muted" />
