@@ -323,7 +323,7 @@ export default function SuperAdminOrganizationPanel({
     <div className="mx-auto max-w-350 space-y-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-main sm:text-[28px]">
+          <h1 className="text-2xl font-bold text-text-main tracking-tight">
             Organizations
           </h1>
           <p className="mt-1 text-sm text-text-muted">

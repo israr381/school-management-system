@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -16,6 +16,7 @@ class Organization(Base):
 
     # Relationships
     users = relationship("User", back_populates="organization", cascade="all, delete-orphan")
+    classes = relationship("SchoolClass", back_populates="organization", cascade="all, delete-orphan")
 
 class Role(Base):
     __tablename__ = "roles"
@@ -44,3 +45,41 @@ class User(Base):
     @property
     def role(self) -> str:
         return self.role_relation.name if self.role_relation else ""
+
+
+class SchoolClass(Base):
+    __tablename__ = "classes"
+    __table_args__ = (
+        UniqueConstraint("organization_id", "name", name="uq_class_org_name"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    organization_id = Column(
+        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    organization = relationship("Organization", back_populates="classes")
+    sections = relationship("Section", back_populates="school_class", cascade="all, delete-orphan")
+
+
+class Section(Base):
+    __tablename__ = "sections"
+    __table_args__ = (
+        UniqueConstraint("class_id", "name", name="uq_section_class_name"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    class_id = Column(Integer, ForeignKey("classes.id", ondelete="CASCADE"), nullable=False, index=True)
+    organization_id = Column(
+        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    school_class = relationship("SchoolClass", back_populates="sections")
+    organization = relationship("Organization")

@@ -262,7 +262,7 @@ export default function AdminOrganizationPanel({
   return (
     <div className="w-full space-y-5">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-main sm:text-[28px]">
+        <h1 className="text-2xl font-bold text-text-main tracking-tight">
           Organization
         </h1>
         <p className="mt-1 text-sm text-text-muted">

@@ -1,9 +1,12 @@
-import { Bell, Lock, Palette, UserRound } from "lucide-react";
+import { useState } from "react";
+import { Bell, GraduationCap, LayoutList, Lock, Palette, UserRound } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import type { UserPayload } from "../../store/user";
 import AppearanceSettings from "./AppearanceSettings";
+import ClassesSettings from "./ClassesSettings";
 import NotificationSettings from "./NotificationSettings";
 import ProfileSettings from "./ProfileSettings";
+import SectionsSettings from "./SectionsSettings";
 import SecuritySettings from "./SecuritySettings";
 
 interface SettingsPanelProps {
@@ -19,29 +22,34 @@ interface SettingsPanelProps {
 const tabs = [
   { value: "profile", label: "Profile", icon: UserRound },
   { value: "appearance", label: "Appearance", icon: Palette },
+  { value: "classes", label: "Classes", icon: GraduationCap },
+  { value: "sections", label: "Sections", icon: LayoutList },
   { value: "security", label: "Security", icon: Lock },
   { value: "notifications", label: "Notifications", icon: Bell },
 ] as const;
 
 export default function SettingsPanel({ user, onUserChange }: SettingsPanelProps) {
+  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]["value"]>("profile");
+
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-brand mb-1">
-          Account
-        </p>
         <h2 className="text-2xl font-bold text-text-main tracking-tight">
           Settings
         </h2>
         <p className="text-sm text-text-muted mt-1">
-          Manage your profile, appearance, security, and notification preferences.
+          Manage your profile, classes, sections, appearance, security, and notifications.
         </p>
       </div>
 
-      <Tabs defaultValue="profile" className="gap-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as (typeof tabs)[number]["value"])}
+        className="gap-6"
+      >
         <TabsList
           variant="line"
-          className="h-auto w-full justify-start gap-0 rounded-none border-b border-border-main bg-transparent p-0"
+          className="h-auto w-full justify-start gap-0 overflow-x-auto rounded-none border-b border-border-main bg-transparent p-0"
         >
           {tabs.map(({ value, label, icon: Icon }) => (
             <TabsTrigger
@@ -55,21 +63,41 @@ export default function SettingsPanel({ user, onUserChange }: SettingsPanelProps
           ))}
         </TabsList>
 
-        <TabsContent value="profile" className="mt-0 outline-none">
-          <ProfileSettings user={user} onUserChange={onUserChange} />
-        </TabsContent>
+        {activeTab === "profile" && (
+          <TabsContent value="profile" className="mt-0 outline-none">
+            <ProfileSettings user={user} onUserChange={onUserChange} />
+          </TabsContent>
+        )}
 
-        <TabsContent value="appearance" className="mt-0 outline-none">
-          <AppearanceSettings />
-        </TabsContent>
+        {activeTab === "appearance" && (
+          <TabsContent value="appearance" className="mt-0 outline-none">
+            <AppearanceSettings />
+          </TabsContent>
+        )}
 
-        <TabsContent value="security" className="mt-0 outline-none">
-          <SecuritySettings />
-        </TabsContent>
+        {activeTab === "classes" && (
+          <TabsContent value="classes" className="mt-0 outline-none">
+            <ClassesSettings />
+          </TabsContent>
+        )}
 
-        <TabsContent value="notifications" className="mt-0 outline-none">
-          <NotificationSettings />
-        </TabsContent>
+        {activeTab === "sections" && (
+          <TabsContent value="sections" className="mt-0 outline-none">
+            <SectionsSettings />
+          </TabsContent>
+        )}
+
+        {activeTab === "security" && (
+          <TabsContent value="security" className="mt-0 outline-none">
+            <SecuritySettings />
+          </TabsContent>
+        )}
+
+        {activeTab === "notifications" && (
+          <TabsContent value="notifications" className="mt-0 outline-none">
+            <NotificationSettings />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

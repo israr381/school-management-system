@@ -97,3 +97,47 @@ class AvatarStagingResponse(BaseModel):
 class UserAvatarCommit(BaseModel):
     avatar_url: Optional[str] = None
     avatar_public_id: Optional[str] = None
+
+
+class ClassCreate(BaseModel):
+    name: str = Field(..., min_length=1)
+    description: Optional[str] = None
+
+
+class ClassUpdate(BaseModel):
+    name: str = Field(..., min_length=1)
+    description: Optional[str] = None
+
+
+class ClassResponse(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    section_count: int = 0
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class SectionCreate(BaseModel):
+    name: str = Field(..., min_length=1)
+    class_id: int
+
+
+class SectionUpdate(BaseModel):
+    name: str = Field(..., min_length=1)
+    class_id: int
+
+
+class SectionResponse(BaseModel):
+    id: int
+    name: str
+    class_id: int
+    class_name: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

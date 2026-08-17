@@ -128,11 +128,11 @@ export default function EditOrganizationModal({
               variant="outline"
               onClick={() => handleOpenChange(false)}
               disabled={loading}
-              className="rounded-xl"
+              className=""
             >
               Cancel
             </Button>
-            <Button type="submit" loading={loading} className="rounded-xl py-2.5 px-5">
+            <Button type="submit" loading={loading} className=" py-2.5 px-5">
               Save Changes
             </Button>
           </DialogFooter>
