@@ -225,7 +225,7 @@ export default function App() {
   const isSuperAdmin = user.role === "superadmin";
 
   return (
-    <div data-role={user.role} className="h-screen overflow-hidden flex bg-app-bg text-text-main transition-colors duration-300 w-full animate-fade-in">
+    <div data-role={user.role} className="h-screen overflow-hidden flex bg-app-bg text-text-main w-full animate-fade-in">
       <Sidebar
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}

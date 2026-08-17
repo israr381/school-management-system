@@ -20,7 +20,7 @@ export default function Home() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-linear-to-tr from-app-bg-radial-start to-app-bg-radial-end text-text-main flex flex-col justify-between transition-colors duration-300">
+    <div className="min-h-screen bg-linear-to-tr from-app-bg-radial-start to-app-bg-radial-end text-text-main flex flex-col justify-between">
 
       <header className="h-20 px-8 max-w-7xl w-full mx-auto flex items-center justify-between">
         <div className="flex items-center gap-3">
