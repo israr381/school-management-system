@@ -267,7 +267,14 @@
 
 html,
 body {
-  @apply bg-app-bg text-text-main transition-colors duration-300;
+  @apply bg-app-bg text-text-main;
+}
+
+html.disable-theme-transitions,
+html.disable-theme-transitions *,
+html.disable-theme-transitions *::before,
+html.disable-theme-transitions *::after {
+  transition: none !important;
 }
 
 .theme-logo-light {

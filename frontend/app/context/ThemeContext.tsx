@@ -29,8 +29,21 @@ function isThemePreference(value: string | null): value is ThemePreference {
   return value === "light" || value === "dark" || value === "system";
 }
 
+function disableThemeTransitions(root: HTMLElement) {
+  root.classList.add("disable-theme-transitions");
+  void root.offsetHeight;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      root.classList.remove("disable-theme-transitions");
+    });
+  });
+}
+
 function applyTheme(resolved: ResolvedTheme) {
   const root = document.documentElement;
+  disableThemeTransitions(root);
+
   if (resolved === "dark") {
     root.classList.add("dark");
     root.style.colorScheme = "dark";

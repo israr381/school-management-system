@@ -73,7 +73,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full text-text-main relative transition-colors duration-300 grid grid-cols-1 lg:grid-cols-2">
+    <div className="min-h-screen w-full text-text-main relative grid grid-cols-1 lg:grid-cols-2">
       <div className="absolute top-5 right-5 z-20">
         <ThemeToggle />
       </div>
