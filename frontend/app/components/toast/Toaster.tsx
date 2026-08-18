@@ -10,7 +10,7 @@ export default function Toaster() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="pointer-events-none fixed top-20 right-4 z-20 flex w-[min(100%-2rem,22rem)] flex-col gap-2">
+    <div className="pointer-events-none fixed top-20 right-4 z-[9999] flex w-[min(100%-2rem,22rem)] flex-col gap-2">
       {toasts.map((item) => {
         const isSuccess = item.variant === "success";
 
@@ -21,8 +21,8 @@ export default function Toaster() {
               item.exiting ? "toast-item-out" : "toast-item-in"
             } ${
               isSuccess
-                ? "border-success-border bg-success-bg text-success"
-                : "border-danger-border bg-danger-bg text-danger"
+                ? "toast-success border-success-border text-success"
+                : "toast-error border-danger-border text-danger"
             }`}
           >
             {isSuccess ? (

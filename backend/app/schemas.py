@@ -32,6 +32,7 @@ class UserResponse(BaseModel):
     avatar_url: Optional[str] = None
     organization_id: Optional[int] = None
     organization: Optional[OrganizationResponse] = None
+    must_change_password: bool = False
 
     class Config:
         from_attributes = True
@@ -41,6 +42,7 @@ class Token(BaseModel):
     token_type: str = "bearer"
     refresh_token: Optional[str] = None
     remember_me: bool = False
+    must_change_password: bool = False
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
@@ -73,7 +75,12 @@ class CreateOrganizationRequest(BaseModel):
     organization_domain: str = Field(..., min_length=3)
     admin_full_name: str = Field(..., min_length=1)
     admin_email: EmailStr
-    admin_password: str = Field(..., min_length=6)
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: Optional[str] = None
+    new_password: str = Field(..., min_length=6)
+    confirm_password: str = Field(..., min_length=6)
 
 class OrganizationUpdate(BaseModel):
     name: str = Field(..., min_length=1)

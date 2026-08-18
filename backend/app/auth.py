@@ -13,6 +13,7 @@ SECRET_KEY = os.getenv("JWT_SECRET", "db3a5b6c8d7e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 600
 REFRESH_TOKEN_EXPIRE_DAYS = 7
+DEFAULT_ADMIN_PASSWORD = "passpass"
 
 
 def organization_is_active(user: User) -> bool:

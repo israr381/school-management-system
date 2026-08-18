@@ -68,8 +68,8 @@ export default function ClassFormModal({
       } else {
         await createClass(token, payload);
       }
-      await onSuccess?.();
       onOpenChange(false);
+      void onSuccess?.();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {

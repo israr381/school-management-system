@@ -94,6 +94,7 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
         "token_type": "bearer",
         "refresh_token": refresh_token,
         "remember_me": login_data.remember_me,
+        "must_change_password": bool(user.must_change_password),
     }
 
 
@@ -130,9 +131,60 @@ def refresh_access_token(payload: schemas.RefreshTokenRequest, db: Session = Dep
         "token_type": "bearer",
         "refresh_token": refresh_token,
         "remember_me": True,
+        "must_change_password": bool(user.must_change_password),
     }
 
 
 @router.get("/me", response_model=schemas.UserResponse)
 def get_me(current_user: models.User = Depends(auth.get_current_user)):
     return current_user
+
+
+@router.post("/change-password")
+def change_password(
+    payload: schemas.ChangePasswordRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user),
+):
+    if payload.new_password != payload.confirm_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password and confirmation do not match",
+        )
+
+    if payload.new_password == auth.DEFAULT_ADMIN_PASSWORD:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Please choose a password other than the default password",
+        )
+
+    if auth.verify_password(payload.new_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password must be different from your current password",
+        )
+
+    if not current_user.must_change_password:
+        if not payload.current_password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Current password is required",
+            )
+        if not auth.verify_password(payload.current_password, current_user.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Current password is incorrect",
+            )
+
+    user = db.query(models.User).filter(models.User.id == current_user.id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    user.password_hash = auth.hash_password(payload.new_password)
+    user.must_change_password = False
+    db.commit()
+
+    return {"message": "Password updated successfully"}

@@ -41,3 +41,9 @@ def ensure_user_avatar_columns() -> None:
             connection.execute(
                 text("ALTER TABLE users ADD COLUMN avatar_public_id VARCHAR")
             )
+        if "must_change_password" not in columns:
+            connection.execute(
+                text(
+                    "ALTER TABLE users ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT FALSE"
+                )
+            )

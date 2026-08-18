@@ -12,6 +12,7 @@ export interface AuthTokens {
   token_type?: string;
   refresh_token?: string | null;
   remember_me?: boolean;
+  must_change_password?: boolean;
 }
 
 export function getAccessToken() {
@@ -141,4 +142,37 @@ export async function fetchCurrentUser(token: string) {
   }
 
   return data;
+}
+
+export async function changePassword(
+  token: string,
+  payload: {
+    new_password: string;
+    confirm_password: string;
+    current_password?: string;
+  },
+) {
+  const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const detail = data.detail;
+    const message =
+      typeof detail === "string"
+        ? detail
+        : Array.isArray(detail) && detail[0]?.msg
+          ? detail[0].msg
+          : "Failed to update password.";
+    throw new Error(message);
+  }
+
+  return data as { message: string };
 }

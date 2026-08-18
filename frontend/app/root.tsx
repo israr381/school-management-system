@@ -18,6 +18,8 @@ import { fetchCurrentUser, clearAuthSession, getAccessToken, isRememberMeEnabled
 import { fetchTenantStats } from "./store/organization";
 import { ThemeProvider } from "./context/ThemeContext";
 import Toaster from "./components/toast/Toaster";
+import ChangePasswordModal from "./components/modals/change-password/ChangePasswordModal";
+import { toast } from "./components/toast/toast";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -76,6 +78,7 @@ interface UserResponse {
   role: string;
   avatar_url?: string | null;
   organization_id: number | null;
+  must_change_password?: boolean;
   organization: {
     id: number;
     name: string;
@@ -104,14 +107,25 @@ export default function App() {
 
   const [user, setUser] = useState<UserResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth < 1024 : false,
+  );
   const [org, setOrg] = useState<UserResponse["organization"]>(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
-  // Superadmin stats data managed at the root layout level
   const [tenantData, setTenantData] = useState<TenantApiResponse | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
 
   const isPublicRoute = location.pathname === "/login" || location.pathname === "/";
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 1023px)");
+    const syncSidebar = () => setIsCollapsed(media.matches);
+
+    syncSidebar();
+    media.addEventListener("change", syncSidebar);
+    return () => media.removeEventListener("change", syncSidebar);
+  }, []);
 
   const fetchTenantData = async (token: string) => {
     try {
@@ -195,6 +209,19 @@ export default function App() {
     fetchUser();
   }, [navigate, isPublicRoute]);
 
+  useEffect(() => {
+    if (!user?.must_change_password) {
+      setShowChangePassword(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setShowChangePassword(true);
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [user?.must_change_password]);
+
   const handleLogout = () => {
     clearAuthSession();
     setUser(null);
@@ -254,6 +281,15 @@ export default function App() {
           />
         </main>
       </div>
+
+      <ChangePasswordModal
+        open={showChangePassword}
+        onSuccess={() => {
+          setShowChangePassword(false);
+          setUser({ ...user, must_change_password: false });
+          toast.success("Password updated successfully.");
+        }}
+      />
     </div>
   );
 }
