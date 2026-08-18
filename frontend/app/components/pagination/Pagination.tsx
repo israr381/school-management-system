@@ -3,9 +3,15 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  ChevronDown,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 export interface PaginationProps {
   currentPage: number;
@@ -70,9 +76,6 @@ export default function Pagination({
   onPageSizeChange,
   className = "",
 }: PaginationProps) {
-  const [pageSizeOpen, setPageSizeOpen] = useState(false);
-  const pageSizeRef = useRef<HTMLDivElement>(null);
-
   const pageNumbers = useMemo(
     () => getPaginationRange(currentPage, totalPages),
     [currentPage, totalPages]
@@ -81,20 +84,6 @@ export default function Pagination({
   const safePage = totalPages === 0 ? 0 : currentPage;
   const canGoPrev = currentPage > 1;
   const canGoNext = currentPage < totalPages;
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        pageSizeRef.current &&
-        !pageSizeRef.current.contains(event.target as Node)
-      ) {
-        setPageSizeOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   if (totalPages === 0) {
     return null;
@@ -170,45 +159,37 @@ export default function Pagination({
         </button>
       </div>
 
-      <div className="relative self-end sm:self-auto" ref={pageSizeRef}>
-        <button
-          type="button"
-          onClick={() => setPageSizeOpen((open) => !open)}
-          className="inline-flex h-9 items-center gap-2 rounded-lg border border-border-main bg-panel-bg px-3 text-sm font-medium text-text-muted transition-colors hover:bg-brand-soft hover:text-text-main focus:outline-none focus-visible:ring-2 focus-visible:ring-role-focus-ring cursor-pointer"
-          aria-haspopup="listbox"
-          aria-expanded={pageSizeOpen}
+      <div className="self-end sm:self-auto">
+        <Select
+          value={String(pageSize)}
+          onValueChange={(value: string | null) => {
+            if (value) onPageSizeChange(Number(value));
+          }}
+          items={pageSizeOptions.map((size) => ({
+            value: String(size),
+            label: `${size} / page`,
+          }))}
         >
-          {pageSize} / page
-          <ChevronDown
-            className={`h-4 w-4 transition-transform ${pageSizeOpen ? "rotate-180" : ""}`}
-          />
-        </button>
-
-        {pageSizeOpen && (
-          <ul
-            role="listbox"
-            className="absolute bottom-full right-0 z-20 mb-1 min-w-full overflow-hidden rounded-lg border border-border-main bg-panel-bg py-1 shadow-lg"
+          <SelectTrigger className="h-9 w-auto min-w-28 rounded-lg border-border-main bg-panel-bg px-3 text-sm font-medium text-text-muted hover:bg-brand-soft hover:text-text-main dark:bg-panel-bg dark:hover:bg-brand-soft">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            side="top"
+            align="end"
+            alignItemWithTrigger={false}
+            className="border-border-main bg-panel-bg text-text-main"
           >
             {pageSizeOptions.map((size) => (
-              <li key={size} role="option" aria-selected={size === pageSize}>
-                <button
-                  type="button"
-                  className={`w-full px-3 py-2 text-left text-sm transition-colors cursor-pointer ${
-                    size === pageSize
-                      ? "bg-role-active-bg font-semibold text-role-active-text"
-                      : "text-text-muted hover:bg-brand-soft hover:text-text-main"
-                  }`}
-                  onClick={() => {
-                    onPageSizeChange(size);
-                    setPageSizeOpen(false);
-                  }}
-                >
-                  {size} / page
-                </button>
-              </li>
+              <SelectItem
+                key={size}
+                value={String(size)}
+                className="cursor-pointer"
+              >
+                {size} / page
+              </SelectItem>
             ))}
-          </ul>
-        )}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

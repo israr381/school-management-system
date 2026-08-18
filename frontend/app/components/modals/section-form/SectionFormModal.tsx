@@ -8,7 +8,14 @@ import {
 } from "../../../store/classes";
 import Button from "../../button/Button";
 import Input from "../../input/Input";
-import Select from "../../input/Select";
+import { Label } from "~/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -114,18 +121,46 @@ export default function SectionFormModal({
             </div>
           )}
 
-          <Select
-            name="class_id"
-            label="Class"
-            required
-            value={classId}
-            onChange={(event) => setClassId(event.target.value)}
-            placeholder="Select a class"
-            options={classes.map((schoolClass) => ({
-              value: String(schoolClass.id),
-              label: schoolClass.name,
-            }))}
-          />
+          <div className="w-full">
+            <div className="mb-2 flex items-center">
+              <Label htmlFor="class_id" className="block text-sm font-medium leading-5 text-text-main">
+                Class
+              </Label>
+            </div>
+            <Select
+              id="class_id"
+              name="class_id"
+              required
+              modal={false}
+              value={classId || null}
+              onValueChange={(value: string | null) => setClassId(value ?? "")}
+              items={classes.map((schoolClass) => ({
+                value: String(schoolClass.id),
+                label: schoolClass.name,
+              }))}
+            >
+              <SelectTrigger
+                className="h-12.5 w-full rounded-md border-border-main bg-input-bg px-4 py-0 text-sm text-text-main shadow-none dark:bg-input-bg dark:hover:bg-input-bg focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
+              >
+                <SelectValue placeholder="Select a class" />
+              </SelectTrigger>
+              <SelectContent
+                align="start"
+                alignItemWithTrigger={false}
+                className="rounded-md border-border-main bg-panel-bg text-text-main"
+              >
+                {classes.map((schoolClass) => (
+                  <SelectItem
+                    key={schoolClass.id}
+                    value={String(schoolClass.id)}
+                    className="cursor-pointer"
+                  >
+                    {schoolClass.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Input
             type="text"
             name="section_name"
@@ -134,6 +169,7 @@ export default function SectionFormModal({
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="e.g. Section A"
+            className="h-12.5 rounded-md py-0"
           />
 
           <DialogFooter className="mx-0 mb-0 rounded-none border-border-main bg-transparent px-0 pb-0 pt-2">

@@ -4,6 +4,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   Settings,
+  Users,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 
@@ -22,6 +23,7 @@ interface SidebarProps {
 const iconColors = [
   "text-indigo-500 bg-indigo-50 dark:bg-indigo-500/15",
   "text-purple-500 bg-purple-50 dark:bg-purple-500/15",
+  "text-emerald-500 bg-emerald-50 dark:bg-emerald-500/15",
   "text-blue-500 bg-blue-50 dark:bg-blue-500/15",
 ];
 
@@ -33,6 +35,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
   const sidebarItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Organization", path: "/organization", icon: Building2 },
+    ...(role === "admin" ? [{ name: "Students", path: "/students", icon: Users }] : []),
     { name: "Settings", path: "/settings", icon: Settings },
   ];
 
