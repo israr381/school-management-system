@@ -33,26 +33,50 @@ def _clean_text(value: Optional[str]) -> Optional[str]:
     return stripped or None
 
 
-def _section_response(section: models.Section) -> schemas.SectionResponse:
+def _section_response(section: models.Section, student_count: int = 0) -> schemas.SectionResponse:
     class_name = section.school_class.name if section.school_class else ""
     return schemas.SectionResponse(
         id=section.id,
         name=section.name,
         class_id=section.class_id,
         class_name=class_name,
+        student_count=student_count,
         created_at=section.created_at,
         updated_at=section.updated_at,
     )
 
 
-def _class_response(school_class: models.SchoolClass, section_count: int) -> schemas.ClassResponse:
+def _class_response(
+    school_class: models.SchoolClass,
+    section_count: int,
+    student_count: int = 0,
+) -> schemas.ClassResponse:
     return schemas.ClassResponse(
         id=school_class.id,
         name=school_class.name,
         description=school_class.description,
         section_count=section_count,
+        student_count=student_count,
         created_at=school_class.created_at,
         updated_at=school_class.updated_at,
+    )
+
+
+def _student_count_for_class(db: Session, class_id: int) -> int:
+    return (
+        db.query(func.count(models.Student.id))
+        .filter(models.Student.class_id == class_id)
+        .scalar()
+        or 0
+    )
+
+
+def _student_count_for_section(db: Session, section_id: int) -> int:
+    return (
+        db.query(func.count(models.Student.id))
+        .filter(models.Student.section_id == section_id)
+        .scalar()
+        or 0
     )
 
 
@@ -118,7 +142,20 @@ def list_classes(
         .group_by(models.Section.class_id)
         .all()
     )
-    return [_class_response(school_class, counts.get(school_class.id, 0)) for school_class in classes]
+    student_counts = dict(
+        db.query(models.Student.class_id, func.count(models.Student.id))
+        .filter(models.Student.organization_id == org_id)
+        .group_by(models.Student.class_id)
+        .all()
+    )
+    return [
+        _class_response(
+            school_class,
+            counts.get(school_class.id, 0),
+            student_counts.get(school_class.id, 0),
+        )
+        for school_class in classes
+    ]
 
 
 @router.post("/api/classes", response_model=schemas.ClassResponse, status_code=status.HTTP_201_CREATED)
@@ -147,7 +184,7 @@ def create_class(
             detail="A class with this name already exists",
         )
     db.refresh(school_class)
-    return _class_response(school_class, 0)
+    return _class_response(school_class, 0, 0)
 
 
 @router.put("/api/classes/{class_id}", response_model=schemas.ClassResponse)
@@ -171,7 +208,11 @@ def update_class(
             detail="A class with this name already exists",
         )
     db.refresh(school_class)
-    return _class_response(school_class, _section_count(db, school_class.id))
+    return _class_response(
+        school_class,
+        _section_count(db, school_class.id),
+        _student_count_for_class(db, school_class.id),
+    )
 
 
 @router.delete("/api/classes/{class_id}")
@@ -182,6 +223,17 @@ def delete_class(
 ):
     org_id = _require_admin_org(current_user)
     school_class = _get_org_class(db, class_id, org_id)
+    student_count = (
+        db.query(func.count(models.Student.id))
+        .filter(models.Student.class_id == class_id)
+        .scalar()
+        or 0
+    )
+    if student_count:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete a class that has students",
+        )
     db.delete(school_class)
     db.commit()
     return {"message": "Class deleted successfully", "class_id": class_id}
@@ -200,7 +252,16 @@ def list_sections(
         .order_by(models.Section.created_at.desc())
         .all()
     )
-    return [_section_response(section) for section in sections]
+    student_counts = dict(
+        db.query(models.Student.section_id, func.count(models.Student.id))
+        .filter(models.Student.organization_id == org_id)
+        .group_by(models.Student.section_id)
+        .all()
+    )
+    return [
+        _section_response(section, student_counts.get(section.id, 0))
+        for section in sections
+    ]
 
 
 @router.post("/api/sections", response_model=schemas.SectionResponse, status_code=status.HTTP_201_CREATED)
@@ -230,7 +291,7 @@ def create_section(
         )
     db.refresh(section)
     section.school_class = school_class
-    return _section_response(section)
+    return _section_response(section, 0)
 
 
 @router.put("/api/sections/{section_id}", response_model=schemas.SectionResponse)
@@ -256,7 +317,7 @@ def update_section(
         )
     db.refresh(section)
     section.school_class = school_class
-    return _section_response(section)
+    return _section_response(section, _student_count_for_section(db, section.id))
 
 
 @router.delete("/api/sections/{section_id}")
@@ -267,6 +328,17 @@ def delete_section(
 ):
     org_id = _require_admin_org(current_user)
     section = _get_org_section(db, section_id, org_id)
+    student_count = (
+        db.query(func.count(models.Student.id))
+        .filter(models.Student.section_id == section_id)
+        .scalar()
+        or 0
+    )
+    if student_count:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete a section that has students",
+        )
     db.delete(section)
     db.commit()
     return {"message": "Section deleted successfully", "section_id": section_id}

@@ -110,6 +110,7 @@ export default function AddOrganizationModal({
                 value={form.organization_name}
                 onChange={handleInputChange}
                 placeholder="e.g. Oakridge Academy"
+                className="rounded-md"
               />
               <Input
                 type="text"
@@ -119,6 +120,7 @@ export default function AddOrganizationModal({
                 value={form.organization_domain}
                 onChange={handleInputChange}
                 placeholder="e.g. oakridge.edu"
+                className="rounded-md"
               />
             </div>
           </div>
@@ -137,6 +139,7 @@ export default function AddOrganizationModal({
               value={form.admin_full_name}
               onChange={handleInputChange}
               placeholder="e.g. Sarah Jenkins"
+              className="rounded-md"
             />
             <Input
               type="email"
@@ -146,6 +149,7 @@ export default function AddOrganizationModal({
               value={form.admin_email}
               onChange={handleInputChange}
               placeholder="e.g. s.jenkins@oakridge.edu"
+              className="rounded-md"
             />
           </div>
 

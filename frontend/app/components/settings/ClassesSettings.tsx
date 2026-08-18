@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { GraduationCap, LayoutList, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { GraduationCap, LayoutList, Loader2, Pencil, Plus, Trash2, Users } from "lucide-react";
 import { getAccessToken } from "../../store/auth";
 import { deleteClass, fetchClasses, type SchoolClass } from "../../store/classes";
 import { toast } from "../toast/toast";
@@ -133,6 +133,18 @@ export default function ClassesSettings() {
           <span className="inline-flex items-center gap-1.5 font-semibold text-text-main">
             <LayoutList className="h-3.5 w-3.5 text-brand" />
             {row.section_count ?? 0}
+          </span>
+        ),
+      },
+      {
+        key: "student_count",
+        header: "Students",
+        sortable: true,
+        sortValue: (row) => row.student_count ?? 0,
+        render: (row) => (
+          <span className="inline-flex items-center gap-1.5 font-semibold text-text-main">
+            <Users className="h-3.5 w-3.5 text-brand" />
+            {row.student_count ?? 0}
           </span>
         ),
       },

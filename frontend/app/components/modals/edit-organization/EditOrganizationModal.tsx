@@ -111,6 +111,7 @@ export default function EditOrganizationModal({
             value={form.name}
             onChange={handleInputChange}
             placeholder="e.g. Oakridge Academy"
+            className="rounded-md"
           />
           <Input
             type="text"
@@ -120,6 +121,7 @@ export default function EditOrganizationModal({
             value={form.domain}
             onChange={handleInputChange}
             placeholder="e.g. oakridge.edu"
+            className="rounded-md"
           />
 
           <DialogFooter className="mx-0 mb-0 rounded-none border-border-main bg-transparent px-0 pb-0 pt-2">

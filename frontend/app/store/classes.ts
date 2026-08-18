@@ -5,6 +5,7 @@ export interface SchoolClass {
   name: string;
   description: string | null;
   section_count: number;
+  student_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -14,6 +15,7 @@ export interface SchoolSection {
   name: string;
   class_id: number;
   class_name: string;
+  student_count: number;
   created_at: string;
   updated_at: string;
 }

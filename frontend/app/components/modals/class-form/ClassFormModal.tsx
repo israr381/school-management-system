@@ -109,6 +109,7 @@ export default function ClassFormModal({
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="e.g. Grade 5"
+            className="rounded-md"
           />
           <Textarea
             name="class_description"
@@ -117,6 +118,7 @@ export default function ClassFormModal({
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             placeholder="e.g. Morning session for Grade 5 students"
+            className="rounded-md"
           />
 
           <DialogFooter className="mx-0 mb-0 rounded-none border-border-main bg-transparent px-0 pb-0 pt-2">

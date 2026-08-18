@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, UniqueConstraint
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship as orm_relationship
 from app.database import Base
 
 class Organization(Base):
@@ -15,8 +15,11 @@ class Organization(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    users = relationship("User", back_populates="organization", cascade="all, delete-orphan")
-    classes = relationship("SchoolClass", back_populates="organization", cascade="all, delete-orphan")
+    users = orm_relationship("User", back_populates="organization", cascade="all, delete-orphan")
+    classes = orm_relationship("SchoolClass", back_populates="organization", cascade="all, delete-orphan")
+    parents = orm_relationship("Parent", back_populates="organization", cascade="all, delete-orphan")
+    students = orm_relationship("Student", back_populates="organization", cascade="all, delete-orphan")
+    teachers = orm_relationship("Teacher", back_populates="organization", cascade="all, delete-orphan")
 
 class Role(Base):
     __tablename__ = "roles"
@@ -40,8 +43,11 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    organization = relationship("Organization", back_populates="users")
-    role_relation = relationship("Role")
+    organization = orm_relationship("Organization", back_populates="users")
+    role_relation = orm_relationship("Role")
+    student_profile = orm_relationship("Student", back_populates="user", uselist=False)
+    parent_profile = orm_relationship("Parent", back_populates="user", uselist=False)
+    teacher_profile = orm_relationship("Teacher", back_populates="user", uselist=False)
 
     @property
     def role(self) -> str:
@@ -63,8 +69,9 @@ class SchoolClass(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    organization = relationship("Organization", back_populates="classes")
-    sections = relationship("Section", back_populates="school_class", cascade="all, delete-orphan")
+    organization = orm_relationship("Organization", back_populates="classes")
+    sections = orm_relationship("Section", back_populates="school_class", cascade="all, delete-orphan")
+    students = orm_relationship("Student", back_populates="school_class")
 
 
 class Section(Base):
@@ -82,5 +89,77 @@ class Section(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    school_class = relationship("SchoolClass", back_populates="sections")
-    organization = relationship("Organization")
+    school_class = orm_relationship("SchoolClass", back_populates="sections")
+    organization = orm_relationship("Organization")
+    students = orm_relationship("Student", back_populates="section")
+
+
+class Parent(Base):
+    __tablename__ = "parents"
+    __table_args__ = (
+        UniqueConstraint("organization_id", "email", name="uq_parent_org_email"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    organization_id = Column(
+        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    full_name = Column(String, nullable=False)
+    email = Column(String, nullable=False, index=True)
+    phone = Column(String, nullable=False)
+    relationship = Column(String, nullable=False, default="father")
+    address = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = orm_relationship("User", back_populates="parent_profile")
+    organization = orm_relationship("Organization", back_populates="parents")
+    students = orm_relationship("Student", back_populates="parent")
+
+
+class Student(Base):
+    __tablename__ = "students"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    parent_id = Column(Integer, ForeignKey("parents.id", ondelete="RESTRICT"), nullable=False, index=True)
+    organization_id = Column(
+        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    class_id = Column(Integer, ForeignKey("classes.id", ondelete="RESTRICT"), nullable=False, index=True)
+    section_id = Column(Integer, ForeignKey("sections.id", ondelete="RESTRICT"), nullable=False, index=True)
+    full_name = Column(String, nullable=False)
+    email = Column(String, nullable=False, index=True)
+    phone = Column(String, nullable=False)
+    address = Column(Text, nullable=False)
+    status = Column(String, nullable=False, default="active", index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = orm_relationship("User", back_populates="student_profile")
+    parent = orm_relationship("Parent", back_populates="students")
+    organization = orm_relationship("Organization", back_populates="students")
+    school_class = orm_relationship("SchoolClass", back_populates="students")
+    section = orm_relationship("Section", back_populates="students")
+
+
+class Teacher(Base):
+    __tablename__ = "teachers"
+    __table_args__ = (
+        UniqueConstraint("organization_id", "email", name="uq_teacher_org_email"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    organization_id = Column(
+        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    full_name = Column(String, nullable=False)
+    email = Column(String, nullable=False, index=True)
+    phone = Column(String, nullable=False)
+    address = Column(Text, nullable=False)
+    subject = Column(String, nullable=True)
+    status = Column(String, nullable=False, default="active", index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = orm_relationship("User", back_populates="teacher_profile")
+    organization = orm_relationship("Organization", back_populates="teachers")
