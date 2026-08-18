@@ -72,8 +72,8 @@ export default function EditOrganizationModal({
         name: form.name,
         domain: form.domain,
       });
-      await onSuccess?.();
       onOpenChange(false);
+      void onSuccess?.();
     } catch (err: any) {
       setError(err.message || "Failed to update organization.");
     } finally {

@@ -104,13 +104,14 @@ def create_organization(
         db.commit()
         db.refresh(admin_role)
 
-    hashed_pwd = auth.hash_password(data.admin_password)
+    hashed_pwd = auth.hash_password(auth.DEFAULT_ADMIN_PASSWORD)
     new_admin = models.User(
         email=data.admin_email.strip(),
         password_hash=hashed_pwd,
         full_name=data.admin_full_name.strip(),
         role_id=admin_role.id,
         organization_id=new_org.id,
+        must_change_password=True,
     )
     db.add(new_admin)
     db.commit()

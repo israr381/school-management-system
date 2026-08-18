@@ -398,6 +398,19 @@ html.disable-theme-transitions *::after {
   @apply text-brand;
 }
 
+.toast-item.toast-success,
+.toast-item.toast-error {
+  background-color: var(--panel-bg);
+}
+
+.toast-item.toast-success {
+  background-color: color-mix(in srgb, var(--panel-bg) 72%, #10b981 28%);
+}
+
+.toast-item.toast-error {
+  background-color: color-mix(in srgb, var(--panel-bg) 72%, #ef4444 28%);
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;

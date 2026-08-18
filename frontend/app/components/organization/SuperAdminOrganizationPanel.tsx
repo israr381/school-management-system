@@ -14,11 +14,13 @@ import {
   Users,
 } from "lucide-react";
 import { deleteOrganization, toggleOrganizationStatus } from "../../store/organization";
+import { toast } from "../toast/toast";
 import { getSuperAdminKpis } from "../dashboards/super-admin/systemData";
 import Button from "../button/Button";
 import Input from "../input/Input";
 import AddOrganizationModal from "../modals/add-organization/AddOrganizationModal";
 import EditOrganizationModal from "../modals/edit-organization/EditOrganizationModal";
+import ConfirmDeleteModal from "../modals/confirm-delete/ConfirmDeleteModal";
 import Pagination, { paginateItems } from "../pagination/Pagination";
 import Table, { type TableColumn } from "../table/Table";
 import OrganizationAvatar from "./OrganizationAvatar";
@@ -83,9 +85,10 @@ export default function SuperAdminOrganizationPanel({
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
-  const [actionError, setActionError] = useState("");
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [togglingId, setTogglingId] = useState<number | null>(null);
+  const [confirmAction, setConfirmAction] = useState<
+    { kind: "delete" | "toggle"; tenant: Tenant } | null
+  >(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const tenants = tenantData?.tenants ?? [];
   const kpiCards = getSuperAdminKpis(tenantData, statsLoading);
@@ -100,64 +103,80 @@ export default function SuperAdminOrganizationPanel({
     if (!open) setEditingTenant(null);
   };
 
-  const handleDelete = async (tenant: Tenant) => {
-    const confirmed = window.confirm(
-      `Delete "${tenant.name}"? This will also remove its users.`,
-    );
-    if (!confirmed) return;
+  const handleConfirmAction = async () => {
+    if (!confirmAction) return;
 
     const token = localStorage.getItem("token");
     if (!token) {
-      setActionError("Authentication session expired. Please sign in again.");
+      toast.error("Authentication session expired. Please sign in again.");
       return;
     }
 
-    setActionError("");
-    setDeletingId(tenant.id);
+    const { kind, tenant } = confirmAction;
+    setConfirmLoading(true);
 
     try {
-      await deleteOrganization(token, tenant.id);
-      await refreshStats();
+      if (kind === "delete") {
+        await deleteOrganization(token, tenant.id);
+        setConfirmAction(null);
+        toast.success(`"${tenant.name}" was deleted.`);
+      } else {
+        const isActive = tenant.is_active !== false;
+        await toggleOrganizationStatus(token, tenant.id, !isActive);
+        setConfirmAction(null);
+        toast.success(
+          isActive ? `"${tenant.name}" was disabled.` : `"${tenant.name}" was enabled.`,
+        );
+      }
+      void refreshStats();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to delete organization.";
-      setActionError(message);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : kind === "delete"
+            ? "Failed to delete organization."
+            : "Failed to update organization status.",
+      );
     } finally {
-      setDeletingId(null);
+      setConfirmLoading(false);
     }
   };
 
-  const handleToggleStatus = async (tenant: Tenant) => {
+  const confirmCopy = (() => {
+    if (!confirmAction) {
+      return {
+        title: "",
+        description: "",
+        confirmLabel: "Confirm",
+        confirmVariant: "danger" as const,
+      };
+    }
+
+    const { kind, tenant } = confirmAction;
+    if (kind === "delete") {
+      return {
+        title: "Delete organization?",
+        description: `Are you sure you want to delete "${tenant.name}"? This will also remove its users.`,
+        confirmLabel: "Yes, delete",
+        confirmVariant: "danger" as const,
+      };
+    }
+
     const isActive = tenant.is_active !== false;
-    const action = isActive ? "disable" : "enable";
-    const confirmed = window.confirm(
-      `${action === "disable" ? "Disable" : "Enable"} "${tenant.name}"? ${
-        action === "disable"
-          ? "Users in this organization will not be able to sign in."
-          : "Users in this organization will be able to sign in again."
-      }`,
-    );
-    if (!confirmed) return;
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setActionError("Authentication session expired. Please sign in again.");
-      return;
-    }
-
-    setActionError("");
-    setTogglingId(tenant.id);
-
-    try {
-      await toggleOrganizationStatus(token, tenant.id, !isActive);
-      await refreshStats();
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to update organization status.";
-      setActionError(message);
-    } finally {
-      setTogglingId(null);
-    }
-  };
+    return isActive
+      ? {
+          title: "Disable organization?",
+          description: `Are you sure you want to disable "${tenant.name}"? Users in this organization will not be able to sign in.`,
+          confirmLabel: "Yes, disable",
+          confirmVariant: "danger" as const,
+        }
+      : {
+          title: "Enable organization?",
+          description: `Are you sure you want to enable "${tenant.name}"? Users in this organization will be able to sign in again.`,
+          confirmLabel: "Yes, enable",
+          confirmVariant: "primary" as const,
+        };
+  })();
 
   const filteredTenants = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -265,16 +284,11 @@ export default function SuperAdminOrganizationPanel({
                   variant="ghost"
                   size="icon-sm"
                   className="cursor-pointer text-text-muted hover:bg-surface-soft hover:text-text-main"
-                  disabled={deletingId === tenant.id || togglingId === tenant.id}
                   aria-label={`Actions for ${tenant.name}`}
                 />
               }
             >
-              {deletingId === tenant.id || togglingId === tenant.id ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <MoreVertical className="size-4" />
-              )}
+              <MoreVertical className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-36">
               <DropdownMenuItem className="cursor-pointer" onClick={() => openEditModal(tenant)}>
@@ -284,7 +298,7 @@ export default function SuperAdminOrganizationPanel({
               {tenant.is_active !== false ? (
                 <DropdownMenuItem
                   className="cursor-pointer"
-                  onClick={() => handleToggleStatus(tenant)}
+                  onClick={() => setConfirmAction({ kind: "toggle", tenant })}
                 >
                   <Ban className="size-4" />
                   Disable
@@ -292,7 +306,7 @@ export default function SuperAdminOrganizationPanel({
               ) : (
                 <DropdownMenuItem
                   className="cursor-pointer"
-                  onClick={() => handleToggleStatus(tenant)}
+                  onClick={() => setConfirmAction({ kind: "toggle", tenant })}
                 >
                   <ShieldCheck className="size-4" />
                   Enable
@@ -301,7 +315,7 @@ export default function SuperAdminOrganizationPanel({
               <DropdownMenuItem
                 variant="destructive"
                 className="cursor-pointer"
-                onClick={() => handleDelete(tenant)}
+                onClick={() => setConfirmAction({ kind: "delete", tenant })}
               >
                 <Trash2 className="size-4" />
                 Delete
@@ -311,7 +325,7 @@ export default function SuperAdminOrganizationPanel({
         ),
       },
     ],
-    [deletingId, togglingId],
+    [],
   );
 
   const showingLabel =
@@ -322,7 +336,7 @@ export default function SuperAdminOrganizationPanel({
   return (
     <div className="mx-auto max-w-350 space-y-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+            <div>
           <h1 className="text-2xl font-bold text-text-main tracking-tight">
             Organizations
           </h1>
@@ -366,12 +380,6 @@ export default function SuperAdminOrganizationPanel({
           );
         })}
       </div>
-
-      {actionError && (
-        <div className="rounded-xl border border-danger-border bg-danger-bg p-3.5 text-sm text-danger">
-          {actionError}
-        </div>
-      )}
 
       <div className="overflow-hidden">
         <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -439,14 +447,33 @@ export default function SuperAdminOrganizationPanel({
       <AddOrganizationModal
         open={addModalOpen}
         onOpenChange={setAddModalOpen}
-        onSuccess={refreshStats}
+        onSuccess={async () => {
+          toast.success("Organization created successfully.");
+          await refreshStats();
+        }}
       />
 
       <EditOrganizationModal
         open={editModalOpen}
         organization={editingTenant}
         onOpenChange={handleEditOpenChange}
-        onSuccess={refreshStats}
+        onSuccess={async () => {
+          toast.success("Organization updated successfully.");
+          await refreshStats();
+        }}
+      />
+
+      <ConfirmDeleteModal
+        open={Boolean(confirmAction)}
+        title={confirmCopy.title}
+        description={confirmCopy.description}
+        confirmLabel={confirmCopy.confirmLabel}
+        confirmVariant={confirmCopy.confirmVariant}
+        loading={confirmLoading}
+        onOpenChange={(open) => {
+          if (!open && !confirmLoading) setConfirmAction(null);
+        }}
+        onConfirm={handleConfirmAction}
       />
     </div>
   );

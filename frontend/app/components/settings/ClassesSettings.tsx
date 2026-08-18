@@ -94,9 +94,9 @@ export default function ClassesSettings() {
     setDeleting(true);
     try {
       await deleteClass(token, deletingClass.id);
-      await loadClasses(true);
-      toast.success(`"${deletingClass.name}" was deleted.`);
       setDeletingClass(null);
+      toast.success(`"${deletingClass.name}" was deleted.`);
+      void loadClasses(true);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to delete class.");
     } finally {

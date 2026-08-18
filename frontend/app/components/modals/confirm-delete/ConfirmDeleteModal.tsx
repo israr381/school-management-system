@@ -13,6 +13,8 @@ interface ConfirmDeleteModalProps {
   title: string;
   description: string;
   loading?: boolean;
+  confirmLabel?: string;
+  confirmVariant?: "danger" | "primary";
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }
@@ -22,6 +24,8 @@ export default function ConfirmDeleteModal({
   title,
   description,
   loading = false,
+  confirmLabel = "Yes, delete",
+  confirmVariant = "danger",
   onOpenChange,
   onConfirm,
 }: ConfirmDeleteModalProps) {
@@ -56,12 +60,16 @@ export default function ConfirmDeleteModal({
           </Button>
           <Button
             type="button"
-            variant="danger"
+            variant={confirmVariant}
             loading={loading}
             onClick={onConfirm}
-            className="border border-danger-border bg-danger px-5 py-2.5 text-sm text-white hover:bg-danger/90 hover:text-white"
+            className={
+              confirmVariant === "danger"
+                ? "border border-danger-border bg-danger px-5 py-2.5 text-sm text-white hover:bg-danger/90 hover:text-white"
+                : "px-5 py-2.5 text-sm"
+            }
           >
-            Yes, delete
+            {confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

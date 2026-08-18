@@ -113,9 +113,9 @@ export default function SectionsSettings() {
     setDeleting(true);
     try {
       await deleteSection(token, deletingSection.id);
-      await loadData(true);
-      toast.success(`"${deletingSection.name}" was deleted.`);
       setDeletingSection(null);
+      toast.success(`"${deletingSection.name}" was deleted.`);
+      void loadData(true);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to delete section.");
     } finally {

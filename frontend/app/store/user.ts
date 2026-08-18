@@ -7,6 +7,7 @@ export interface UserPayload {
   role: string;
   avatar_url?: string | null;
   organization_id: number | null;
+  must_change_password?: boolean;
   organization?: {
     id: number;
     name: string;

@@ -36,6 +36,7 @@ class User(Base):
     avatar_url = Column(String, nullable=True)
     avatar_public_id = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
+    must_change_password = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

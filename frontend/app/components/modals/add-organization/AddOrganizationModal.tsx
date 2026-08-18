@@ -16,7 +16,6 @@ const emptyForm = {
   organization_domain: "",
   admin_full_name: "",
   admin_email: "",
-  admin_password: "",
 };
 
 interface AddOrganizationModalProps {
@@ -33,13 +32,11 @@ export default function AddOrganizationModal({
   const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     if (!open) return;
     setForm(emptyForm);
     setError("");
-    setSuccess("");
     setLoading(false);
   }, [open]);
 
@@ -58,7 +55,6 @@ export default function AddOrganizationModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
     setLoading(true);
 
     const token = localStorage.getItem("token");
@@ -70,14 +66,8 @@ export default function AddOrganizationModal({
 
     try {
       await createOrganization(token, form);
-      setSuccess("Organization and admin account created successfully!");
-      setForm(emptyForm);
-      await onSuccess?.();
-
-      window.setTimeout(() => {
-        onOpenChange(false);
-        setSuccess("");
-      }, 900);
+      onOpenChange(false);
+      void onSuccess?.();
     } catch (err: any) {
       setError(err.message || "Something went wrong during form submission.");
     } finally {
@@ -104,12 +94,6 @@ export default function AddOrganizationModal({
           {error && (
             <div className="p-3.5 rounded-xl bg-danger-bg border border-danger-border text-danger text-sm">
               {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="p-3.5 rounded-xl bg-success-bg border border-success-border text-success text-sm">
-              {success}
             </div>
           )}
 
@@ -154,27 +138,15 @@ export default function AddOrganizationModal({
               onChange={handleInputChange}
               placeholder="e.g. Sarah Jenkins"
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                type="email"
-                name="admin_email"
-                label="Admin Login Email"
-                required
-                value={form.admin_email}
-                onChange={handleInputChange}
-                placeholder="e.g. s.jenkins@oakridge.edu"
-              />
-              <Input
-                type="password"
-                name="admin_password"
-                label="Admin Password"
-                required
-                minLength={6}
-                value={form.admin_password}
-                onChange={handleInputChange}
-                placeholder="••••••••"
-              />
-            </div>
+            <Input
+              type="email"
+              name="admin_email"
+              label="Admin Login Email"
+              required
+              value={form.admin_email}
+              onChange={handleInputChange}
+              placeholder="e.g. s.jenkins@oakridge.edu"
+            />
           </div>
 
           <DialogFooter className="mx-0 mb-0 rounded-none border-border-main bg-transparent px-0 pb-0 pt-2">
