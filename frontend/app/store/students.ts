@@ -54,6 +54,50 @@ export interface CreateStudentPayload {
   parent_address?: string | null;
 }
 
+function createCache<T>() {
+  let cache: { token: string; data: T } | null = null;
+  let inFlight: Promise<T> | null = null;
+
+  return {
+    invalidate() {
+      cache = null;
+      inFlight = null;
+    },
+    async get(token: string, loader: () => Promise<T>, force = false) {
+      if (!force && cache?.token === token) {
+        return cache.data;
+      }
+      if (!force && inFlight) {
+        return inFlight;
+      }
+
+      const request = loader()
+        .then((data) => {
+          cache = { token, data };
+          return data;
+        })
+        .finally(() => {
+          if (inFlight === request) {
+            inFlight = null;
+          }
+        });
+
+      inFlight = request;
+      return request;
+    },
+  };
+}
+
+const studentsCache = createCache<Student[]>();
+const parentsCache = createCache<StudentParent[]>();
+const statsCache = createCache<StudentStats>();
+
+function invalidateStudentCaches() {
+  studentsCache.invalidate();
+  parentsCache.invalidate();
+  statsCache.invalidate();
+}
+
 async function parseError(response: Response, fallback: string) {
   const data = await response.json().catch(() => ({}));
   const detail = data.detail;
@@ -63,7 +107,7 @@ async function parseError(response: Response, fallback: string) {
   throw new Error(fallback);
 }
 
-export async function fetchStudents(token: string): Promise<Student[]> {
+async function requestStudents(token: string): Promise<Student[]> {
   const response = await fetch(`${API_BASE_URL}/students`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -74,7 +118,7 @@ export async function fetchStudents(token: string): Promise<Student[]> {
   return data;
 }
 
-export async function fetchParents(token: string): Promise<StudentParent[]> {
+async function requestParents(token: string): Promise<StudentParent[]> {
   const response = await fetch(`${API_BASE_URL}/parents`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -85,7 +129,7 @@ export async function fetchParents(token: string): Promise<StudentParent[]> {
   return data;
 }
 
-export async function fetchStudentStats(token: string): Promise<StudentStats> {
+async function requestStudentStats(token: string): Promise<StudentStats> {
   const response = await fetch(`${API_BASE_URL}/students/stats`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -94,6 +138,27 @@ export async function fetchStudentStats(token: string): Promise<StudentStats> {
     throw new Error(typeof data.detail === "string" ? data.detail : "Failed to load student stats.");
   }
   return data;
+}
+
+export async function fetchStudents(
+  token: string,
+  options?: { force?: boolean },
+): Promise<Student[]> {
+  return studentsCache.get(token, () => requestStudents(token), options?.force);
+}
+
+export async function fetchParents(
+  token: string,
+  options?: { force?: boolean },
+): Promise<StudentParent[]> {
+  return parentsCache.get(token, () => requestParents(token), options?.force);
+}
+
+export async function fetchStudentStats(
+  token: string,
+  options?: { force?: boolean },
+): Promise<StudentStats> {
+  return statsCache.get(token, () => requestStudentStats(token), options?.force);
 }
 
 export async function createStudent(
@@ -111,6 +176,7 @@ export async function createStudent(
   if (!response.ok) {
     await parseError(response, "Failed to create student.");
   }
+  invalidateStudentCaches();
   return response.json();
 }
 
@@ -130,6 +196,7 @@ export async function updateStudent(
   if (!response.ok) {
     await parseError(response, "Failed to update student.");
   }
+  invalidateStudentCaches();
   return response.json();
 }
 
@@ -141,4 +208,5 @@ export async function deleteStudent(token: string, studentId: number) {
   if (!response.ok) {
     await parseError(response, "Failed to delete student.");
   }
+  invalidateStudentCaches();
 }

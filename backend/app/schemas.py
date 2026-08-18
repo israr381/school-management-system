@@ -214,3 +214,35 @@ class StudentStatsResponse(BaseModel):
     graduated_students: int
     disabled_students: int
     by_class: List[ClassStudentCount]
+
+
+class TeacherCreate(BaseModel):
+    full_name: str = Field(..., min_length=1)
+    email: EmailStr
+    phone: str = Field(..., min_length=6)
+    address: str = Field(..., min_length=1)
+    subject: Optional[str] = None
+
+
+class TeacherUpdate(TeacherCreate):
+    status: Literal["active", "disabled"] = "active"
+
+
+class TeacherResponse(BaseModel):
+    id: int
+    full_name: str
+    email: EmailStr
+    phone: str
+    address: str
+    subject: Optional[str] = None
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class TeacherStatsResponse(BaseModel):
+    total_teachers: int
+    active_teachers: int
+    disabled_teachers: int

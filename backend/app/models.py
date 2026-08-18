@@ -19,6 +19,7 @@ class Organization(Base):
     classes = orm_relationship("SchoolClass", back_populates="organization", cascade="all, delete-orphan")
     parents = orm_relationship("Parent", back_populates="organization", cascade="all, delete-orphan")
     students = orm_relationship("Student", back_populates="organization", cascade="all, delete-orphan")
+    teachers = orm_relationship("Teacher", back_populates="organization", cascade="all, delete-orphan")
 
 class Role(Base):
     __tablename__ = "roles"
@@ -46,6 +47,7 @@ class User(Base):
     role_relation = orm_relationship("Role")
     student_profile = orm_relationship("Student", back_populates="user", uselist=False)
     parent_profile = orm_relationship("Parent", back_populates="user", uselist=False)
+    teacher_profile = orm_relationship("Teacher", back_populates="user", uselist=False)
 
     @property
     def role(self) -> str:
@@ -138,3 +140,26 @@ class Student(Base):
     organization = orm_relationship("Organization", back_populates="students")
     school_class = orm_relationship("SchoolClass", back_populates="students")
     section = orm_relationship("Section", back_populates="students")
+
+
+class Teacher(Base):
+    __tablename__ = "teachers"
+    __table_args__ = (
+        UniqueConstraint("organization_id", "email", name="uq_teacher_org_email"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    organization_id = Column(
+        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    full_name = Column(String, nullable=False)
+    email = Column(String, nullable=False, index=True)
+    phone = Column(String, nullable=False)
+    address = Column(Text, nullable=False)
+    subject = Column(String, nullable=True)
+    status = Column(String, nullable=False, default="active", index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = orm_relationship("User", back_populates="teacher_profile")
+    organization = orm_relationship("Organization", back_populates="teachers")

@@ -12,6 +12,7 @@ from app.routers.auth import router as auth_router
 from app.routers.classes import router as classes_router
 from app.routers.organizations import router as organizations_router
 from app.routers.students import router as students_router
+from app.routers.teachers import router as teachers_router
 from app.routers.users import avatar_router as user_avatar_router
 from app.routers.users import router as users_router
 
@@ -24,7 +25,7 @@ async def lifespan(app: FastAPI):
 
     db = SessionLocal()
     try:
-        default_roles = ["superadmin", "admin", "student", "parent"]
+        default_roles = ["superadmin", "admin", "student", "parent", "teacher"]
         for role_name in default_roles:
             exists = db.query(models.Role).filter(models.Role.name == role_name).first()
             if not exists:
@@ -60,6 +61,7 @@ app.include_router(user_avatar_router)
 app.include_router(organizations_router)
 app.include_router(classes_router)
 app.include_router(students_router)
+app.include_router(teachers_router)
 
 
 @app.get("/")

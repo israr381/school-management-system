@@ -114,11 +114,11 @@ export default function StudentsPanel() {
     }
 
     const [studentRows, studentStats, classRows, sectionRows, parentRows] = await Promise.all([
-      fetchStudents(token),
-      fetchStudentStats(token),
+      fetchStudents(token, { force }),
+      fetchStudentStats(token, { force }),
       fetchClasses(token, { force }),
       fetchSections(token, { force }),
-      fetchParents(token),
+      fetchParents(token, { force }),
     ]);
 
     setStudents(studentRows);
