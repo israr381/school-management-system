@@ -170,6 +170,32 @@ class SectionResponse(BaseModel):
         from_attributes = True
 
 
+class SubjectCreate(BaseModel):
+    name: str = Field(..., min_length=1)
+    class_id: int
+    section_id: int
+
+
+class SubjectUpdate(BaseModel):
+    name: str = Field(..., min_length=1)
+    class_id: int
+    section_id: int
+
+
+class SubjectResponse(BaseModel):
+    id: int
+    name: str
+    class_id: int
+    class_name: str
+    section_id: int
+    section_name: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 class ParentResponse(BaseModel):
     id: int
     full_name: str
