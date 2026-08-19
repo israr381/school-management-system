@@ -16,6 +16,7 @@ import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import { fetchCurrentUser, clearAuthSession, getAccessToken, isRememberMeEnabled, refreshAccessToken, startTokenRefresh } from "./store/auth";
 import { fetchTenantStats } from "./store/organization";
+import { useRbacStore } from "./store/rbacStore";
 import { ThemeProvider } from "./context/ThemeContext";
 import Toaster from "./components/toast/Toaster";
 import ChangePasswordModal from "./components/modals/change-password/ChangePasswordModal";
@@ -79,6 +80,7 @@ interface UserResponse {
   avatar_url?: string | null;
   organization_id: number | null;
   must_change_password?: boolean;
+  permissions?: string[];
   organization: {
     id: number;
     name: string;
@@ -146,6 +148,16 @@ export default function App() {
     }
   };
 
+  const applyUserPermissions = (permissions: unknown) => {
+    useRbacStore.setState({
+      permissions: Array.isArray(permissions)
+        ? permissions.filter((item): item is string => typeof item === "string")
+        : [],
+      isLoading: false,
+      loadedFromApi: true,
+    });
+  };
+
   useEffect(() => {
     if (isPublicRoute) {
       setLoading(false);
@@ -154,6 +166,7 @@ export default function App() {
 
     const fetchUser = async () => {
       let token = getAccessToken();
+      useRbacStore.setState({ isLoading: true });
 
       if (!token && isRememberMeEnabled()) {
         try {
@@ -161,26 +174,32 @@ export default function App() {
           token = refreshed.access_token;
         } catch {
           clearAuthSession();
+          useRbacStore.getState().clearPermissions();
           navigate("/login");
           return;
         }
       }
 
       if (!token) {
+        useRbacStore.getState().clearPermissions();
         navigate("/login");
         return;
       }
 
       try {
         const data = await fetchCurrentUser(token);
-        setUser(data);
-        setOrg(data.organization);
+        setUser({ ...data, organization: data.organization ?? null });
+        setOrg(data.organization ?? null);
+        applyUserPermissions(data.permissions);
 
         if (isRememberMeEnabled()) {
           startTokenRefresh();
         }
 
-        if (data.role === "superadmin") {
+        if (
+          useRbacStore.getState().hasPermission("organization.view") &&
+          !data.organization_id
+        ) {
           await fetchTenantData(token);
         }
       } catch (error) {
@@ -188,10 +207,14 @@ export default function App() {
           try {
             const refreshed = await refreshAccessToken();
             const data = await fetchCurrentUser(refreshed.access_token);
-            setUser(data);
-            setOrg(data.organization);
+            setUser({ ...data, organization: data.organization ?? null });
+            setOrg(data.organization ?? null);
+            applyUserPermissions(data.permissions);
             startTokenRefresh();
-            if (data.role === "superadmin") {
+            if (
+              useRbacStore.getState().hasPermission("organization.view") &&
+              !data.organization_id
+            ) {
               await fetchTenantData(refreshed.access_token);
             }
             return;
@@ -200,6 +223,7 @@ export default function App() {
           }
         }
         clearAuthSession();
+        useRbacStore.getState().clearPermissions();
         navigate("/login");
       } finally {
         setLoading(false);
@@ -224,6 +248,7 @@ export default function App() {
 
   const handleLogout = () => {
     clearAuthSession();
+    useRbacStore.getState().clearPermissions();
     setUser(null);
     setOrg(null);
     navigate("/login");
@@ -249,7 +274,7 @@ export default function App() {
 
   if (!user) return null;
 
-  const isSuperAdmin = user.role === "superadmin";
+  const isSuperAdmin = !user.organization_id;
 
   return (
     <div data-role={user.role} className="h-screen overflow-hidden flex bg-app-bg text-text-main w-full animate-fade-in">

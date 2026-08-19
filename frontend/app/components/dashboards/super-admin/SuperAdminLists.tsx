@@ -1,6 +1,7 @@
 import { Calendar, Server } from "lucide-react";
 import { Link } from "react-router";
 import Button from "../../button/Button";
+import PermissionGuard from "../../auth/PermissionGuard";
 import OrganizationAvatar from "../../organization/OrganizationAvatar";
 import {
   getRecentOrganizations,
@@ -39,11 +40,13 @@ export function RecentOrganizationsCard({ tenants }: SuperAdminListsProps) {
           ))}
         </ul>
       )}
-      <Link to="/organization">
-        <Button variant="primary" className="mt-6 w-full py-2.5 text-sm">
-          View All Organizations
-        </Button>
-      </Link>
+      <PermissionGuard permission="organization.view">
+        <Link to="/organization">
+          <Button variant="primary" className="mt-6 w-full py-2.5 text-sm">
+            View All Organizations
+          </Button>
+        </Link>
+      </PermissionGuard>
     </div>
   );
 }

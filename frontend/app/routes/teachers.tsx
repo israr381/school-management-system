@@ -1,13 +1,6 @@
-import { useOutletContext } from "react-router";
 import TeachersPanel from "../components/teachers/TeachersPanel";
-
-interface UserResponse {
-  role: string;
-}
-
-interface TeachersContext {
-  user: UserResponse;
-}
+import ProtectedRoute from "../components/auth/ProtectedRoute";
+import AccessRestricted from "../components/AccessRestricted";
 
 export function meta() {
   return [
@@ -17,20 +10,14 @@ export function meta() {
 }
 
 export default function TeachersRoute() {
-  const { user } = useOutletContext<TeachersContext>();
-
-  if (user.role !== "admin") {
-    return (
-      <div className="w-full">
-        <div className="dashboard-card flex flex-col items-center px-6 py-16 text-center">
-          <h2 className="text-lg font-semibold text-text-main">Access restricted</h2>
-          <p className="mt-2 text-sm text-text-muted">
-            Teacher records are only available to school administrators.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  return <TeachersPanel />;
+  return (
+    <ProtectedRoute
+      permission="teachers.view"
+      fallback={
+        <AccessRestricted description="You do not have permission to view teacher records." />
+      }
+    >
+      <TeachersPanel />
+    </ProtectedRoute>
+  );
 }

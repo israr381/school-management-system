@@ -2,6 +2,7 @@ import { Search } from "lucide-react";
 import Input from "./input/Input";
 import NotificationDropdown from "./dropdown/notifications/NotificationDropdown";
 import UserMenuDropdown from "./dropdown/user-menu/UserMenuDropdown";
+import { formatRoleLabel } from "../lib/permissions";
 
 interface HeaderProps {
   user: {
@@ -9,13 +10,14 @@ interface HeaderProps {
     email: string;
     role: string;
     avatar_url?: string | null;
+    permissions?: string[];
   };
   isSuperAdmin: boolean;
   onLogout: () => void;
 }
 
 export default function Header({ user, isSuperAdmin, onLogout }: HeaderProps) {
-  const roleLabel = isSuperAdmin ? "Super Admin" : user.role.replace("_", " ");
+  const roleLabel = isSuperAdmin ? "Super Admin" : formatRoleLabel(user.role);
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border-main bg-panel-bg px-4 lg:px-6">

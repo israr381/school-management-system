@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Student } from "../../../store/students";
 import Button from "../../button/Button";
+import UserAvatar from "../../settings/UserAvatar";
 import {
   Dialog,
   DialogContent,
@@ -81,6 +82,17 @@ export default function StudentViewModal({
             <h3 className="text-xs font-bold uppercase tracking-wider text-role-active-text">
               1. Student Details
             </h3>
+            <div className="flex items-center gap-4">
+              <UserAvatar
+                name={student.full_name}
+                avatarUrl={student.avatar_url}
+                className="h-16 w-16 rounded-sm text-lg"
+              />
+              <div className="min-w-0">
+                <p className="truncate text-base font-semibold text-text-main">{student.full_name}</p>
+                <p className="truncate text-sm text-text-muted">{student.email}</p>
+              </div>
+            </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <DetailItem label="Name" value={student.full_name} />
               <DetailItem label="Email" value={student.email} />

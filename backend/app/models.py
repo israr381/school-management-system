@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, UniqueConstraint
-from sqlalchemy.orm import relationship as orm_relationship
+from sqlalchemy.orm import object_session, relationship as orm_relationship
 from app.database import Base
 
 class Organization(Base):
@@ -20,12 +20,79 @@ class Organization(Base):
     parents = orm_relationship("Parent", back_populates="organization", cascade="all, delete-orphan")
     students = orm_relationship("Student", back_populates="organization", cascade="all, delete-orphan")
     teachers = orm_relationship("Teacher", back_populates="organization", cascade="all, delete-orphan")
+    organization_role_permissions = orm_relationship(
+        "OrganizationRolePermission",
+        back_populates="organization",
+        cascade="all, delete-orphan",
+    )
 
 class Role(Base):
     __tablename__ = "roles"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True, nullable=False)
+
+    permissions = orm_relationship(
+        "Permission",
+        secondary="role_permissions",
+        back_populates="roles",
+    )
+
+
+class Permission(Base):
+    __tablename__ = "permissions"
+    __table_args__ = (
+        UniqueConstraint("module", "action", name="uq_permission_module_action"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    module = Column(String, nullable=False, index=True)
+    action = Column(String, nullable=False)
+
+    roles = orm_relationship(
+        "Role",
+        secondary="role_permissions",
+        back_populates="permissions",
+    )
+
+
+class RolePermission(Base):
+    __tablename__ = "role_permissions"
+    __table_args__ = (
+        UniqueConstraint("role_id", "permission_id", name="uq_role_permission"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False, index=True)
+    permission_id = Column(
+        Integer, ForeignKey("permissions.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+
+
+class OrganizationRolePermission(Base):
+    __tablename__ = "organization_role_permissions"
+    __table_args__ = (
+        UniqueConstraint(
+            "organization_id",
+            "role_id",
+            "permission_id",
+            name="uq_org_role_permission",
+        ),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    organization_id = Column(
+        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), nullable=False, index=True)
+    permission_id = Column(
+        Integer, ForeignKey("permissions.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+
+    organization = orm_relationship("Organization", back_populates="organization_role_permissions")
+    role = orm_relationship("Role")
+    permission = orm_relationship("Permission")
+
 
 class User(Base):
     __tablename__ = "users"
@@ -52,6 +119,39 @@ class User(Base):
     @property
     def role(self) -> str:
         return self.role_relation.name if self.role_relation else ""
+
+    @property
+    def permissions(self) -> list[str]:
+        role = self.role_relation
+        if not role:
+            return []
+
+        if self.organization_id:
+            session = object_session(self)
+            if session is not None:
+                has_org_rows = (
+                    session.query(OrganizationRolePermission.id)
+                    .filter(OrganizationRolePermission.organization_id == self.organization_id)
+                    .first()
+                )
+                if has_org_rows:
+                    rows = (
+                        session.query(Permission.module, Permission.action)
+                        .join(
+                            OrganizationRolePermission,
+                            OrganizationRolePermission.permission_id == Permission.id,
+                        )
+                        .filter(
+                            OrganizationRolePermission.organization_id == self.organization_id,
+                            OrganizationRolePermission.role_id == self.role_id,
+                        )
+                        .all()
+                    )
+                    return sorted(f"{module}.{action}" for module, action in rows)
+
+        if not role.permissions:
+            return []
+        return sorted(f"{permission.module}.{permission.action}" for permission in role.permissions)
 
 
 class SchoolClass(Base):

@@ -9,6 +9,7 @@ import ConfirmDeleteModal from "../modals/confirm-delete/ConfirmDeleteModal";
 import Pagination, { paginateItems } from "../pagination/Pagination";
 import Table, { type TableColumn } from "../table/Table";
 import { Button as UiButton } from "~/components/ui/button";
+import PermissionGuard from "../auth/PermissionGuard";
 
 const PAGE_SIZE_OPTIONS = [7, 10, 20, 50];
 
@@ -155,24 +156,28 @@ export default function ClassesSettings() {
         className: "text-right",
         render: (row) => (
           <div className="flex justify-end gap-1">
-            <UiButton
-              variant="ghost"
-              size="icon-sm"
-              className="cursor-pointer text-text-muted hover:bg-surface-soft hover:text-text-main"
-              aria-label={`Edit ${row.name}`}
-              onClick={() => openEdit(row)}
-            >
-              <Pencil className="size-4" />
-            </UiButton>
-            <UiButton
-              variant="ghost"
-              size="icon-sm"
-              className="cursor-pointer text-text-muted hover:bg-danger-hover-bg hover:text-danger"
-              aria-label={`Delete ${row.name}`}
-              onClick={() => setDeletingClass(row)}
-            >
-              <Trash2 className="size-4" />
-            </UiButton>
+            <PermissionGuard permission="classes.update">
+              <UiButton
+                variant="ghost"
+                size="icon-sm"
+                className="cursor-pointer text-text-muted hover:bg-surface-soft hover:text-text-main"
+                aria-label={`Edit ${row.name}`}
+                onClick={() => openEdit(row)}
+              >
+                <Pencil className="size-4" />
+              </UiButton>
+            </PermissionGuard>
+            <PermissionGuard permission="classes.delete">
+              <UiButton
+                variant="ghost"
+                size="icon-sm"
+                className="cursor-pointer text-text-muted hover:bg-danger-hover-bg hover:text-danger"
+                aria-label={`Delete ${row.name}`}
+                onClick={() => setDeletingClass(row)}
+              >
+                <Trash2 className="size-4" />
+              </UiButton>
+            </PermissionGuard>
           </div>
         ),
       },
@@ -194,10 +199,12 @@ export default function ClassesSettings() {
             Create and manage the classes offered by your school.
           </p>
         </div>
-        <Button type="button" onClick={() => setFormOpen(true)} className="px-5 py-2.5 text-sm">
-          <Plus className="h-4 w-4" />
-          Add Class
-        </Button>
+        <PermissionGuard permission="classes.create">
+          <Button type="button" onClick={() => setFormOpen(true)} className="px-5 py-2.5 text-sm">
+            <Plus className="h-4 w-4" />
+            Add Class
+          </Button>
+        </PermissionGuard>
       </div>
 
       {loading && classes.length === 0 ? (
@@ -227,10 +234,12 @@ export default function ClassesSettings() {
           <p className="mx-auto mb-5 max-w-sm text-sm text-text-muted">
             Add your first class to start organizing students into grades.
           </p>
-          <Button type="button" onClick={() => setFormOpen(true)} className="px-5 py-2.5 text-sm">
-            <Plus className="h-4 w-4" />
-            Add Class
-          </Button>
+          <PermissionGuard permission="classes.create">
+            <Button type="button" onClick={() => setFormOpen(true)} className="px-5 py-2.5 text-sm">
+              <Plus className="h-4 w-4" />
+              Add Class
+            </Button>
+          </PermissionGuard>
         </div>
       )}
 

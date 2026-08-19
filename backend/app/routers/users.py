@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app import auth, models, schemas
 from app.database import get_db
+from app.permissions import require_permission
 from app.services.cloudinary_service import (
     assert_user_avatar_public_id,
     assert_user_staging_public_id,
@@ -22,13 +23,8 @@ def update_user_role(
     user_id: int,
     role_data: schemas.UserRoleUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    current_user: models.User = Depends(require_permission("permissions", "update")),
 ):
-    if current_user.role != "superadmin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only super admins can modify user roles",
-        )
 
     user_to_update = db.query(models.User).filter(models.User.id == user_id).first()
     if not user_to_update:

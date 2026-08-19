@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "./config";
+import type { UserPayload } from "./user";
 
 const ACCESS_TOKEN_KEY = "token";
 const REFRESH_TOKEN_KEY = "refresh_token";
@@ -128,7 +129,7 @@ export async function refreshAccessToken() {
   return data as AuthTokens;
 }
 
-export async function fetchCurrentUser(token: string) {
+export async function fetchCurrentUser(token: string): Promise<UserPayload> {
   const response = await fetch(`${API_BASE_URL}/auth/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -141,7 +142,7 @@ export async function fetchCurrentUser(token: string) {
     throw new Error(data.detail || "Session expired. Please log in again.");
   }
 
-  return data;
+  return data as UserPayload;
 }
 
 export async function changePassword(

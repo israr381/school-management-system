@@ -15,6 +15,7 @@ import SectionFormModal from "../modals/section-form/SectionFormModal";
 import Pagination, { paginateItems } from "../pagination/Pagination";
 import Table, { type TableColumn } from "../table/Table";
 import { Button as UiButton } from "~/components/ui/button";
+import PermissionGuard from "../auth/PermissionGuard";
 
 const PAGE_SIZE_OPTIONS = [7, 10, 20, 50];
 
@@ -158,24 +159,28 @@ export default function SectionsSettings() {
         className: "text-right",
         render: (row) => (
           <div className="flex justify-end gap-1">
-            <UiButton
-              variant="ghost"
-              size="icon-sm"
-              className="cursor-pointer text-text-muted hover:bg-surface-soft hover:text-text-main"
-              aria-label={`Edit ${row.name}`}
-              onClick={() => openEdit(row)}
-            >
-              <Pencil className="size-4" />
-            </UiButton>
-            <UiButton
-              variant="ghost"
-              size="icon-sm"
-              className="cursor-pointer text-text-muted hover:bg-danger-hover-bg hover:text-danger"
-              aria-label={`Delete ${row.name}`}
-              onClick={() => setDeletingSection(row)}
-            >
-              <Trash2 className="size-4" />
-            </UiButton>
+            <PermissionGuard permission="sections.update">
+              <UiButton
+                variant="ghost"
+                size="icon-sm"
+                className="cursor-pointer text-text-muted hover:bg-surface-soft hover:text-text-main"
+                aria-label={`Edit ${row.name}`}
+                onClick={() => openEdit(row)}
+              >
+                <Pencil className="size-4" />
+              </UiButton>
+            </PermissionGuard>
+            <PermissionGuard permission="sections.delete">
+              <UiButton
+                variant="ghost"
+                size="icon-sm"
+                className="cursor-pointer text-text-muted hover:bg-danger-hover-bg hover:text-danger"
+                aria-label={`Delete ${row.name}`}
+                onClick={() => setDeletingSection(row)}
+              >
+                <Trash2 className="size-4" />
+              </UiButton>
+            </PermissionGuard>
           </div>
         ),
       },
@@ -197,10 +202,12 @@ export default function SectionsSettings() {
             Link sections to a class so students can be grouped within each grade.
           </p>
         </div>
-        <Button type="button" onClick={openAdd} className="px-5 py-2.5 text-sm">
-          <Plus className="h-4 w-4" />
-          Add Section
-        </Button>
+        <PermissionGuard permission="sections.create">
+          <Button type="button" onClick={openAdd} className="px-5 py-2.5 text-sm">
+            <Plus className="h-4 w-4" />
+            Add Section
+          </Button>
+        </PermissionGuard>
       </div>
 
       {loading && sections.length === 0 ? (
@@ -232,10 +239,12 @@ export default function SectionsSettings() {
               ? "Create a class first, then add sections like A, B, or Morning."
               : "Add your first section and link it to a class."}
           </p>
-          <Button type="button" onClick={openAdd} className="px-5 py-2.5 text-sm">
-            <Plus className="h-4 w-4" />
-            Add Section
-          </Button>
+          <PermissionGuard permission="sections.create">
+            <Button type="button" onClick={openAdd} className="px-5 py-2.5 text-sm">
+              <Plus className="h-4 w-4" />
+              Add Section
+            </Button>
+          </PermissionGuard>
         </div>
       )}
 

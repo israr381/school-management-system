@@ -8,9 +8,11 @@ from sqlalchemy.orm import Session
 from app.database import Base, SessionLocal, check_db_connection, engine, get_db
 from app.db_migrations import ensure_organization_logo_columns, ensure_user_avatar_columns
 from app import models
+from app.permissions import backfill_organization_role_permissions, seed_permissions
 from app.routers.auth import router as auth_router
 from app.routers.classes import router as classes_router
 from app.routers.organizations import router as organizations_router
+from app.routers.permissions import router as permissions_router
 from app.routers.students import router as students_router
 from app.routers.teachers import router as teachers_router
 from app.routers.users import avatar_router as user_avatar_router
@@ -31,7 +33,9 @@ async def lifespan(app: FastAPI):
             if not exists:
                 db.add(models.Role(name=role_name))
         db.commit()
-        print("Default roles seeded successfully")
+        seed_permissions(db)
+        backfill_organization_role_permissions(db)
+        print("Default roles and permissions seeded successfully")
     except Exception as e:
         print(f"Error seeding roles: {e}")
         db.rollback()
@@ -59,6 +63,7 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(user_avatar_router)
 app.include_router(organizations_router)
+app.include_router(permissions_router)
 app.include_router(classes_router)
 app.include_router(students_router)
 app.include_router(teachers_router)

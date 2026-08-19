@@ -8,6 +8,8 @@ import {
   Users,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
+import { formatRoleLabel } from "../lib/permissions";
+import { usePermission } from "../hooks/usePermission";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -33,21 +35,20 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
+  const { hasPermission } = usePermission();
 
-  const sidebarItems = [
-    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { name: "Organization", path: "/organization", icon: Building2 },
-    ...(role === "admin"
-      ? [
-          { name: "Students", path: "/students", icon: Users },
-          { name: "Teachers", path: "/teachers", icon: BookOpen },
-        ]
-      : []),
-    { name: "Settings", path: "/settings", icon: Settings },
+  const navigation = [
+    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, permission: "dashboard.view" },
+    { name: "Organization", path: "/organization", icon: Building2, permission: "organization.view" },
+    { name: "Students", path: "/students", icon: Users, permission: "students.view" },
+    { name: "Teachers", path: "/teachers", icon: BookOpen, permission: "teachers.view" },
+    { name: "Settings", path: "/settings", icon: Settings, permission: "settings.view" },
   ];
 
-  const isSuperAdmin = role === "superadmin";
-  const brandName = isSuperAdmin ? "Super Admin" : org?.name || "Super Admin";
+  const sidebarItems = navigation.filter((item) => hasPermission(item.permission));
+
+  const isPlatformAdmin = !org;
+  const brandName = org?.name || formatRoleLabel(role);
 
   return (
     <aside
@@ -63,7 +64,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
         >
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-linear-to-br from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/25">
-              {!isSuperAdmin && org?.logo_url ? (
+              {!isPlatformAdmin && org?.logo_url ? (
                 <img
                   src={org.logo_url}
                   alt={`${brandName} logo`}
@@ -106,7 +107,10 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
 
         <nav className="space-y-1 p-4">
           {sidebarItems.map((item, index) => {
-            const isActive = currentPath === item.path;
+            const isActive =
+              item.path === "/settings"
+                ? currentPath.startsWith("/settings")
+                : currentPath === item.path;
             const Icon = item.icon;
             const colorClass = iconColors[index % iconColors.length];
 
@@ -157,17 +161,17 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
         {isCollapsed ? (
           <div
             className="flex justify-center text-xs font-bold text-text-muted"
-            title={isSuperAdmin ? "Core System" : `Domain: ${org?.domain || "system.local"}`}
+            title={isPlatformAdmin ? "Core System" : `Domain: ${org?.domain || "system.local"}`}
           >
             🌐
           </div>
         ) : (
           <div className="rounded-md border border-border-main bg-surface-soft p-3.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
-              {isSuperAdmin ? "Environment" : "Domain"}
+              {isPlatformAdmin ? "Environment" : "Domain"}
             </span>
             <span className="mt-1 block truncate text-xs font-semibold text-brand">
-              {isSuperAdmin ? "Multi-tenant Core" : org?.domain || "system.local"}
+              {isPlatformAdmin ? "Multi-tenant Core" : org?.domain || "system.local"}
             </span>
           </div>
         )}

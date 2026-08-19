@@ -1,5 +1,7 @@
 import { useOutletContext } from "react-router";
 import SettingsPanel from "../components/settings/SettingsPanel";
+import ProtectedRoute from "../components/auth/ProtectedRoute";
+import AccessRestricted from "../components/AccessRestricted";
 import type { UserPayload } from "../store/user";
 
 interface SettingsContext {
@@ -18,15 +20,22 @@ export default function SettingsRoute() {
   const { user, setUser } = useOutletContext<SettingsContext>();
 
   return (
-    <SettingsPanel
-      user={user}
-      onUserChange={(updated) =>
-        setUser({
-          ...user,
-          ...updated,
-          organization: updated.organization ?? user.organization,
-        })
+    <ProtectedRoute
+      permission="settings.view"
+      fallback={
+        <AccessRestricted description="You do not have permission to view settings." />
       }
-    />
+    >
+      <SettingsPanel
+        user={user}
+        onUserChange={(updated) =>
+          setUser({
+            ...user,
+            ...updated,
+            organization: updated.organization ?? user.organization,
+          })
+        }
+      />
+    </ProtectedRoute>
   );
 }

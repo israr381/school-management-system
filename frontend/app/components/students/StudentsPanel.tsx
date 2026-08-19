@@ -46,6 +46,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { usePermission } from "../../hooks/usePermission";
+import PermissionGuard from "../auth/PermissionGuard";
 
 const PAGE_SIZE_OPTIONS = [7, 10, 20, 50];
 
@@ -59,6 +61,26 @@ function initials(name: string) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+}
+
+function StudentListAvatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }) {
+  const [failed, setFailed] = useState(false);
+  const showImage = Boolean(avatarUrl) && !failed;
+
+  return (
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-brand-soft text-sm font-bold text-brand">
+      {showImage ? (
+        <img
+          src={avatarUrl ?? undefined}
+          alt={`${name} avatar`}
+          onError={() => setFailed(true)}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        initials(name)
+      )}
+    </div>
+  );
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -88,6 +110,8 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function StudentsPanel() {
+  const { hasPermission } = usePermission();
+  const canUpdate = hasPermission("students.update");
   const [students, setStudents] = useState<Student[]>([]);
   const [stats, setStats] = useState<StudentStats | null>(null);
   const [classes, setClasses] = useState<SchoolClass[]>([]);
@@ -271,9 +295,7 @@ export default function StudentsPanel() {
         sortValue: (student) => student.full_name,
         render: (student) => (
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-brand-soft text-sm font-bold text-brand">
-              {initials(student.full_name)}
-            </div>
+            <StudentListAvatar name={student.full_name} avatarUrl={student.avatar_url} />
             <div className="min-w-0">
               <p className="truncate font-semibold text-text-main">{student.full_name}</p>
               <p className="truncate text-xs font-normal text-text-muted">{student.email}</p>
@@ -361,18 +383,22 @@ export default function StudentsPanel() {
                 <Eye className="size-4" />
                 View
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => openEditModal(student)}>
-                <Pencil className="size-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer"
-                onClick={() => setDeletingStudent(student)}
-              >
-                <Trash2 className="size-4" />
-                Delete
-              </DropdownMenuItem>
+              <PermissionGuard permission="students.update">
+                <DropdownMenuItem className="cursor-pointer" onClick={() => openEditModal(student)}>
+                  <Pencil className="size-4" />
+                  Edit
+                </DropdownMenuItem>
+              </PermissionGuard>
+              <PermissionGuard permission="students.delete">
+                <DropdownMenuItem
+                  variant="destructive"
+                  className="cursor-pointer"
+                  onClick={() => setDeletingStudent(student)}
+                >
+                  <Trash2 className="size-4" />
+                  Delete
+                </DropdownMenuItem>
+              </PermissionGuard>
             </DropdownMenuContent>
           </DropdownMenu>
         ),
@@ -395,10 +421,12 @@ export default function StudentsPanel() {
             Add students, assign classes and sections, and link parent login accounts.
           </p>
         </div>
-        <Button type="button" onClick={openAddModal} className="px-5 py-2.5 text-sm">
-          <Plus className="h-4 w-4" />
-          Add Student
-        </Button>
+        <PermissionGuard permission="students.create">
+          <Button type="button" onClick={openAddModal} className="px-5 py-2.5 text-sm">
+            <Plus className="h-4 w-4" />
+            Add Student
+          </Button>
+        </PermissionGuard>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -540,14 +568,16 @@ export default function StudentsPanel() {
                 : "No students match the current search or class filter."}
             </p>
             {students.length === 0 && (
-              <Button
-                type="button"
-                onClick={openAddModal}
-                className="px-5 py-2.5 text-sm"
-              >
-                <Plus className="h-4 w-4" />
-                Add Student
-              </Button>
+              <PermissionGuard permission="students.create">
+                <Button
+                  type="button"
+                  onClick={openAddModal}
+                  className="px-5 py-2.5 text-sm"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Student
+                </Button>
+              </PermissionGuard>
             )}
           </div>
         )}
@@ -574,7 +604,7 @@ export default function StudentsPanel() {
         onOpenChange={(open) => {
           if (!open) setViewingStudent(null);
         }}
-        onEdit={openEditModal}
+        onEdit={canUpdate ? openEditModal : undefined}
       />
 
       <ConfirmDeleteModal
