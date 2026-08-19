@@ -119,6 +119,7 @@ def list_classes(
             ("classes", "view"),
             ("students", "view"),
             ("sections", "view"),
+            ("subjects", "view"),
         )
     ),
 ):
@@ -235,6 +236,7 @@ def list_sections(
         require_org_any_permission(
             ("sections", "view"),
             ("students", "view"),
+            ("subjects", "view"),
         )
     ),
 ):
@@ -332,3 +334,138 @@ def delete_section(
     db.delete(section)
     db.commit()
     return {"message": "Section deleted successfully", "section_id": section_id}
+
+
+def _subject_response(subject: models.Subject) -> schemas.SubjectResponse:
+    class_name = subject.school_class.name if subject.school_class else ""
+    section_name = subject.section.name if subject.section else ""
+    return schemas.SubjectResponse(
+        id=subject.id,
+        name=subject.name,
+        class_id=subject.class_id,
+        class_name=class_name,
+        section_id=subject.section_id,
+        section_name=section_name,
+        created_at=subject.created_at,
+        updated_at=subject.updated_at,
+    )
+
+
+def _get_org_subject(db: Session, subject_id: int, org_id: int) -> models.Subject:
+    subject = (
+        db.query(models.Subject)
+        .options(
+            joinedload(models.Subject.school_class),
+            joinedload(models.Subject.section),
+        )
+        .filter(
+            models.Subject.id == subject_id,
+            models.Subject.organization_id == org_id,
+        )
+        .first()
+    )
+    if not subject:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Subject not found",
+        )
+    return subject
+
+
+def _validate_class_section(db: Session, class_id: int, section_id: int, org_id: int) -> tuple[models.SchoolClass, models.Section]:
+    school_class = _get_org_class(db, class_id, org_id)
+    section = _get_org_section(db, section_id, org_id)
+    if section.class_id != school_class.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The selected section does not belong to the selected class",
+        )
+    return school_class, section
+
+
+@router.get("/api/subjects", response_model=List[schemas.SubjectResponse])
+def list_subjects(
+    db: Session = Depends(get_db),
+    org_id: int = Depends(require_org_permission("subjects", "view")),
+):
+    subjects = (
+        db.query(models.Subject)
+        .options(
+            joinedload(models.Subject.school_class),
+            joinedload(models.Subject.section),
+        )
+        .filter(models.Subject.organization_id == org_id)
+        .order_by(models.Subject.created_at.desc())
+        .all()
+    )
+    return [_subject_response(subject) for subject in subjects]
+
+
+@router.post("/api/subjects", response_model=schemas.SubjectResponse, status_code=status.HTTP_201_CREATED)
+def create_subject(
+    data: schemas.SubjectCreate,
+    db: Session = Depends(get_db),
+    org_id: int = Depends(require_org_permission("subjects", "create")),
+):
+    school_class, section = _validate_class_section(db, data.class_id, data.section_id, org_id)
+    now = datetime.utcnow()
+    subject = models.Subject(
+        name=data.name.strip(),
+        class_id=school_class.id,
+        section_id=section.id,
+        organization_id=org_id,
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(subject)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A subject with this name already exists in the selected section",
+        )
+    db.refresh(subject)
+    subject.school_class = school_class
+    subject.section = section
+    return _subject_response(subject)
+
+
+@router.put("/api/subjects/{subject_id}", response_model=schemas.SubjectResponse)
+def update_subject(
+    subject_id: int,
+    data: schemas.SubjectUpdate,
+    db: Session = Depends(get_db),
+    org_id: int = Depends(require_org_permission("subjects", "update")),
+):
+    subject = _get_org_subject(db, subject_id, org_id)
+    school_class, section = _validate_class_section(db, data.class_id, data.section_id, org_id)
+    subject.name = data.name.strip()
+    subject.class_id = school_class.id
+    subject.section_id = section.id
+    subject.updated_at = datetime.utcnow()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A subject with this name already exists in the selected section",
+        )
+    db.refresh(subject)
+    subject.school_class = school_class
+    subject.section = section
+    return _subject_response(subject)
+
+
+@router.delete("/api/subjects/{subject_id}")
+def delete_subject(
+    subject_id: int,
+    db: Session = Depends(get_db),
+    org_id: int = Depends(require_org_permission("subjects", "delete")),
+):
+    subject = _get_org_subject(db, subject_id, org_id)
+    db.delete(subject)
+    db.commit()
+    return {"message": "Subject deleted successfully", "subject_id": subject_id}

@@ -13,6 +13,7 @@ PERMISSION_CATALOG: list[dict] = [
     {"key": "teachers", "label": "Teachers", "actions": ["view", "create", "update", "delete"]},
     {"key": "classes", "label": "Classes", "actions": ["view", "create", "update", "delete"]},
     {"key": "sections", "label": "Sections", "actions": ["view", "create", "update", "delete"]},
+    {"key": "subjects", "label": "Subjects", "actions": ["view", "create", "update", "delete"]},
     {"key": "settings", "label": "Settings", "actions": ["view", "update"]},
     {"key": "permissions", "label": "Permissions", "actions": ["view", "update"]},
 ]
@@ -39,6 +40,7 @@ DEFAULT_ROLE_PERMISSIONS: dict[str, dict[str, list[str]]] = {
         "teachers": ["view", "create", "update", "delete"],
         "classes": ["view", "create", "update", "delete"],
         "sections": ["view", "create", "update", "delete"],
+        "subjects": ["view", "create", "update", "delete"],
         "settings": ["view", "update"],
     },
     "teacher": {
@@ -158,16 +160,12 @@ def seed_permissions(db: Session) -> None:
             if not exists:
                 db.add(models.Permission(module=module["key"], action=action))
     db.flush()
+    grant_missing_default_permissions(db)
+    db.commit()
 
-    already_assigned = db.query(models.RolePermission).first() is not None
-    if already_assigned:
-        db.commit()
-        return
 
-    permissions_by_key = {
-        permission_key(permission.module, permission.action): permission
-        for permission in db.query(models.Permission).all()
-    }
+def grant_missing_default_permissions(db: Session) -> None:
+    permissions_by_key = _permissions_by_key(db)
 
     for role_name, modules in DEFAULT_ROLE_PERMISSIONS.items():
         role = db.query(models.Role).filter(models.Role.name == role_name).first()
@@ -176,15 +174,76 @@ def seed_permissions(db: Session) -> None:
             db.add(role)
             db.flush()
 
+        existing_keys = {
+            permission_key(permission.module, permission.action)
+            for permission in (
+                db.query(models.Permission)
+                .join(
+                    models.RolePermission,
+                    models.RolePermission.permission_id == models.Permission.id,
+                )
+                .filter(models.RolePermission.role_id == role.id)
+                .all()
+            )
+        }
+
         for module_key, actions in modules.items():
             for action in actions:
-                permission = permissions_by_key.get(permission_key(module_key, action))
+                key = permission_key(module_key, action)
+                if key in existing_keys:
+                    continue
+                permission = permissions_by_key.get(key)
                 if permission:
                     db.add(
                         models.RolePermission(role_id=role.id, permission_id=permission.id)
                     )
 
-    db.commit()
+    grant_missing_organization_module_permissions(db)
+
+
+def grant_missing_organization_module_permissions(db: Session) -> None:
+    permissions_by_key = _permissions_by_key(db)
+    organizations = db.query(models.Organization.id).all()
+    tenant_roles = (
+        db.query(models.Role).filter(models.Role.name.in_(TENANT_ROLE_NAMES)).all()
+    )
+
+    for (organization_id,) in organizations:
+        if not organization_has_role_permissions(db, organization_id):
+            continue
+
+        for role in tenant_roles:
+            defaults = DEFAULT_ROLE_PERMISSIONS.get(role.name, {})
+            existing_modules = {
+                module
+                for module, in (
+                    db.query(models.Permission.module)
+                    .join(
+                        models.OrganizationRolePermission,
+                        models.OrganizationRolePermission.permission_id == models.Permission.id,
+                    )
+                    .filter(
+                        models.OrganizationRolePermission.organization_id == organization_id,
+                        models.OrganizationRolePermission.role_id == role.id,
+                    )
+                    .distinct()
+                    .all()
+                )
+            }
+
+            for module_key, actions in defaults.items():
+                if module_key in existing_modules:
+                    continue
+                for action in actions:
+                    permission = permissions_by_key.get(permission_key(module_key, action))
+                    if permission:
+                        db.add(
+                            models.OrganizationRolePermission(
+                                organization_id=organization_id,
+                                role_id=role.id,
+                                permission_id=permission.id,
+                            )
+                        )
 
 
 TENANT_ROLE_NAMES = ("admin", "teacher", "student", "parent")

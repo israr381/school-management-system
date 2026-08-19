@@ -13,10 +13,9 @@ class Organization(Base):
     logo_public_id = Column(String, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-
-    # Relationships
     users = orm_relationship("User", back_populates="organization", cascade="all, delete-orphan")
     classes = orm_relationship("SchoolClass", back_populates="organization", cascade="all, delete-orphan")
+    subjects = orm_relationship("Subject", back_populates="organization", cascade="all, delete-orphan")
     parents = orm_relationship("Parent", back_populates="organization", cascade="all, delete-orphan")
     students = orm_relationship("Student", back_populates="organization", cascade="all, delete-orphan")
     teachers = orm_relationship("Teacher", back_populates="organization", cascade="all, delete-orphan")
@@ -171,6 +170,7 @@ class SchoolClass(Base):
 
     organization = orm_relationship("Organization", back_populates="classes")
     sections = orm_relationship("Section", back_populates="school_class", cascade="all, delete-orphan")
+    subjects = orm_relationship("Subject", back_populates="school_class", cascade="all, delete-orphan")
     students = orm_relationship("Student", back_populates="school_class")
 
 
@@ -191,7 +191,29 @@ class Section(Base):
 
     school_class = orm_relationship("SchoolClass", back_populates="sections")
     organization = orm_relationship("Organization")
+    subjects = orm_relationship("Subject", back_populates="section", cascade="all, delete-orphan")
     students = orm_relationship("Student", back_populates="section")
+
+
+class Subject(Base):
+    __tablename__ = "subjects"
+    __table_args__ = (
+        UniqueConstraint("section_id", "name", name="uq_subject_section_name"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    class_id = Column(Integer, ForeignKey("classes.id", ondelete="CASCADE"), nullable=False, index=True)
+    section_id = Column(Integer, ForeignKey("sections.id", ondelete="CASCADE"), nullable=False, index=True)
+    organization_id = Column(
+        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    school_class = orm_relationship("SchoolClass", back_populates="subjects")
+    section = orm_relationship("Section", back_populates="subjects")
+    organization = orm_relationship("Organization", back_populates="subjects")
 
 
 class Parent(Base):

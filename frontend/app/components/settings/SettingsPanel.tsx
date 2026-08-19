@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Bell, GraduationCap, LayoutList, Lock, Palette, Shield, UserRound } from "lucide-react";
+import { Bell, BookMarked, GraduationCap, LayoutList, Lock, Palette, Shield, UserRound } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import type { UserPayload } from "../../store/user";
 import { usePermission } from "../../hooks/usePermission";
@@ -12,6 +12,7 @@ import NotificationSettings from "./NotificationSettings";
 import ProfileSettings from "./ProfileSettings";
 import SectionsSettings from "./SectionsSettings";
 import SecuritySettings from "./SecuritySettings";
+import SubjectsSettings from "./SubjectsSettings";
 
 interface SettingsPanelProps {
   user: {
@@ -28,6 +29,7 @@ const tabs = [
   { value: "appearance", label: "Appearance", icon: Palette, permission: null },
   { value: "classes", label: "Classes", icon: GraduationCap, permission: "classes.view" },
   { value: "sections", label: "Sections", icon: LayoutList, permission: "sections.view" },
+  { value: "subjects", label: "Subjects", icon: BookMarked, permission: "subjects.view" },
   { value: "security", label: "Security", icon: Lock, permission: null },
   { value: "notifications", label: "Notifications", icon: Bell, permission: null },
 ] as const;
@@ -49,7 +51,7 @@ export default function SettingsPanel({ user, onUserChange }: SettingsPanelProps
             Settings
           </h2>
           <p className="text-sm text-text-muted mt-1">
-            Manage your profile, classes, sections, appearance, security, and notifications.
+            Manage your profile, classes, sections, subjects, appearance, security, and notifications.
           </p>
         </div>
         <PermissionGuard permission="permissions.view">
@@ -107,6 +109,12 @@ export default function SettingsPanel({ user, onUserChange }: SettingsPanelProps
         {currentTab === "sections" && hasPermission("sections.view") && (
           <TabsContent value="sections" className="mt-0 outline-none">
             <SectionsSettings />
+          </TabsContent>
+        )}
+
+        {currentTab === "subjects" && hasPermission("subjects.view") && (
+          <TabsContent value="subjects" className="mt-0 outline-none">
+            <SubjectsSettings />
           </TabsContent>
         )}
 

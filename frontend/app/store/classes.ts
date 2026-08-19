@@ -20,6 +20,17 @@ export interface SchoolSection {
   updated_at: string;
 }
 
+export interface SchoolSubject {
+  id: number;
+  name: string;
+  class_id: number;
+  class_name: string;
+  section_id: number;
+  section_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
 function createListCache<T>() {
   let cache: { token: string; data: T[] } | null = null;
   let inFlight: Promise<T[]> | null = null;
@@ -56,6 +67,7 @@ function createListCache<T>() {
 
 const classesCache = createListCache<SchoolClass>();
 const sectionsCache = createListCache<SchoolSection>();
+const subjectsCache = createListCache<SchoolSubject>();
 
 async function parseError(response: Response, fallback: string) {
   const data = await response.json().catch(() => ({}));
@@ -84,6 +96,17 @@ async function requestSections(token: string): Promise<SchoolSection[]> {
   return data;
 }
 
+async function requestSubjects(token: string): Promise<SchoolSubject[]> {
+  const response = await fetch(`${API_BASE_URL}/subjects`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to load subjects.");
+  }
+  return data;
+}
+
 export async function fetchClasses(
   token: string,
   options?: { force?: boolean },
@@ -96,6 +119,13 @@ export async function fetchSections(
   options?: { force?: boolean },
 ): Promise<SchoolSection[]> {
   return sectionsCache.get(token, () => requestSections(token), options?.force);
+}
+
+export async function fetchSubjects(
+  token: string,
+  options?: { force?: boolean },
+): Promise<SchoolSubject[]> {
+  return subjectsCache.get(token, () => requestSubjects(token), options?.force);
 }
 
 export async function createClass(
@@ -137,6 +167,7 @@ export async function updateClass(
   }
   classesCache.invalidate();
   sectionsCache.invalidate();
+  subjectsCache.invalidate();
   return data;
 }
 
@@ -150,6 +181,7 @@ export async function deleteClass(token: string, classId: number) {
   }
   classesCache.invalidate();
   sectionsCache.invalidate();
+  subjectsCache.invalidate();
 }
 
 export async function createSection(
@@ -192,6 +224,7 @@ export async function updateSection(
   }
   sectionsCache.invalidate();
   classesCache.invalidate();
+  subjectsCache.invalidate();
   return data;
 }
 
@@ -205,4 +238,57 @@ export async function deleteSection(token: string, sectionId: number) {
   }
   sectionsCache.invalidate();
   classesCache.invalidate();
+  subjectsCache.invalidate();
+}
+
+export async function createSubject(
+  token: string,
+  payload: { name: string; class_id: number; section_id: number },
+): Promise<SchoolSubject> {
+  const response = await fetch(`${API_BASE_URL}/subjects`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to create subject.");
+  }
+  subjectsCache.invalidate();
+  return data;
+}
+
+export async function updateSubject(
+  token: string,
+  subjectId: number,
+  payload: { name: string; class_id: number; section_id: number },
+): Promise<SchoolSubject> {
+  const response = await fetch(`${API_BASE_URL}/subjects/${subjectId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to update subject.");
+  }
+  subjectsCache.invalidate();
+  return data;
+}
+
+export async function deleteSubject(token: string, subjectId: number) {
+  const response = await fetch(`${API_BASE_URL}/subjects/${subjectId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    await parseError(response, "Failed to delete subject.");
+  }
+  subjectsCache.invalidate();
 }
