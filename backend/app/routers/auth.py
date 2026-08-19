@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app import auth, models, schemas
 from app.database import get_db
+from app.permissions import ensure_organization_role_permissions
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -43,6 +44,7 @@ def signup(user_data: schemas.UserSignup, db: Session = Depends(get_db)):
             db.add(org)
             db.commit()
             db.refresh(org)
+        ensure_organization_role_permissions(db, org.id)
         org_id = org.id
         role_name = "admin"
 

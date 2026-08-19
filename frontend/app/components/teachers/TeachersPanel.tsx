@@ -36,6 +36,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { usePermission } from "../../hooks/usePermission";
+import PermissionGuard from "../auth/PermissionGuard";
 
 const PAGE_SIZE_OPTIONS = [7, 10, 20, 50];
 
@@ -70,6 +72,8 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function TeachersPanel() {
+  const { hasPermission } = usePermission();
+  const canUpdate = hasPermission("teachers.update");
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [stats, setStats] = useState<TeacherStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -299,18 +303,22 @@ export default function TeachersPanel() {
                 <Eye className="size-4" />
                 View
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => openEditModal(teacher)}>
-                <Pencil className="size-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer"
-                onClick={() => setDeletingTeacher(teacher)}
-              >
-                <Trash2 className="size-4" />
-                Delete
-              </DropdownMenuItem>
+              <PermissionGuard permission="teachers.update">
+                <DropdownMenuItem className="cursor-pointer" onClick={() => openEditModal(teacher)}>
+                  <Pencil className="size-4" />
+                  Edit
+                </DropdownMenuItem>
+              </PermissionGuard>
+              <PermissionGuard permission="teachers.delete">
+                <DropdownMenuItem
+                  variant="destructive"
+                  className="cursor-pointer"
+                  onClick={() => setDeletingTeacher(teacher)}
+                >
+                  <Trash2 className="size-4" />
+                  Delete
+                </DropdownMenuItem>
+              </PermissionGuard>
             </DropdownMenuContent>
           </DropdownMenu>
         ),
@@ -333,10 +341,12 @@ export default function TeachersPanel() {
             Add teachers and create login accounts they can use to sign in.
           </p>
         </div>
-        <Button type="button" onClick={openAddModal} className="px-5 py-2.5 text-sm">
-          <Plus className="h-4 w-4" />
-          Add Teacher
-        </Button>
+        <PermissionGuard permission="teachers.create">
+          <Button type="button" onClick={openAddModal} className="px-5 py-2.5 text-sm">
+            <Plus className="h-4 w-4" />
+            Add Teacher
+          </Button>
+        </PermissionGuard>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -430,10 +440,12 @@ export default function TeachersPanel() {
                 : "No teachers match the current search or status filter."}
             </p>
             {teachers.length === 0 && (
-              <Button type="button" onClick={openAddModal} className="px-5 py-2.5 text-sm">
-                <Plus className="h-4 w-4" />
-                Add Teacher
-              </Button>
+              <PermissionGuard permission="teachers.create">
+                <Button type="button" onClick={openAddModal} className="px-5 py-2.5 text-sm">
+                  <Plus className="h-4 w-4" />
+                  Add Teacher
+                </Button>
+              </PermissionGuard>
             )}
           </div>
         )}
@@ -457,7 +469,7 @@ export default function TeachersPanel() {
         onOpenChange={(open) => {
           if (!open) setViewingTeacher(null);
         }}
-        onEdit={openEditModal}
+        onEdit={canUpdate ? openEditModal : undefined}
       />
 
       <ConfirmDeleteModal

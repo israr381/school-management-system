@@ -21,6 +21,7 @@ import {
 import Input from "~/components/input/Input";
 import { Label } from "~/components/ui/label";
 import UserAvatar from "./UserAvatar";
+import { formatRoleLabel } from "../../lib/permissions";
 
 interface ProfileSettingsProps {
   user: {
@@ -248,9 +249,9 @@ export default function ProfileSettings({ user, onUserChange }: ProfileSettingsP
             <Input
               id="role"
               name="role"
-              defaultValue={user.role.replace("_", " ")}
+              defaultValue={formatRoleLabel(user.role)}
               disabled
-              className="bg-surface-soft border-border-main h-10 capitalize"
+              className="bg-surface-soft border-border-main h-10"
             />
           </div>
         </CardContent>

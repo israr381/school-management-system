@@ -7,22 +7,9 @@ from sqlalchemy.orm import Session, joinedload
 
 from app import auth, models, schemas
 from app.database import get_db
+from app.permissions import require_org_permission
 
 router = APIRouter(tags=["students"])
-
-
-def _require_admin_org(current_user: models.User) -> int:
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only school admins can manage students",
-        )
-    if not current_user.organization_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User is not associated with any organization",
-        )
-    return current_user.organization_id
 
 
 def _clean_text(value: Optional[str]) -> Optional[str]:
@@ -50,6 +37,7 @@ def _student_response(student: models.Student) -> schemas.StudentResponse:
         phone=student.phone,
         address=student.address,
         status=student.status,
+        avatar_url=student.user.avatar_url if student.user else None,
         class_id=student.class_id,
         class_name=student.school_class.name if student.school_class else "",
         section_id=student.section_id,
@@ -190,9 +178,8 @@ def _get_class_and_section(db: Session, org_id: int, class_id: int, section_id: 
 @router.get("/api/students/stats", response_model=schemas.StudentStatsResponse)
 def get_student_stats(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("students", "view")),
 ):
-    org_id = _require_admin_org(current_user)
     base = db.query(models.Student).filter(models.Student.organization_id == org_id)
 
     total_students = base.count()
@@ -235,9 +222,8 @@ def list_students(
     section_id: Optional[int] = Query(None),
     status_filter: Optional[str] = Query(None, alias="status"),
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("students", "view")),
 ):
-    org_id = _require_admin_org(current_user)
     query = _student_query(db, org_id)
 
     if class_id:
@@ -254,9 +240,8 @@ def list_students(
 @router.get("/api/parents", response_model=List[schemas.ParentResponse])
 def list_parents(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("students", "view")),
 ):
-    org_id = _require_admin_org(current_user)
     rows = (
         db.query(models.Parent, func.count(models.Student.id))
         .outerjoin(models.Student, models.Student.parent_id == models.Parent.id)
@@ -283,9 +268,8 @@ def list_parents(
 def create_student(
     payload: schemas.StudentCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("students", "create")),
 ):
-    org_id = _require_admin_org(current_user)
 
     student_email = payload.email.strip().lower()
     _get_class_and_section(db, org_id, payload.class_id, payload.section_id)
@@ -363,9 +347,8 @@ def create_student(
 def get_student(
     student_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("students", "view")),
 ):
-    org_id = _require_admin_org(current_user)
     return _student_response(_get_org_student(db, student_id, org_id))
 
 
@@ -374,9 +357,8 @@ def update_student(
     student_id: int,
     payload: schemas.StudentUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("students", "update")),
 ):
-    org_id = _require_admin_org(current_user)
     student = _get_org_student(db, student_id, org_id)
     parent = student.parent
 
@@ -476,9 +458,8 @@ def update_student(
 def delete_student(
     student_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("students", "delete")),
 ):
-    org_id = _require_admin_org(current_user)
     student = _get_org_student(db, student_id, org_id)
     student_user = student.user
     if student_user:

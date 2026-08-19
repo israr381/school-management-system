@@ -33,9 +33,27 @@ class UserResponse(BaseModel):
     organization_id: Optional[int] = None
     organization: Optional[OrganizationResponse] = None
     must_change_password: bool = False
+    permissions: List[str] = []
 
     class Config:
         from_attributes = True
+
+
+class PermissionModuleCatalog(BaseModel):
+    key: str
+    label: str
+    actions: List[str]
+
+
+class RoleResponse(BaseModel):
+    id: int
+    name: str
+    label: str
+    permissions: List[str]
+
+
+class RolePermissionsUpdate(BaseModel):
+    permissions: List[str]
 
 class Token(BaseModel):
     access_token: str
@@ -191,6 +209,7 @@ class StudentResponse(BaseModel):
     phone: str
     address: str
     status: str
+    avatar_url: Optional[str] = None
     class_id: int
     class_name: str
     section_id: int

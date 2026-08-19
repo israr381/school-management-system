@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 from app.database import get_db
-from app.models import User
+from app.models import Role, User
 
 SECRET_KEY = os.getenv("JWT_SECRET", "db3a5b6c8d7e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4")
 ALGORITHM = "HS256"
@@ -17,8 +17,6 @@ DEFAULT_ADMIN_PASSWORD = "passpass"
 
 
 def organization_is_active(user: User) -> bool:
-    if user.role == "superadmin":
-        return True
     if not user.organization_id:
         return True
     org = user.organization
@@ -89,7 +87,12 @@ def get_current_user(token: Optional[str] = Depends(oauth2_scheme), db: Session 
     if email is None:
         raise credentials_exception
         
-    user = db.query(User).filter(User.email == email).first()
+    user = (
+        db.query(User)
+        .options(joinedload(User.role_relation).selectinload(Role.permissions))
+        .filter(User.email == email)
+        .first()
+    )
     if user is None:
         raise credentials_exception
 
@@ -100,4 +103,8 @@ def get_current_user(token: Optional[str] = Depends(oauth2_scheme), db: Session 
         )
 
     enforce_active_organization(user)
+    if user.organization_id:
+        from app.permissions import ensure_organization_role_permissions
+
+        ensure_organization_role_permissions(db, user.organization_id)
     return user

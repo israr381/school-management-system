@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { Bell, GraduationCap, LayoutList, Lock, Palette, UserRound } from "lucide-react";
+import { useNavigate } from "react-router";
+import { Bell, GraduationCap, LayoutList, Lock, Palette, Shield, UserRound } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import type { UserPayload } from "../../store/user";
+import { usePermission } from "../../hooks/usePermission";
+import Button from "../button/Button";
+import PermissionGuard from "../auth/PermissionGuard";
 import AppearanceSettings from "./AppearanceSettings";
 import ClassesSettings from "./ClassesSettings";
 import NotificationSettings from "./NotificationSettings";
@@ -20,30 +24,49 @@ interface SettingsPanelProps {
 }
 
 const tabs = [
-  { value: "profile", label: "Profile", icon: UserRound },
-  { value: "appearance", label: "Appearance", icon: Palette },
-  { value: "classes", label: "Classes", icon: GraduationCap },
-  { value: "sections", label: "Sections", icon: LayoutList },
-  { value: "security", label: "Security", icon: Lock },
-  { value: "notifications", label: "Notifications", icon: Bell },
+  { value: "profile", label: "Profile", icon: UserRound, permission: null },
+  { value: "appearance", label: "Appearance", icon: Palette, permission: null },
+  { value: "classes", label: "Classes", icon: GraduationCap, permission: "classes.view" },
+  { value: "sections", label: "Sections", icon: LayoutList, permission: "sections.view" },
+  { value: "security", label: "Security", icon: Lock, permission: null },
+  { value: "notifications", label: "Notifications", icon: Bell, permission: null },
 ] as const;
 
 export default function SettingsPanel({ user, onUserChange }: SettingsPanelProps) {
+  const navigate = useNavigate();
+  const { hasPermission } = usePermission();
+  const visibleTabs = tabs.filter((tab) => !tab.permission || hasPermission(tab.permission));
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]["value"]>("profile");
+  const currentTab = visibleTabs.some((tab) => tab.value === activeTab)
+    ? activeTab
+    : visibleTabs[0]?.value ?? "profile";
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-text-main tracking-tight">
-          Settings
-        </h2>
-        <p className="text-sm text-text-muted mt-1">
-          Manage your profile, classes, sections, appearance, security, and notifications.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-text-main tracking-tight">
+            Settings
+          </h2>
+          <p className="text-sm text-text-muted mt-1">
+            Manage your profile, classes, sections, appearance, security, and notifications.
+          </p>
+        </div>
+        <PermissionGuard permission="permissions.view">
+          <Button
+            type="button"
+            variant="outline"
+            className="px-5 py-2.5 text-sm"
+            onClick={() => navigate("/settings/permissions")}
+          >
+            <Shield className="h-4 w-4" />
+            Manage Permissions
+          </Button>
+        </PermissionGuard>
       </div>
 
       <Tabs
-        value={activeTab}
+        value={currentTab}
         onValueChange={(value) => setActiveTab(value as (typeof tabs)[number]["value"])}
         className="gap-6"
       >
@@ -51,7 +74,7 @@ export default function SettingsPanel({ user, onUserChange }: SettingsPanelProps
           variant="line"
           className="h-auto w-full justify-start gap-0 overflow-x-auto rounded-none border-b border-border-main bg-transparent p-0"
         >
-          {tabs.map(({ value, label, icon: Icon }) => (
+          {visibleTabs.map(({ value, label, icon: Icon }) => (
             <TabsTrigger
               key={value}
               value={value}
@@ -63,37 +86,37 @@ export default function SettingsPanel({ user, onUserChange }: SettingsPanelProps
           ))}
         </TabsList>
 
-        {activeTab === "profile" && (
+        {currentTab === "profile" && (
           <TabsContent value="profile" className="mt-0 outline-none">
             <ProfileSettings user={user} onUserChange={onUserChange} />
           </TabsContent>
         )}
 
-        {activeTab === "appearance" && (
+        {currentTab === "appearance" && (
           <TabsContent value="appearance" className="mt-0 outline-none">
             <AppearanceSettings />
           </TabsContent>
         )}
 
-        {activeTab === "classes" && (
+        {currentTab === "classes" && hasPermission("classes.view") && (
           <TabsContent value="classes" className="mt-0 outline-none">
             <ClassesSettings />
           </TabsContent>
         )}
 
-        {activeTab === "sections" && (
+        {currentTab === "sections" && hasPermission("sections.view") && (
           <TabsContent value="sections" className="mt-0 outline-none">
             <SectionsSettings />
           </TabsContent>
         )}
 
-        {activeTab === "security" && (
+        {currentTab === "security" && (
           <TabsContent value="security" className="mt-0 outline-none">
             <SecuritySettings />
           </TabsContent>
         )}
 
-        {activeTab === "notifications" && (
+        {currentTab === "notifications" && (
           <TabsContent value="notifications" className="mt-0 outline-none">
             <NotificationSettings />
           </TabsContent>

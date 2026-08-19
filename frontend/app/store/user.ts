@@ -8,6 +8,7 @@ export interface UserPayload {
   avatar_url?: string | null;
   organization_id: number | null;
   must_change_password?: boolean;
+  permissions?: string[];
   organization?: {
     id: number;
     name: string;

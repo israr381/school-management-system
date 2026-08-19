@@ -1,19 +1,10 @@
 import { useOutletContext } from "react-router";
 import AdminOverview from "../components/dashboards/admin/AdminOverview";
 import SuperAdminOverview from "../components/dashboards/super-admin/SuperAdminOverview";
-
-interface UserResponse {
-  id: number;
-  email: string;
-  full_name: string;
-  role: string;
-  organization_id: number | null;
-  organization: {
-    id: number;
-    name: string;
-    domain: string;
-  } | null;
-}
+import ProtectedRoute from "../components/auth/ProtectedRoute";
+import AccessRestricted from "../components/AccessRestricted";
+import { usePermission } from "../hooks/usePermission";
+import type { UserPayload } from "../store/user";
 
 interface Tenant {
   id: number;
@@ -30,8 +21,8 @@ interface TenantApiResponse {
 }
 
 interface DashboardContext {
-  user: UserResponse;
-  org: UserResponse["organization"];
+  user: UserPayload;
+  org: UserPayload["organization"];
   tenantData: TenantApiResponse | null;
   statsLoading: boolean;
 }
@@ -45,16 +36,24 @@ export function meta() {
 
 export default function Dashboard() {
   const { user, org, tenantData, statsLoading } = useOutletContext<DashboardContext>();
+  const { hasPermission } = usePermission();
 
-  if (user.role === "superadmin") {
-    return (
-      <SuperAdminOverview 
-        user={user} 
-        tenantData={tenantData} 
-        statsLoading={statsLoading} 
-      />
-    );
-  }
-
-  return <AdminOverview user={user} org={org} />;
+  return (
+    <ProtectedRoute
+      permission="dashboard.view"
+      fallback={
+        <AccessRestricted description="You do not have permission to view the dashboard." />
+      }
+    >
+      {!user.organization_id && hasPermission("organization.view") ? (
+        <SuperAdminOverview
+          user={user}
+          tenantData={tenantData}
+          statsLoading={statsLoading}
+        />
+      ) : (
+        <AdminOverview user={user} org={org} />
+      )}
+    </ProtectedRoute>
+  );
 }

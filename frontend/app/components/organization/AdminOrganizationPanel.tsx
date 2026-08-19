@@ -11,6 +11,8 @@ import {
 } from "../../store/organization";
 import Button from "../button/Button";
 import Input from "../input/Input";
+import { usePermission } from "../../hooks/usePermission";
+import PermissionGuard from "../auth/PermissionGuard";
 
 interface AdminOrganizationPanelProps {
   org: OrganizationPayload | null;
@@ -21,6 +23,8 @@ export default function AdminOrganizationPanel({
   org,
   onOrgChange,
 }: AdminOrganizationPanelProps) {
+  const { hasPermission } = usePermission();
+  const canUpdate = hasPermission("organization.update");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingLogoRef = useRef<LogoStagingPayload | null>(null);
   const localPreviewRef = useRef<string | null>(null);
@@ -311,30 +315,34 @@ export default function AdminOrganizationPanel({
                 accept="image/png,image/jpeg,image/webp,image/svg+xml"
                 className="hidden"
                 onChange={handleLogoChange}
-                disabled={isUploadingLogo || isSaving || isRemovingLogo}
+                disabled={!canUpdate || isUploadingLogo || isSaving || isRemovingLogo}
               />
               <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="px-4 py-2 text-sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploadingLogo || isSaving || isRemovingLogo}
-                >
-                  <ImagePlus className="h-4 w-4" />
-                  {isUploadingLogo ? "Uploading..." : "Upload logo"}
-                </Button>
-                {displayedLogo && !isUploadingLogo && (
+                <PermissionGuard permission="organization.update">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
                     className="px-4 py-2 text-sm"
-                    onClick={handleRemoveLogo}
+                    onClick={() => fileInputRef.current?.click()}
                     disabled={isUploadingLogo || isSaving || isRemovingLogo}
                   >
-                    <Trash2 className="h-4 w-4" />
-                    {isRemovingLogo ? "Removing..." : "Remove"}
+                    <ImagePlus className="h-4 w-4" />
+                    {isUploadingLogo ? "Uploading..." : "Upload logo"}
                   </Button>
+                </PermissionGuard>
+                {displayedLogo && !isUploadingLogo && (
+                  <PermissionGuard permission="organization.update">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="px-4 py-2 text-sm"
+                      onClick={handleRemoveLogo}
+                      disabled={isUploadingLogo || isSaving || isRemovingLogo}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {isRemovingLogo ? "Removing..." : "Remove"}
+                    </Button>
+                  </PermissionGuard>
                 )}
               </div>
               <p className="text-xs text-text-muted">PNG, JPG, WEBP, or SVG up to 2MB.</p>
@@ -356,6 +364,7 @@ export default function AdminOrganizationPanel({
             leftIcon={<Building2 className="h-4 w-4" />}
             className="rounded-md py-2.5 text-sm"
             required
+            disabled={!canUpdate}
           />
 
           <Input
@@ -371,28 +380,31 @@ export default function AdminOrganizationPanel({
             leftIcon={<Globe className="h-4 w-4" />}
             className="rounded-md py-2.5 text-sm"
             required
+            disabled={!canUpdate}
           />
         </div>
 
-        <div className="flex flex-col-reverse gap-2 border-t border-border-main/60 p-5 sm:flex-row sm:justify-end sm:p-6">
-          <Button
-            type="button"
-            variant="outline"
-            className="px-5 py-2.5 text-sm"
-            onClick={handleReset}
-            disabled={!isDirty || isSaving || isUploadingLogo}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            className="px-5 py-2.5 text-sm"
-            loading={isSaving}
-            disabled={!isDirty || !form.name.trim() || !form.domain.trim() || isUploadingLogo}
-          >
-            Save changes
-          </Button>
-        </div>
+        <PermissionGuard permission="organization.update">
+          <div className="flex flex-col-reverse gap-2 border-t border-border-main/60 p-5 sm:flex-row sm:justify-end sm:p-6">
+            <Button
+              type="button"
+              variant="outline"
+              className="px-5 py-2.5 text-sm"
+              onClick={handleReset}
+              disabled={!isDirty || isSaving || isUploadingLogo}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="px-5 py-2.5 text-sm"
+              loading={isSaving}
+              disabled={!isDirty || !form.name.trim() || !form.domain.trim() || isUploadingLogo}
+            >
+              Save changes
+            </Button>
+          </div>
+        </PermissionGuard>
       </form>
     </div>
   );

@@ -17,6 +17,7 @@ export interface Student {
   phone: string;
   address: string;
   status: "active" | "graduated" | "disabled" | string;
+  avatar_url?: string | null;
   class_id: number;
   class_name: string;
   section_id: number;

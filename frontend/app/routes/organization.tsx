@@ -1,10 +1,9 @@
 import { useOutletContext } from "react-router";
 import AdminOrganizationPanel from "../components/organization/AdminOrganizationPanel";
 import SuperAdminOrganizationPanel from "../components/organization/SuperAdminOrganizationPanel";
-
-interface UserResponse {
-  role: string;
-}
+import ProtectedRoute from "../components/auth/ProtectedRoute";
+import AccessRestricted from "../components/AccessRestricted";
+import type { UserPayload } from "../store/user";
 
 interface Organization {
   id: number;
@@ -28,7 +27,7 @@ interface TenantApiResponse {
 }
 
 interface OrganizationContext {
-  user: UserResponse;
+  user: UserPayload;
   org: Organization | null;
   setOrg: (org: Organization) => void;
   tenantData: TenantApiResponse | null;
@@ -47,28 +46,22 @@ export default function OrganizationRoute() {
   const { user, org, setOrg, tenantData, statsLoading, refreshStats } =
     useOutletContext<OrganizationContext>();
 
-  if (user.role === "superadmin") {
-    return (
-      <SuperAdminOrganizationPanel
-        tenantData={tenantData}
-        statsLoading={statsLoading}
-        refreshStats={refreshStats}
-      />
-    );
-  }
-
-  if (user.role === "admin") {
-    return <AdminOrganizationPanel org={org} onOrgChange={setOrg} />;
-  }
-
   return (
-    <div className="w-full">
-      <div className="dashboard-card flex flex-col items-center px-6 py-16 text-center">
-        <h2 className="text-lg font-semibold text-text-main">Access restricted</h2>
-        <p className="mt-2 text-sm text-text-muted">
-          Organization settings are only available to school administrators.
-        </p>
-      </div>
-    </div>
+    <ProtectedRoute
+      permission="organization.view"
+      fallback={
+        <AccessRestricted description="You do not have permission to view organization settings." />
+      }
+    >
+      {!user.organization_id ? (
+        <SuperAdminOrganizationPanel
+          tenantData={tenantData}
+          statsLoading={statsLoading}
+          refreshStats={refreshStats}
+        />
+      ) : (
+        <AdminOrganizationPanel org={org} onOrgChange={setOrg} />
+      )}
+    </ProtectedRoute>
   );
 }

@@ -6,22 +6,9 @@ from sqlalchemy.orm import Session, joinedload
 
 from app import auth, models, schemas
 from app.database import get_db
+from app.permissions import require_org_permission
 
 router = APIRouter(tags=["teachers"])
-
-
-def _require_admin_org(current_user: models.User) -> int:
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only school admins can manage teachers",
-        )
-    if not current_user.organization_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User is not associated with any organization",
-        )
-    return current_user.organization_id
 
 
 def _clean_text(value: Optional[str]) -> Optional[str]:
@@ -71,9 +58,8 @@ def _get_org_teacher(db: Session, teacher_id: int, org_id: int) -> models.Teache
 @router.get("/api/teachers/stats", response_model=schemas.TeacherStatsResponse)
 def get_teacher_stats(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("teachers", "view")),
 ):
-    org_id = _require_admin_org(current_user)
     base = db.query(models.Teacher).filter(models.Teacher.organization_id == org_id)
 
     return schemas.TeacherStatsResponse(
@@ -87,9 +73,8 @@ def get_teacher_stats(
 def list_teachers(
     status_filter: Optional[str] = Query(None, alias="status"),
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("teachers", "view")),
 ):
-    org_id = _require_admin_org(current_user)
     query = _teacher_query(db, org_id)
 
     if status_filter in {"active", "disabled"}:
@@ -103,9 +88,8 @@ def list_teachers(
 def create_teacher(
     payload: schemas.TeacherCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("teachers", "create")),
 ):
-    org_id = _require_admin_org(current_user)
     teacher_email = payload.email.strip().lower()
 
     existing_user = db.query(models.User).filter(models.User.email == teacher_email).first()
@@ -160,9 +144,8 @@ def create_teacher(
 def get_teacher(
     teacher_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("teachers", "view")),
 ):
-    org_id = _require_admin_org(current_user)
     return _teacher_response(_get_org_teacher(db, teacher_id, org_id))
 
 
@@ -171,9 +154,8 @@ def update_teacher(
     teacher_id: int,
     payload: schemas.TeacherUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("teachers", "update")),
 ):
-    org_id = _require_admin_org(current_user)
     teacher = _get_org_teacher(db, teacher_id, org_id)
     teacher_email = payload.email.strip().lower()
 
@@ -216,9 +198,8 @@ def update_teacher(
 def delete_teacher(
     teacher_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("teachers", "delete")),
 ):
-    org_id = _require_admin_org(current_user)
     teacher = _get_org_teacher(db, teacher_id, org_id)
     teacher_user = teacher.user
     if teacher_user:

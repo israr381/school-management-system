@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app import auth, models, schemas
 from app.database import get_db
+from app.permissions import ensure_organization_role_permissions, require_permission, require_platform_permission
 from app.services.cloudinary_service import (
     assert_org_logo_public_id,
     assert_staging_public_id,
@@ -19,13 +20,8 @@ router = APIRouter(tags=["organizations"])
 @router.get("/api/superadmin/tenants", response_model=schemas.SuperAdminTenantsResponse)
 def get_superadmin_tenants(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    current_user: models.User = Depends(require_platform_permission("organization", "view")),
 ):
-    if current_user.role != "superadmin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only super admins can view tenant statistics",
-        )
 
     orgs = db.query(models.Organization).all()
     tenants = []
@@ -59,13 +55,8 @@ def get_superadmin_tenants(
 def create_organization(
     data: schemas.CreateOrganizationRequest,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    current_user: models.User = Depends(require_platform_permission("organization", "create")),
 ):
-    if current_user.role != "superadmin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only super admins can create new organizations",
-        )
 
     existing_org = (
         db.query(models.Organization)
@@ -96,6 +87,7 @@ def create_organization(
     db.add(new_org)
     db.commit()
     db.refresh(new_org)
+    ensure_organization_role_permissions(db, new_org.id)
 
     admin_role = db.query(models.Role).filter(models.Role.name == "admin").first()
     if not admin_role:
@@ -134,13 +126,8 @@ def update_organization_by_id(
     org_id: int,
     org_data: schemas.OrganizationUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    current_user: models.User = Depends(require_platform_permission("organization", "update")),
 ):
-    if current_user.role != "superadmin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only super admins can update organizations",
-        )
 
     org = db.query(models.Organization).filter(models.Organization.id == org_id).first()
     if not org:
@@ -180,13 +167,8 @@ def update_organization_status(
     org_id: int,
     status_data: schemas.OrganizationStatusUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    current_user: models.User = Depends(require_platform_permission("organization", "update")),
 ):
-    if current_user.role != "superadmin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only super admins can update organization status",
-        )
 
     org = db.query(models.Organization).filter(models.Organization.id == org_id).first()
     if not org:
@@ -217,13 +199,8 @@ def update_organization_status(
 def delete_organization(
     org_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    current_user: models.User = Depends(require_platform_permission("organization", "delete")),
 ):
-    if current_user.role != "superadmin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only super admins can delete organizations",
-        )
 
     org = db.query(models.Organization).filter(models.Organization.id == org_id).first()
     if not org:
@@ -241,13 +218,8 @@ def delete_organization(
 def update_organization(
     org_data: schemas.OrganizationUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    current_user: models.User = Depends(require_permission("organization", "update")),
 ):
-    if current_user.role != "admin" and current_user.role != "superadmin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admins can update organization details",
-        )
 
     if not current_user.organization_id:
         raise HTTPException(
@@ -289,11 +261,6 @@ def update_organization(
 def _get_admin_organization(
     db: Session, current_user: models.User
 ) -> models.Organization:
-    if current_user.role != "admin" and current_user.role != "superadmin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admins can manage organization details",
-        )
 
     if not current_user.organization_id:
         raise HTTPException(
@@ -319,7 +286,7 @@ def _get_admin_organization(
 async def upload_organization_logo_staging_endpoint(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    current_user: models.User = Depends(require_permission("organization", "update")),
 ):
     org = _get_admin_organization(db, current_user)
 
@@ -341,7 +308,7 @@ async def upload_organization_logo_staging_endpoint(
 async def commit_organization_logo(
     logo_data: schemas.OrganizationLogoCommit,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    current_user: models.User = Depends(require_permission("organization", "update")),
 ):
     org = _get_admin_organization(db, current_user)
 
@@ -368,7 +335,7 @@ async def commit_organization_logo(
 async def discard_organization_logo_staging(
     public_id: str = Query(..., min_length=1),
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    current_user: models.User = Depends(require_permission("organization", "update")),
 ):
     org = _get_admin_organization(db, current_user)
     assert_staging_public_id(org.id, public_id)

@@ -6,24 +6,11 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
-from app import auth, models, schemas
+from app import models, schemas
 from app.database import get_db
+from app.permissions import require_org_any_permission, require_org_permission
 
 router = APIRouter(tags=["classes"])
-
-
-def _require_admin_org(current_user: models.User) -> int:
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only school admins can manage classes and sections",
-        )
-    if not current_user.organization_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User is not associated with any organization",
-        )
-    return current_user.organization_id
 
 
 def _clean_text(value: Optional[str]) -> Optional[str]:
@@ -127,9 +114,14 @@ def _get_org_section(db: Session, section_id: int, org_id: int) -> models.Sectio
 @router.get("/api/classes", response_model=List[schemas.ClassResponse])
 def list_classes(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(
+        require_org_any_permission(
+            ("classes", "view"),
+            ("students", "view"),
+            ("sections", "view"),
+        )
+    ),
 ):
-    org_id = _require_admin_org(current_user)
     classes = (
         db.query(models.SchoolClass)
         .filter(models.SchoolClass.organization_id == org_id)
@@ -162,9 +154,8 @@ def list_classes(
 def create_class(
     data: schemas.ClassCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("classes", "create")),
 ):
-    org_id = _require_admin_org(current_user)
     name = data.name.strip()
     now = datetime.utcnow()
     school_class = models.SchoolClass(
@@ -192,9 +183,8 @@ def update_class(
     class_id: int,
     data: schemas.ClassUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("classes", "update")),
 ):
-    org_id = _require_admin_org(current_user)
     school_class = _get_org_class(db, class_id, org_id)
     school_class.name = data.name.strip()
     school_class.description = _clean_text(data.description)
@@ -219,9 +209,8 @@ def update_class(
 def delete_class(
     class_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("classes", "delete")),
 ):
-    org_id = _require_admin_org(current_user)
     school_class = _get_org_class(db, class_id, org_id)
     student_count = (
         db.query(func.count(models.Student.id))
@@ -242,9 +231,13 @@ def delete_class(
 @router.get("/api/sections", response_model=List[schemas.SectionResponse])
 def list_sections(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(
+        require_org_any_permission(
+            ("sections", "view"),
+            ("students", "view"),
+        )
+    ),
 ):
-    org_id = _require_admin_org(current_user)
     sections = (
         db.query(models.Section)
         .options(joinedload(models.Section.school_class))
@@ -268,9 +261,8 @@ def list_sections(
 def create_section(
     data: schemas.SectionCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("sections", "create")),
 ):
-    org_id = _require_admin_org(current_user)
     school_class = _get_org_class(db, data.class_id, org_id)
     now = datetime.utcnow()
     section = models.Section(
@@ -299,9 +291,8 @@ def update_section(
     section_id: int,
     data: schemas.SectionUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("sections", "update")),
 ):
-    org_id = _require_admin_org(current_user)
     section = _get_org_section(db, section_id, org_id)
     school_class = _get_org_class(db, data.class_id, org_id)
     section.name = data.name.strip()
@@ -324,9 +315,8 @@ def update_section(
 def delete_section(
     section_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_user),
+    org_id: int = Depends(require_org_permission("sections", "delete")),
 ):
-    org_id = _require_admin_org(current_user)
     section = _get_org_section(db, section_id, org_id)
     student_count = (
         db.query(func.count(models.Student.id))

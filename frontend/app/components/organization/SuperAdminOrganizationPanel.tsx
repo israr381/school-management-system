@@ -31,6 +31,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import PermissionGuard from "../auth/PermissionGuard";
 
 interface Tenant {
   id: number;
@@ -277,6 +278,10 @@ export default function SuperAdminOrganizationPanel({
         headerClassName: "text-right",
         className: "text-right",
         render: (tenant) => (
+          <PermissionGuard
+            permissions={["organization.update", "organization.delete"]}
+            mode="any"
+          >
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -291,37 +296,44 @@ export default function SuperAdminOrganizationPanel({
               <MoreVertical className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-36">
-              <DropdownMenuItem className="cursor-pointer" onClick={() => openEditModal(tenant)}>
-                <Pencil className="size-4" />
-                Edit
-              </DropdownMenuItem>
-              {tenant.is_active !== false ? (
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  onClick={() => setConfirmAction({ kind: "toggle", tenant })}
-                >
-                  <Ban className="size-4" />
-                  Disable
+              <PermissionGuard permission="organization.update">
+                <DropdownMenuItem className="cursor-pointer" onClick={() => openEditModal(tenant)}>
+                  <Pencil className="size-4" />
+                  Edit
                 </DropdownMenuItem>
-              ) : (
+              </PermissionGuard>
+              <PermissionGuard permission="organization.update">
+                {tenant.is_active !== false ? (
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => setConfirmAction({ kind: "toggle", tenant })}
+                  >
+                    <Ban className="size-4" />
+                    Disable
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => setConfirmAction({ kind: "toggle", tenant })}
+                  >
+                    <ShieldCheck className="size-4" />
+                    Enable
+                  </DropdownMenuItem>
+                )}
+              </PermissionGuard>
+              <PermissionGuard permission="organization.delete">
                 <DropdownMenuItem
+                  variant="destructive"
                   className="cursor-pointer"
-                  onClick={() => setConfirmAction({ kind: "toggle", tenant })}
+                  onClick={() => setConfirmAction({ kind: "delete", tenant })}
                 >
-                  <ShieldCheck className="size-4" />
-                  Enable
+                  <Trash2 className="size-4" />
+                  Delete
                 </DropdownMenuItem>
-              )}
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer"
-                onClick={() => setConfirmAction({ kind: "delete", tenant })}
-              >
-                <Trash2 className="size-4" />
-                Delete
-              </DropdownMenuItem>
+              </PermissionGuard>
             </DropdownMenuContent>
           </DropdownMenu>
+          </PermissionGuard>
         ),
       },
     ],
@@ -344,14 +356,16 @@ export default function SuperAdminOrganizationPanel({
             Manage all schools and workspaces registered on the platform.
           </p>
         </div>
-        <Button
-          type="button"
-          onClick={() => setAddModalOpen(true)}
-          className="px-5 py-2.5 text-sm"
-        >
-          <Plus className="h-4 w-4" />
-          Add Organization
-        </Button>
+        <PermissionGuard permission="organization.create">
+          <Button
+            type="button"
+            onClick={() => setAddModalOpen(true)}
+            className="px-5 py-2.5 text-sm"
+          >
+            <Plus className="h-4 w-4" />
+            Add Organization
+          </Button>
+        </PermissionGuard>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -431,14 +445,16 @@ export default function SuperAdminOrganizationPanel({
                 : "No organizations match your search. Try a different keyword."}
             </p>
             {tenants.length === 0 && (
-              <Button
-                type="button"
-                onClick={() => setAddModalOpen(true)}
-                className="px-5 py-2.5 text-sm"
-              >
-                <Plus className="h-4 w-4" />
-                Add Organization
-              </Button>
+              <PermissionGuard permission="organization.create">
+                <Button
+                  type="button"
+                  onClick={() => setAddModalOpen(true)}
+                  className="px-5 py-2.5 text-sm"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Organization
+                </Button>
+              </PermissionGuard>
             )}
           </div>
         )}

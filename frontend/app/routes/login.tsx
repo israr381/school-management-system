@@ -12,6 +12,7 @@ import {
   User,
 } from "lucide-react";
 import { loginUser, persistAuthSession } from "../store/auth";
+import { useRbacStore } from "../store/rbacStore";
 import ThemeToggle from "../components/ThemeToggle";
 import Button from "../components/button/Button";
 import Input from "../components/input/Input";
@@ -64,6 +65,7 @@ export default function Login() {
     try {
       const data = await loginUser(formData.email, formData.password, rememberMe);
       persistAuthSession(data);
+      await useRbacStore.getState().loadPermissions();
       navigate("/dashboard");
     } catch (err: any) {
       setError(err.message || "Connection failed. Make sure the backend is running.");
