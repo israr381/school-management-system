@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Clock, Loader2, Pencil, Plus, Trash2, UserCheck, Users, UserX } from "lucide-react";
+import { CalendarCheck, CalendarDays, ClipboardCheck, Loader2, Pencil, Plus, School, Trash2, UserCheck } from "lucide-react";
 import { getAccessToken } from "../../store/auth";
 import {
   deleteTeacherAttendance,
@@ -17,6 +17,7 @@ import PermissionGuard from "../auth/PermissionGuard";
 import AttendanceFilterBar from "./AttendanceFilterBar";
 import AttendanceKpiCards from "./AttendanceKpiCards";
 import {
+  attendanceOverview,
   formatAttendanceDate,
   matchesCountStatus,
   matchesDate,
@@ -114,25 +115,48 @@ export default function TeacherAttendancePanel() {
     }
   }, [currentPage, totalPages]);
 
-  const totals = useMemo(
+  const overview = useMemo(
     () =>
-      scopedHistory.reduce(
-        (acc, row) => ({
-          teachers: acc.teachers + row.total_teachers,
-          present: acc.present + row.present_count,
-          absent: acc.absent + row.absent_count,
-          late: acc.late + row.late_count,
-        }),
-        { teachers: 0, present: 0, absent: 0, late: 0 },
+      attendanceOverview(
+        history.map((row) => ({
+          attendance_date: row.attendance_date,
+          total: row.total_teachers,
+          present: row.present_count,
+          late: row.late_count,
+        })),
       ),
-    [scopedHistory],
+    [history],
   );
 
   const kpiCards = [
-    { key: "all", title: "Total Teachers", value: totals.teachers, color: "#6366f1", icon: Users },
-    { key: "present", title: "Present", value: totals.present, color: "#10b981", icon: UserCheck },
-    { key: "absent", title: "Absent", value: totals.absent, color: "#ef4444", icon: UserX },
-    { key: "late", title: "Late", value: totals.late, color: "#f97316", icon: Clock },
+    {
+      key: "today",
+      title: "Today's Attendance",
+      value: `${overview.todayRate}%`,
+      color: "#10b981",
+      icon: CalendarCheck,
+    },
+    {
+      key: "week",
+      title: "This Week",
+      value: `${overview.weekRate}%`,
+      color: "#3b82f6",
+      icon: CalendarDays,
+    },
+    {
+      key: "month",
+      title: "This Month",
+      value: `${overview.monthRate}%`,
+      color: "#6366f1",
+      icon: ClipboardCheck,
+    },
+    {
+      key: "classes",
+      title: "Total Classes",
+      value: overview.classesThisMonth,
+      color: "#f97316",
+      icon: School,
+    },
   ];
 
   const handleFormOpenChange = (open: boolean) => {
@@ -228,7 +252,7 @@ export default function TeacherAttendancePanel() {
                 <Pencil className="size-4" />
               </UiButton>
             </PermissionGuard>
-            <PermissionGuard permissions={["teacher_attendance.delete", "teacher_attendance.update"]}>
+            <PermissionGuard permission="teacher_attendance.delete">
               <UiButton
                 variant="ghost"
                 size="icon-sm"
@@ -268,11 +292,7 @@ export default function TeacherAttendancePanel() {
         </PermissionGuard>
       </div>
 
-      <AttendanceKpiCards
-        cards={kpiCards}
-        selectedKey={statusFilter}
-        onSelect={(key) => setStatusFilter(key as AttendanceStatusFilter)}
-      />
+      <AttendanceKpiCards cards={kpiCards} />
 
       <div className="overflow-hidden">
         <AttendanceFilterBar

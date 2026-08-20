@@ -161,9 +161,7 @@ def list_student_attendance_history(
 
 
 def _can_delete_student_attendance(user: models.User) -> bool:
-    return has_permission(user, "student_attendance", "delete") or has_permission(
-        user, "student_attendance", "update"
-    )
+    return has_permission(user, "student_attendance", "delete")
 
 
 @router.delete("/api/student-attendance")
@@ -386,9 +384,7 @@ def list_teacher_attendance_history(
 
 
 def _can_delete_teacher_attendance(user: models.User) -> bool:
-    return has_permission(user, "teacher_attendance", "delete") or has_permission(
-        user, "teacher_attendance", "update"
-    )
+    return has_permission(user, "teacher_attendance", "delete")
 
 
 @router.delete("/api/teacher-attendance")

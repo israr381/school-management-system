@@ -3,9 +3,10 @@ import type { LucideIcon } from "lucide-react";
 export type AttendanceKpi = {
   key: string;
   title: string;
-  value: number;
+  value: number | string;
   color: string;
   icon: LucideIcon;
+  subtitle?: string;
 };
 
 type AttendanceKpiCardsProps = {
@@ -42,8 +43,11 @@ export default function AttendanceKpiCards({
             <div className="min-w-0">
               <p className="text-[13px] font-medium text-text-muted">{stat.title}</p>
               <p className="mt-0.5 text-[26px] font-bold leading-tight tracking-tight text-text-main">
-                {stat.value.toLocaleString()}
+                {typeof stat.value === "number" ? stat.value.toLocaleString() : stat.value}
               </p>
+              {stat.subtitle ? (
+                <p className="mt-1 text-[11px] font-medium text-text-muted">{stat.subtitle}</p>
+              ) : null}
             </div>
           </div>
         );
