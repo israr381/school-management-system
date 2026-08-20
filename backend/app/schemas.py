@@ -291,3 +291,24 @@ class TeacherStatsResponse(BaseModel):
     total_teachers: int
     active_teachers: int
     disabled_teachers: int
+
+
+class TeacherClassAssignmentCreate(BaseModel):
+    teacher_id: int
+    class_id: int
+    section_id: int
+
+
+class TeacherClassAssignmentResponse(BaseModel):
+    id: int
+    teacher_id: int
+    teacher_name: str
+    class_id: int
+    class_name: str
+    section_id: int
+    section_name: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

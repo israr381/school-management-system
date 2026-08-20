@@ -130,7 +130,16 @@ export default function ManagePermissionsPage() {
 
     setSaving(true);
     try {
-      const updated = await updateRolePermissions(token, selectedRole.id, draftPermissions);
+      const catalogKeys = new Set(
+        catalog.flatMap((module) =>
+          module.actions.map((action) => permissionKey(module.key, action)),
+        ),
+      );
+      const updated = await updateRolePermissions(
+        token,
+        selectedRole.id,
+        draftPermissions.filter((key) => catalogKeys.has(key)),
+      );
       setRoles((current) => current.map((role) => (role.id === updated.id ? updated : role)));
       setDraftPermissions(updated.permissions);
       toast.success(`${updated.label} permissions updated.`);
