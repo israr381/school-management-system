@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Bell, BookMarked, GraduationCap, LayoutList, Lock, Palette, Shield, UserRound } from "lucide-react";
+import { Bell, BookMarked, GraduationCap, LayoutList, Lock, Palette, Shield, UserCheck, UserRound } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import type { UserPayload } from "../../store/user";
 import { usePermission } from "../../hooks/usePermission";
 import Button from "../button/Button";
 import PermissionGuard from "../auth/PermissionGuard";
 import AppearanceSettings from "./AppearanceSettings";
+import AssignClassSettings from "./AssignClassSettings";
 import ClassesSettings from "./ClassesSettings";
 import NotificationSettings from "./NotificationSettings";
 import ProfileSettings from "./ProfileSettings";
@@ -30,6 +31,7 @@ const tabs = [
   { value: "classes", label: "Classes", icon: GraduationCap, permission: "classes.view" },
   { value: "sections", label: "Sections", icon: LayoutList, permission: "sections.view" },
   { value: "subjects", label: "Subjects", icon: BookMarked, permission: "subjects.view" },
+  { value: "assign-class", label: "Assign Class", icon: UserCheck, permission: "teachers.view" },
   { value: "security", label: "Security", icon: Lock, permission: null },
   { value: "notifications", label: "Notifications", icon: Bell, permission: null },
 ] as const;
@@ -51,7 +53,7 @@ export default function SettingsPanel({ user, onUserChange }: SettingsPanelProps
             Settings
           </h2>
           <p className="text-sm text-text-muted mt-1">
-            Manage your profile, classes, sections, subjects, appearance, security, and notifications.
+            Manage your profile, classes, sections, subjects, teacher assignments, appearance, security, and notifications.
           </p>
         </div>
         <PermissionGuard permission="permissions.view">
@@ -115,6 +117,12 @@ export default function SettingsPanel({ user, onUserChange }: SettingsPanelProps
         {currentTab === "subjects" && hasPermission("subjects.view") && (
           <TabsContent value="subjects" className="mt-0 outline-none">
             <SubjectsSettings />
+          </TabsContent>
+        )}
+
+        {currentTab === "assign-class" && hasPermission("teachers.view") && (
+          <TabsContent value="assign-class" className="mt-0 outline-none">
+            <AssignClassSettings />
           </TabsContent>
         )}
 

@@ -9,11 +9,13 @@ from app.database import Base, SessionLocal, check_db_connection, engine, get_db
 from app.db_migrations import ensure_organization_logo_columns, ensure_user_avatar_columns
 from app import models
 from app.permissions import backfill_organization_role_permissions, seed_permissions
+from app.routers.attendance import router as attendance_router
 from app.routers.auth import router as auth_router
 from app.routers.classes import router as classes_router
 from app.routers.organizations import router as organizations_router
 from app.routers.permissions import router as permissions_router
 from app.routers.students import router as students_router
+from app.routers.teacher_assignments import router as teacher_assignments_router
 from app.routers.teachers import router as teachers_router
 from app.routers.users import avatar_router as user_avatar_router
 from app.routers.users import router as users_router
@@ -67,6 +69,8 @@ app.include_router(permissions_router)
 app.include_router(classes_router)
 app.include_router(students_router)
 app.include_router(teachers_router)
+app.include_router(teacher_assignments_router)
+app.include_router(attendance_router)
 
 
 @app.get("/")

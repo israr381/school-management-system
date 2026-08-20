@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Literal, Optional, List
-from datetime import datetime
+from datetime import date, datetime
 
 class OrganizationResponse(BaseModel):
     id: int
@@ -291,3 +291,121 @@ class TeacherStatsResponse(BaseModel):
     total_teachers: int
     active_teachers: int
     disabled_teachers: int
+
+
+class TeacherClassAssignmentCreate(BaseModel):
+    teacher_id: int
+    class_id: int
+    section_id: int
+
+
+class TeacherClassAssignmentResponse(BaseModel):
+    id: int
+    teacher_id: int
+    teacher_name: str
+    class_id: int
+    class_name: str
+    section_id: int
+    section_name: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+AttendanceStatus = Literal["present", "absent", "late"]
+
+
+class StudentAttendanceRecordIn(BaseModel):
+    student_id: int
+    status: AttendanceStatus
+
+
+class StudentAttendanceSave(BaseModel):
+    attendance_date: date
+    class_id: Optional[int] = None
+    section_id: Optional[int] = None
+    records: List[StudentAttendanceRecordIn]
+
+
+class StudentAttendanceRecordOut(BaseModel):
+    student_id: int
+    full_name: str
+    status: AttendanceStatus
+
+
+class StudentAttendanceSheet(BaseModel):
+    attendance_date: date
+    class_id: int
+    class_name: str
+    section_id: int
+    section_name: str
+    locked: bool
+    is_saved: bool
+    can_edit: bool
+    present_count: int
+    absent_count: int
+    late_count: int
+    records: List[StudentAttendanceRecordOut]
+
+
+class StudentAttendanceSummary(BaseModel):
+    attendance_date: date
+    class_id: int
+    class_name: str
+    section_id: int
+    section_name: str
+    total_students: int
+    present_count: int
+    absent_count: int
+    late_count: int
+    can_edit: bool
+
+
+class TeacherAttendanceRecordIn(BaseModel):
+    teacher_id: int
+    status: AttendanceStatus
+
+
+class TeacherAttendanceSave(BaseModel):
+    attendance_date: date
+    records: List[TeacherAttendanceRecordIn]
+
+
+class TeacherAttendanceRecordOut(BaseModel):
+    teacher_id: int
+    full_name: str
+    status: AttendanceStatus
+
+
+class TeacherAttendanceSheet(BaseModel):
+    attendance_date: date
+    is_saved: bool
+    can_edit: bool
+    present_count: int
+    absent_count: int
+    late_count: int
+    records: List[TeacherAttendanceRecordOut]
+
+
+class TeacherAttendanceSummary(BaseModel):
+    attendance_date: date
+    total_teachers: int
+    present_count: int
+    absent_count: int
+    late_count: int
+    can_edit: bool
+
+
+class MyAttendanceRecord(BaseModel):
+    attendance_date: date
+    status: AttendanceStatus
+    class_name: Optional[str] = None
+    section_name: Optional[str] = None
+
+
+class MyAttendanceResponse(BaseModel):
+    person_type: Literal["student", "teacher"]
+    full_name: str
+    records: List[MyAttendanceRecord]
