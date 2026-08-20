@@ -29,6 +29,7 @@ const ACTION_LABELS: Record<string, string> = {
   create: "Create",
   update: "Update",
   delete: "Delete",
+  take: "Take",
 };
 
 export default function ManagePermissionsPage() {

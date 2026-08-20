@@ -121,6 +121,7 @@ def list_classes(
             ("sections", "view"),
             ("subjects", "view"),
             ("teachers", "view"),
+            ("student_attendance", "view"),
         )
     ),
 ):
@@ -239,6 +240,7 @@ def list_sections(
             ("students", "view"),
             ("subjects", "view"),
             ("teachers", "view"),
+            ("student_attendance", "view"),
         )
     ),
 ):

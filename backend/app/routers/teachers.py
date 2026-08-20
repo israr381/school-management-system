@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app import auth, models, schemas
 from app.database import get_db
-from app.permissions import require_org_permission
+from app.permissions import require_org_any_permission, require_org_permission
 
 router = APIRouter(tags=["teachers"])
 
@@ -73,7 +73,9 @@ def get_teacher_stats(
 def list_teachers(
     status_filter: Optional[str] = Query(None, alias="status"),
     db: Session = Depends(get_db),
-    org_id: int = Depends(require_org_permission("teachers", "view")),
+    org_id: int = Depends(
+        require_org_any_permission(("teachers", "view"), ("teacher_attendance", "view"))
+    ),
 ):
     query = _teacher_query(db, org_id)
 

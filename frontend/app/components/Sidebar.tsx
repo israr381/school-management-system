@@ -1,10 +1,13 @@
 import {
   BookOpen,
   Building2,
+  CalendarCheck,
   ChevronLeft,
+  ClipboardCheck,
   GraduationCap,
   LayoutDashboard,
   Settings,
+  UserCheck,
   Users,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
@@ -42,6 +45,9 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
     { name: "Organization", path: "/organization", icon: Building2, permission: "organization.view" },
     { name: "Students", path: "/students", icon: Users, permission: "students.view" },
     { name: "Teachers", path: "/teachers", icon: BookOpen, permission: "teachers.view" },
+    { name: "Student Attendance", path: "/attendance/students", icon: ClipboardCheck, permission: "student_attendance.view" },
+    { name: "Teacher Attendance", path: "/attendance/teachers", icon: UserCheck, permission: "teacher_attendance.view" },
+    { name: "My Attendance", path: "/attendance/me", icon: CalendarCheck, permission: "my_attendance.view" },
     { name: "Settings", path: "/settings", icon: Settings, permission: "settings.view" },
   ];
 

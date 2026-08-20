@@ -5,9 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
-from app import models, schemas
+from app import auth, models, schemas
 from app.database import get_db
-from app.permissions import require_org_permission
+from app.permissions import has_permission, require_org_permission, require_organization_id
 
 router = APIRouter(tags=["teacher-assignments"])
 
@@ -85,6 +85,47 @@ def _validate_class_section(
             detail="The selected section does not belong to the selected class",
         )
     return school_class, section
+
+
+@router.get(
+    "/api/teacher-assignments/me",
+    response_model=schemas.TeacherClassAssignmentResponse,
+)
+def get_my_teacher_assignment(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user),
+):
+    if not (
+        has_permission(current_user, "student_attendance", "view")
+        or has_permission(current_user, "teachers", "view")
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to view class assignments",
+        )
+    org_id = require_organization_id(current_user)
+    teacher = (
+        db.query(models.Teacher)
+        .filter(models.Teacher.user_id == current_user.id, models.Teacher.organization_id == org_id)
+        .first()
+    )
+    assignment = None
+    if teacher:
+        assignment = (
+            _assignment_query(db, org_id)
+            .filter(models.TeacherClassAssignment.teacher_id == teacher.id)
+            .first()
+        )
+    if current_user.role == "teacher":
+        if not assignment:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="You are not assigned to a class. Ask an admin to assign a class first.",
+            )
+        return _assignment_response(assignment)
+    if not assignment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No class assignment found")
+    return _assignment_response(assignment)
 
 
 @router.get(

@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Boolean, Date, DateTime, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import object_session, relationship as orm_relationship
 from app.database import Base
 
@@ -332,3 +332,55 @@ class TeacherClassAssignment(Base):
     school_class = orm_relationship("SchoolClass", back_populates="teacher_assignments")
     section = orm_relationship("Section", back_populates="teacher_assignments")
     organization = orm_relationship("Organization", back_populates="teacher_class_assignments")
+
+
+class StudentAttendance(Base):
+    __tablename__ = "student_attendance"
+    __table_args__ = (
+        UniqueConstraint("student_id", "attendance_date", name="uq_student_attendance_date"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(
+        Integer, ForeignKey("students.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    class_id = Column(Integer, ForeignKey("classes.id", ondelete="CASCADE"), nullable=False, index=True)
+    section_id = Column(
+        Integer, ForeignKey("sections.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    organization_id = Column(
+        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    attendance_date = Column(Date, nullable=False, index=True)
+    status = Column(String, nullable=False, default="present")
+    marked_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    student = orm_relationship("Student")
+    school_class = orm_relationship("SchoolClass")
+    section = orm_relationship("Section")
+    organization = orm_relationship("Organization")
+
+
+class TeacherAttendance(Base):
+    __tablename__ = "teacher_attendance"
+    __table_args__ = (
+        UniqueConstraint("teacher_id", "attendance_date", name="uq_teacher_attendance_date"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    teacher_id = Column(
+        Integer, ForeignKey("teachers.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    organization_id = Column(
+        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    attendance_date = Column(Date, nullable=False, index=True)
+    status = Column(String, nullable=False, default="present")
+    marked_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    teacher = orm_relationship("Teacher")
+    organization = orm_relationship("Organization")

@@ -81,6 +81,33 @@ export async function fetchTeacherAssignments(
   return assignmentsCache.get(token, () => requestTeacherAssignments(token), options?.force);
 }
 
+export type MyTeacherAssignmentResult =
+  | { kind: "assignment"; assignment: TeacherClassAssignment }
+  | { kind: "admin" }
+  | { kind: "unassigned"; message: string };
+
+export async function fetchMyTeacherAssignment(
+  token: string,
+): Promise<MyTeacherAssignmentResult> {
+  const response = await fetch(`${API_BASE_URL}/teacher-assignments/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (response.status === 404) {
+    return { kind: "admin" };
+  }
+  const data = await response.json().catch(() => ({}));
+  if (response.status === 400) {
+    return {
+      kind: "unassigned",
+      message: typeof data.detail === "string" ? data.detail : "You are not assigned to a class.",
+    };
+  }
+  if (!response.ok) {
+    throw new Error(typeof data.detail === "string" ? data.detail : "Failed to load assignment.");
+  }
+  return { kind: "assignment", assignment: data };
+}
+
 export async function saveTeacherAssignment(
   token: string,
   payload: SaveTeacherAssignmentPayload,

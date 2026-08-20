@@ -14,6 +14,9 @@ PERMISSION_CATALOG: list[dict] = [
     {"key": "classes", "label": "Classes", "actions": ["view", "create", "update", "delete"]},
     {"key": "sections", "label": "Sections", "actions": ["view", "create", "update", "delete"]},
     {"key": "subjects", "label": "Subjects", "actions": ["view", "create", "update", "delete"]},
+    {"key": "student_attendance", "label": "Student Attendance", "actions": ["view", "take", "update", "delete"]},
+    {"key": "teacher_attendance", "label": "Teacher Attendance", "actions": ["view", "take", "update", "delete"]},
+    {"key": "my_attendance", "label": "My Attendance", "actions": ["view"]},
     {"key": "settings", "label": "Settings", "actions": ["view", "update"]},
     {"key": "permissions", "label": "Permissions", "actions": ["view", "update"]},
 ]
@@ -41,14 +44,19 @@ DEFAULT_ROLE_PERMISSIONS: dict[str, dict[str, list[str]]] = {
         "classes": ["view", "create", "update", "delete"],
         "sections": ["view", "create", "update", "delete"],
         "subjects": ["view", "create", "update", "delete"],
+        "student_attendance": ["view", "take", "update", "delete"],
+        "teacher_attendance": ["view", "take", "update", "delete"],
         "settings": ["view", "update"],
     },
     "teacher": {
         "dashboard": ["view"],
+        "student_attendance": ["view", "take"],
+        "my_attendance": ["view"],
         "settings": ["view", "update"],
     },
     "student": {
         "dashboard": ["view"],
+        "my_attendance": ["view"],
         "settings": ["view", "update"],
     },
     "parent": {
@@ -221,6 +229,7 @@ def grant_missing_default_permissions(db: Session) -> None:
                     )
 
     grant_missing_organization_module_permissions(db)
+    grant_missing_organization_action_permissions(db)
 
 
 def grant_missing_organization_module_permissions(db: Session) -> None:
@@ -258,6 +267,50 @@ def grant_missing_organization_module_permissions(db: Session) -> None:
                     continue
                 for action in actions:
                     permission = permissions_by_key.get(permission_key(module_key, action))
+                    if permission:
+                        db.add(
+                            models.OrganizationRolePermission(
+                                organization_id=organization_id,
+                                role_id=role.id,
+                                permission_id=permission.id,
+                            )
+                        )
+
+
+def grant_missing_organization_action_permissions(db: Session) -> None:
+    permissions_by_key = _permissions_by_key(db)
+    organizations = db.query(models.Organization.id).all()
+    tenant_roles = (
+        db.query(models.Role).filter(models.Role.name.in_(TENANT_ROLE_NAMES)).all()
+    )
+
+    for (organization_id,) in organizations:
+        if not organization_has_role_permissions(db, organization_id):
+            continue
+
+        for role in tenant_roles:
+            defaults = DEFAULT_ROLE_PERMISSIONS.get(role.name, {})
+            existing_keys = {
+                permission_key(permission.module, permission.action)
+                for permission in (
+                    db.query(models.Permission)
+                    .join(
+                        models.OrganizationRolePermission,
+                        models.OrganizationRolePermission.permission_id == models.Permission.id,
+                    )
+                    .filter(
+                        models.OrganizationRolePermission.organization_id == organization_id,
+                        models.OrganizationRolePermission.role_id == role.id,
+                    )
+                    .all()
+                )
+            }
+            for module_key, actions in defaults.items():
+                for action in actions:
+                    key = permission_key(module_key, action)
+                    if key in existing_keys:
+                        continue
+                    permission = permissions_by_key.get(key)
                     if permission:
                         db.add(
                             models.OrganizationRolePermission(
