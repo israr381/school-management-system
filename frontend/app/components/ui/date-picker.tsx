@@ -34,6 +34,7 @@ type DatePickerProps = {
   className?: string
   fromYear?: number
   toYear?: number
+  maxDate?: string
 }
 
 function DatePicker({
@@ -47,8 +48,10 @@ function DatePicker({
   className,
   fromYear = new Date().getFullYear() - 10,
   toYear = new Date().getFullYear() + 1,
+  maxDate,
 }: DatePickerProps) {
   const selected = parseIsoDate(value)
+  const latestDate = parseIsoDate(maxDate)
   const [open, setOpen] = React.useState(false)
   const inputId = id || name
 
@@ -109,13 +112,15 @@ function DatePicker({
               defaultMonth={selected}
               onSelect={(date) => {
                 if (!date) return
+                if (latestDate && date > latestDate) return
                 onChange?.(toIsoDate(date))
                 setOpen(false)
               }}
+              disabled={latestDate ? { after: latestDate } : undefined}
               captionLayout="dropdown"
               navLayout="after"
               startMonth={new Date(fromYear, 0)}
-              endMonth={new Date(toYear, 11)}
+              endMonth={latestDate ?? new Date(toYear, 11)}
             />
           </div>
         </PopoverContent>
