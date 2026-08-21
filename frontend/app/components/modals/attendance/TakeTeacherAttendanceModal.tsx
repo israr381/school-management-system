@@ -8,8 +8,8 @@ import {
   type TeacherAttendanceSummary,
 } from "../../../store/attendance";
 import Button from "../../button/Button";
-import Input from "../../input/Input";
 import AttendanceStatusPicker from "../../attendance/AttendanceStatusPicker";
+import { DatePicker } from "~/components/ui/date-picker";
 import {
   Dialog,
   DialogContent,
@@ -151,13 +151,11 @@ export default function TakeTeacherAttendanceModal({
           )}
 
           <div className="max-w-xs">
-            <Input
-              type="date"
+            <DatePicker
               name="teacher_attendance_date"
               label="Date"
               value={attendanceDate}
-              onChange={(event) => setAttendanceDate(event.target.value)}
-              className="h-12.5 rounded-md py-0"
+              onChange={setAttendanceDate}
             />
           </div>
 
