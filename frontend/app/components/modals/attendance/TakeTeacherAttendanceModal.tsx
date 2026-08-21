@@ -8,7 +8,7 @@ import {
   type TeacherAttendanceSummary,
 } from "../../../store/attendance";
 import Button from "../../button/Button";
-import AttendanceStatusPicker from "../../attendance/AttendanceStatusPicker";
+import AttendanceMarkTable from "../../attendance/AttendanceMarkTable";
 import { DatePicker } from "~/components/ui/date-picker";
 import {
   Dialog,
@@ -156,6 +156,7 @@ export default function TakeTeacherAttendanceModal({
               label="Date"
               value={attendanceDate}
               onChange={setAttendanceDate}
+              maxDate={todayDate()}
             />
           </div>
 
@@ -176,27 +177,21 @@ export default function TakeTeacherAttendanceModal({
           {loadingSheet ? (
             <p className="py-8 text-center text-sm text-text-muted">Loading teachers...</p>
           ) : records.length > 0 ? (
-            <div className="max-h-80 overflow-y-auto rounded-xl border border-border-main">
-              {records.map((record) => (
-                <div
-                  key={record.teacher_id}
-                  className="flex flex-col gap-2 border-b border-border-main px-4 py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <span className="font-semibold text-text-main">{record.full_name}</span>
-                  <AttendanceStatusPicker
-                    value={record.status}
-                    disabled={!canEdit}
-                    onChange={(status) =>
-                      setRecords((current) =>
-                        current.map((item) =>
-                          item.teacher_id === record.teacher_id ? { ...item, status } : item,
-                        ),
-                      )
-                    }
-                  />
-                </div>
-              ))}
-            </div>
+            <AttendanceMarkTable
+              rows={records.map((record) => ({
+                id: record.teacher_id,
+                name: record.full_name,
+                status: record.status,
+              }))}
+              disabled={!canEdit}
+              onStatusChange={(id, status) =>
+                setRecords((current) =>
+                  current.map((item) =>
+                    item.teacher_id === id ? { ...item, status } : item,
+                  ),
+                )
+              }
+            />
           ) : null}
 
           <DialogFooter className="mx-0 mb-0 rounded-none border-border-main bg-transparent px-0 pb-0 pt-2">

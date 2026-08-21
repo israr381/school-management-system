@@ -352,7 +352,7 @@ class StudentAttendance(Base):
         Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
     )
     attendance_date = Column(Date, nullable=False, index=True)
-    status = Column(String, nullable=False, default="present")
+    status = Column(String, nullable=False, default="absent")
     marked_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -377,7 +377,7 @@ class TeacherAttendance(Base):
         Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
     )
     attendance_date = Column(Date, nullable=False, index=True)
-    status = Column(String, nullable=False, default="present")
+    status = Column(String, nullable=False, default="absent")
     marked_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

@@ -12,6 +12,14 @@ from app.permissions import has_permission, require_org_permission, require_orga
 router = APIRouter(tags=["attendance"])
 
 
+def _ensure_not_future_date(attendance_date: date) -> None:
+    if attendance_date > date.today():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Attendance cannot be taken for a future date",
+        )
+
+
 def _counts(records: list) -> tuple[int, int, int]:
     present = sum(1 for item in records if item.status == "present")
     absent = sum(1 for item in records if item.status == "absent")
@@ -243,7 +251,7 @@ def get_student_attendance(
         schemas.StudentAttendanceRecordOut(
             student_id=student.id,
             full_name=student.full_name,
-            status=existing.get(student.id, "present"),
+            status=existing.get(student.id, "absent"),
         )
         for student in students
     ]
@@ -274,6 +282,7 @@ def save_student_attendance(
     school_class, section, _locked = _student_class_scope(
         db, current_user, org_id, payload.class_id, payload.section_id
     )
+    _ensure_not_future_date(payload.attendance_date)
     existing_rows = (
         db.query(models.StudentAttendance)
         .filter(
@@ -447,7 +456,7 @@ def get_teacher_attendance(
         schemas.TeacherAttendanceRecordOut(
             teacher_id=teacher.id,
             full_name=teacher.full_name,
-            status=existing.get(teacher.id, "present"),
+            status=existing.get(teacher.id, "absent"),
         )
         for teacher in teachers
     ]
@@ -470,6 +479,7 @@ def save_teacher_attendance(
     org_id: int = Depends(require_org_permission("teacher_attendance", "view")),
     current_user: models.User = Depends(auth.get_current_user),
 ):
+    _ensure_not_future_date(payload.attendance_date)
     existing_rows = (
         db.query(models.TeacherAttendance)
         .filter(
