@@ -9,8 +9,8 @@ import {
   type StudentAttendanceSummary,
 } from "../../../store/attendance";
 import Button from "../../button/Button";
-import Input from "../../input/Input";
 import AttendanceStatusPicker from "../../attendance/AttendanceStatusPicker";
+import { DatePicker } from "~/components/ui/date-picker";
 import { Label } from "~/components/ui/label";
 import {
   Select,
@@ -206,13 +206,11 @@ export default function TakeStudentAttendanceModal({
           )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Input
-              type="date"
+            <DatePicker
               name="student_attendance_date"
               label="Date"
               value={attendanceDate}
-              onChange={(event) => setAttendanceDate(event.target.value)}
-              className="h-12.5 rounded-md py-0"
+              onChange={setAttendanceDate}
             />
             <div className="w-full">
               <div className="mb-2 flex items-center">
