@@ -5,24 +5,33 @@ import {
   Users,
 } from "lucide-react";
 import SchoolIllustration from "./SchoolIllustration";
-import { dashboardStats } from "./mockData";
 
 interface DashboardHeroProps {
   userName: string;
   schoolName: string;
+  academicYear: string;
+  totalStudents: number;
+  totalTeachers: number;
+  activeClasses: number;
 }
 
-const quickStats = [
-  { label: "Academic Year", value: dashboardStats.academicYear, icon: CalendarDays },
-  { label: "Total Students", value: dashboardStats.totalStudents.toLocaleString(), icon: GraduationCap },
-  { label: "Total Teachers", value: dashboardStats.totalTeachers.toString(), icon: Users },
-  { label: "Active Classes", value: dashboardStats.activeClasses.toString(), icon: BookOpen },
-];
+export default function DashboardHero({
+  userName,
+  schoolName,
+  academicYear,
+  totalStudents,
+  totalTeachers,
+  activeClasses,
+}: DashboardHeroProps) {
+  const quickStats = [
+    { label: "Academic Year", value: academicYear, icon: CalendarDays },
+    { label: "Total Students", value: totalStudents.toLocaleString(), icon: GraduationCap },
+    { label: "Total Teachers", value: totalTeachers.toLocaleString(), icon: Users },
+    { label: "Active Classes", value: activeClasses.toLocaleString(), icon: BookOpen },
+  ];
 
-export default function DashboardHero({ userName, schoolName }: DashboardHeroProps) {
   return (
     <section className="dashboard-hero relative overflow-hidden rounded-[20px] px-6 py-7 sm:px-8 sm:py-8 lg:px-10">
-      {/* Decorative confetti */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute right-[38%] top-6 h-2 w-2 rounded-full bg-yellow-300/70" />
         <div className="absolute right-[42%] top-14 h-1.5 w-1.5 rounded-full bg-pink-300/60" />

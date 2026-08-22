@@ -276,7 +276,7 @@ export default function TeacherAttendancePanel() {
       : `Showing ${startIndex}-${endIndex} of ${filteredHistory.length} records`;
 
   return (
-    <div className="mx-auto max-w-350 space-y-5">
+    <div className="space-y-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-text-main">Teacher Attendance</h2>

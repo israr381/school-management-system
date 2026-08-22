@@ -168,7 +168,7 @@ export default function ManagePermissionsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-350 space-y-5">
+    <div className="space-y-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <button
