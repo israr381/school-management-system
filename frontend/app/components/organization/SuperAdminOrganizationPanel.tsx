@@ -346,7 +346,7 @@ export default function SuperAdminOrganizationPanel({
       : `Showing ${startIndex}-${endIndex} of ${filteredTenants.length} organizations`;
 
   return (
-    <div className="mx-auto max-w-350 space-y-5">
+    <div className="space-y-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
           <h1 className="text-2xl font-bold text-text-main tracking-tight">

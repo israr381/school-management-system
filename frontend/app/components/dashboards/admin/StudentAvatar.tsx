@@ -2,7 +2,7 @@ import { useState } from "react";
 
 interface StudentAvatarProps {
   name: string;
-  avatar: string;
+  avatar?: string | null;
   rank: number;
 }
 
@@ -22,7 +22,7 @@ function initials(name: string) {
 }
 
 export default function StudentAvatar({ name, avatar, rank }: StudentAvatarProps) {
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState(!avatar);
 
   return (
     <div className="relative shrink-0">
@@ -35,7 +35,7 @@ export default function StudentAvatar({ name, avatar, rank }: StudentAvatarProps
         </div>
       ) : (
         <img
-          src={avatar}
+          src={avatar || ""}
           alt={name}
           onError={() => setFailed(true)}
           className="h-10 w-10 rounded-full object-cover ring-2 ring-border-main/60"

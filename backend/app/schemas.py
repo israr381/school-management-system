@@ -409,3 +409,167 @@ class MyAttendanceResponse(BaseModel):
     person_type: Literal["student", "teacher"]
     full_name: str
     records: List[MyAttendanceRecord]
+
+
+class AttendanceTotals(BaseModel):
+    total: int
+    present: int
+    absent: int
+    late: int
+    percent: float
+
+
+class AttendanceTrendPoint(BaseModel):
+    date: date
+    label: str
+    percent: float
+    recorded: bool
+    present: int = 0
+    absent: int = 0
+    late: int = 0
+    total: int = 0
+
+
+class DashboardAttendanceRecord(BaseModel):
+    attendance_date: date
+    status: AttendanceStatus
+    class_name: Optional[str] = None
+    section_name: Optional[str] = None
+
+
+class DashboardStudentCard(BaseModel):
+    id: int
+    full_name: str
+    status: str
+    class_name: str
+    section_name: str
+    avatar_url: Optional[str] = None
+    today_status: Optional[AttendanceStatus] = None
+    attendance: AttendanceTotals
+    recent: List[DashboardAttendanceRecord] = []
+    parent_name: Optional[str] = None
+    parent_phone: Optional[str] = None
+    parent_email: Optional[str] = None
+    parent_relationship: Optional[str] = None
+
+
+class TeacherClassDaySummary(BaseModel):
+    attendance_date: date
+    total_students: int
+    present_count: int
+    absent_count: int
+    late_count: int
+    percent: float
+
+
+class TeacherDashboardData(BaseModel):
+    assigned: bool
+    teacher_id: Optional[int] = None
+    subject: Optional[str] = None
+    class_id: Optional[int] = None
+    class_name: Optional[str] = None
+    section_id: Optional[int] = None
+    section_name: Optional[str] = None
+    student_count: int = 0
+    today_taken: bool = False
+    today_status: Optional[AttendanceStatus] = None
+    today_class: AttendanceTotals
+    class_attendance: AttendanceTotals
+    my_attendance: AttendanceTotals
+    trend: List[AttendanceTrendPoint] = []
+    students: List[DashboardStudentCard] = []
+    recent_class_days: List[TeacherClassDaySummary] = []
+    recent_my_attendance: List[DashboardAttendanceRecord] = []
+
+
+class StudentDashboardData(BaseModel):
+    student_id: int
+    full_name: str
+    status: str
+    class_name: str
+    section_name: str
+    avatar_url: Optional[str] = None
+    today_status: Optional[AttendanceStatus] = None
+    parent_name: str
+    parent_phone: str
+    parent_email: str
+    parent_relationship: str
+    attendance: AttendanceTotals
+    trend: List[AttendanceTrendPoint] = []
+    recent: List[DashboardAttendanceRecord] = []
+
+
+class ParentDashboardData(BaseModel):
+    parent_id: int
+    full_name: str
+    relationship: str
+    children_count: int
+    today_present: int
+    today_absent: int
+    combined_attendance: AttendanceTotals
+    trend: List[AttendanceTrendPoint] = []
+    children: List[DashboardStudentCard] = []
+
+
+class AdminClassDistribution(BaseModel):
+    class_id: int
+    class_name: str
+    count: int
+    percent: float
+
+
+class AdminTopStudent(BaseModel):
+    id: int
+    full_name: str
+    class_name: str
+    section_name: str
+    avatar_url: Optional[str] = None
+    attendance_percent: float
+    total_days: int
+
+
+class AdminRecentStudent(BaseModel):
+    id: int
+    full_name: str
+    class_name: str
+    section_name: str
+    created_at: datetime
+    avatar_url: Optional[str] = None
+
+
+class AdminRecentClassDay(BaseModel):
+    attendance_date: date
+    class_name: str
+    section_name: str
+    present_count: int
+    absent_count: int
+    late_count: int
+    total_students: int
+    percent: float
+
+
+class AdminDashboardData(BaseModel):
+    academic_year: str
+    total_students: int
+    active_students: int
+    total_teachers: int
+    active_teachers: int
+    total_parents: int
+    active_classes: int
+    today_student: AttendanceTotals
+    student_attendance: AttendanceTotals
+    today_teacher: AttendanceTotals
+    teacher_attendance: AttendanceTotals
+    trend: List[AttendanceTrendPoint] = []
+    by_class: List[AdminClassDistribution] = []
+    top_students: List[AdminTopStudent] = []
+    recent_students: List[AdminRecentStudent] = []
+    recent_class_days: List[AdminRecentClassDay] = []
+
+
+class RoleDashboardResponse(BaseModel):
+    role: Literal["admin", "teacher", "student", "parent"]
+    admin: Optional[AdminDashboardData] = None
+    teacher: Optional[TeacherDashboardData] = None
+    student: Optional[StudentDashboardData] = None
+    parent: Optional[ParentDashboardData] = None

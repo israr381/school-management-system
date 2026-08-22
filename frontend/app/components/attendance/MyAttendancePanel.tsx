@@ -181,7 +181,7 @@ export default function MyAttendancePanel() {
       : `Showing ${startIndex}-${endIndex} of ${filteredRecords.length} days`;
 
   return (
-    <div className="mx-auto max-w-350 space-y-5">
+    <div className=" space-y-5">
       <div>
         <h2 className="text-2xl font-bold tracking-tight text-text-main">My Attendance</h2>
         <p className="mt-1 text-sm text-text-muted">
