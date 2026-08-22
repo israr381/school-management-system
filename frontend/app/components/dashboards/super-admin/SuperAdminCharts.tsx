@@ -14,6 +14,18 @@ function buildSmoothPath(points: { x: number; y: number }[]) {
   }, "");
 }
 
+function getYTicks(maxY: number) {
+  if (maxY <= 4) {
+    return Array.from({ length: maxY + 1 }, (_, i) => i);
+  }
+
+  const step = Math.ceil(maxY / 4);
+  const ticks: number[] = [];
+  for (let value = 0; value < maxY; value += step) ticks.push(value);
+  if (ticks[ticks.length - 1] !== maxY) ticks.push(maxY);
+  return ticks;
+}
+
 function OrganizationGrowthChart({ tenants }: { tenants: Tenant[] }) {
   const data = getOrgGrowthData(tenants);
   const width = 560;
@@ -22,6 +34,7 @@ function OrganizationGrowthChart({ tenants }: { tenants: Tenant[] }) {
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
   const maxY = Math.max(...data.map((d) => d.value), 1);
+  const yTicks = getYTicks(maxY);
 
   const points = data.map((d, i) => ({
     x: padding.left + (i / (data.length - 1)) * chartW,
@@ -41,11 +54,10 @@ function OrganizationGrowthChart({ tenants }: { tenants: Tenant[] }) {
         </linearGradient>
       </defs>
 
-      {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
-        const tick = Math.round(maxY * ratio);
-        const y = padding.top + chartH - ratio * chartH;
+      {yTicks.map((tick) => {
+        const y = padding.top + chartH - (tick / maxY) * chartH;
         return (
-          <g key={ratio}>
+          <g key={tick}>
             <line x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="#e2e8f0" strokeWidth="1" />
             <text x={padding.left - 10} y={y + 4} textAnchor="end" className="fill-text-muted text-[11px]">
               {tick}
@@ -143,7 +155,7 @@ interface SuperAdminChartsProps {
 
 export function OrganizationGrowthCard({ tenants }: SuperAdminChartsProps) {
   return (
-    <div className="dashboard-card p-5 sm:p-6">
+    <div className="dashboard-card flex h-full w-full flex-col p-5 sm:p-6">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-[15px] font-semibold text-text-main">Organization Growth</h3>
         <button
@@ -155,11 +167,13 @@ export function OrganizationGrowthCard({ tenants }: SuperAdminChartsProps) {
         </button>
       </div>
       {tenants.length === 0 ? (
-        <div className="flex h-48 items-center justify-center text-sm text-text-muted">
+        <div className="flex flex-1 items-center justify-center py-12 text-sm text-text-muted">
           No organizations registered yet.
         </div>
       ) : (
-        <OrganizationGrowthChart tenants={tenants} />
+        <div className="flex min-h-0 flex-1 items-center">
+          <OrganizationGrowthChart tenants={tenants} />
+        </div>
       )}
     </div>
   );
@@ -169,7 +183,7 @@ export function UsersByOrganizationCard({ tenants }: SuperAdminChartsProps) {
   const { items } = getUsersByOrganization(tenants);
 
   return (
-    <div className="dashboard-card p-5 sm:p-6">
+    <div className="dashboard-card flex h-full w-full flex-col p-5 sm:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-[15px] font-semibold text-text-main">Users By Organization</h3>
         <button
@@ -180,11 +194,13 @@ export function UsersByOrganizationCard({ tenants }: SuperAdminChartsProps) {
           <ChevronDown className="h-3.5 w-3.5" />
         </button>
       </div>
-      <div className="flex items-center gap-4">
-        <UsersDonutChart tenants={tenants} />
-        <ul className="min-w-0 flex-1 space-y-2.5">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="flex flex-1 items-center justify-center py-2">
+          <UsersDonutChart tenants={tenants} />
+        </div>
+        <ul className="mt-4 w-full space-y-2.5">
           {items.length === 0 ? (
-            <li className="text-sm text-text-muted">No organizations yet.</li>
+            <li className="text-center text-sm text-text-muted">No organizations yet.</li>
           ) : (
             items.map((item) => (
               <li key={item.name} className="flex items-center justify-between gap-2 text-[13px]">

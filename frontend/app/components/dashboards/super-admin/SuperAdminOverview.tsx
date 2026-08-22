@@ -73,11 +73,11 @@ export default function SuperAdminOverview({
         })}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-3 lg:gap-5">
+        <div className="flex lg:col-span-2">
           <OrganizationGrowthCard tenants={tenants} />
         </div>
-        <div className="lg:col-span-1">
+        <div className="flex lg:col-span-1">
           <UsersByOrganizationCard tenants={tenants} />
         </div>
       </div>
