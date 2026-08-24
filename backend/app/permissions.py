@@ -17,6 +17,8 @@ PERMISSION_CATALOG: list[dict] = [
     {"key": "student_attendance", "label": "Student Attendance", "actions": ["view", "take", "update", "delete"]},
     {"key": "teacher_attendance", "label": "Teacher Attendance", "actions": ["view", "take", "update", "delete"]},
     {"key": "my_attendance", "label": "My Attendance", "actions": ["view"]},
+    {"key": "my_requests", "label": "My Request", "actions": ["view", "create", "update"]},
+    {"key": "requests", "label": "Requests", "actions": ["view", "update", "delete"]},
     {"key": "settings", "label": "Settings", "actions": ["view", "update"]},
     {"key": "permissions", "label": "Permissions", "actions": ["view", "update"]},
 ]
@@ -46,17 +48,21 @@ DEFAULT_ROLE_PERMISSIONS: dict[str, dict[str, list[str]]] = {
         "subjects": ["view", "create", "update", "delete"],
         "student_attendance": ["view", "take", "update", "delete"],
         "teacher_attendance": ["view", "take", "update", "delete"],
+        "requests": ["view", "update", "delete"],
         "settings": ["view", "update"],
     },
     "teacher": {
         "dashboard": ["view"],
         "student_attendance": ["view", "take"],
         "my_attendance": ["view"],
+        "my_requests": ["view", "create", "update"],
+        "requests": ["view", "update"],
         "settings": ["view", "update"],
     },
     "student": {
         "dashboard": ["view"],
         "my_attendance": ["view"],
+        "my_requests": ["view", "create", "update"],
         "settings": ["view", "update"],
     },
     "parent": {

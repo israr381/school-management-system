@@ -1,11 +1,12 @@
 import { API_BASE_URL } from "./config";
 
-export type AttendanceStatus = "present" | "absent" | "late";
+export type AttendanceStatus = "present" | "absent" | "late" | "leave";
 
 export interface StudentAttendanceRecord {
   student_id: number;
   full_name: string;
   status: AttendanceStatus;
+  on_leave?: boolean;
 }
 
 export interface StudentAttendanceSheet {
@@ -20,6 +21,7 @@ export interface StudentAttendanceSheet {
   present_count: number;
   absent_count: number;
   late_count: number;
+  leave_count: number;
   records: StudentAttendanceRecord[];
 }
 
@@ -33,6 +35,7 @@ export interface StudentAttendanceSummary {
   present_count: number;
   absent_count: number;
   late_count: number;
+  leave_count: number;
   can_edit: boolean;
 }
 
@@ -40,6 +43,7 @@ export interface TeacherAttendanceRecord {
   teacher_id: number;
   full_name: string;
   status: AttendanceStatus;
+  on_leave?: boolean;
 }
 
 export interface TeacherAttendanceSheet {
@@ -49,6 +53,7 @@ export interface TeacherAttendanceSheet {
   present_count: number;
   absent_count: number;
   late_count: number;
+  leave_count: number;
   records: TeacherAttendanceRecord[];
 }
 
@@ -58,6 +63,7 @@ export interface TeacherAttendanceSummary {
   present_count: number;
   absent_count: number;
   late_count: number;
+  leave_count: number;
   can_edit: boolean;
 }
 

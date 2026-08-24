@@ -6,6 +6,7 @@ export interface AttendanceTotals {
   present: number;
   absent: number;
   late: number;
+  leave?: number;
   percent: number;
 }
 
@@ -17,6 +18,7 @@ export interface AttendanceTrendPoint {
   present: number;
   absent: number;
   late: number;
+  leave?: number;
   total: number;
 }
 
@@ -49,6 +51,7 @@ export interface TeacherClassDaySummary {
   present_count: number;
   absent_count: number;
   late_count: number;
+  leave_count?: number;
   percent: number;
 }
 
@@ -134,6 +137,7 @@ export interface AdminRecentClassDay {
   present_count: number;
   absent_count: number;
   late_count: number;
+  leave_count?: number;
   total_students: number;
   percent: number;
 }

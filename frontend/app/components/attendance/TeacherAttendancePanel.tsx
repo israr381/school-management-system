@@ -235,6 +235,13 @@ export default function TeacherAttendancePanel() {
         render: (row) => <span className="font-semibold text-amber-600 dark:text-amber-300">{row.late_count}</span>,
       },
       {
+        key: "leave_count",
+        header: "Leave",
+        sortable: true,
+        sortValue: (row) => row.leave_count,
+        render: (row) => <span className="font-semibold text-sky-600 dark:text-sky-300">{row.leave_count}</span>,
+      },
+      {
         key: "actions",
         header: "Actions",
         headerClassName: "text-right",

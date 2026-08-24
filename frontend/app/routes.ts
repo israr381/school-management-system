@@ -10,6 +10,8 @@ export default [
   route("attendance/students", "routes/student-attendance.tsx"),
   route("attendance/teachers", "routes/teacher-attendance.tsx"),
   route("attendance/me", "routes/my-attendance.tsx"),
+  route("requests/me", "routes/my-requests.tsx"),
+  route("requests", "routes/requests.tsx"),
   route("settings", "routes/settings.tsx"),
   route("settings/permissions", "routes/settings-permissions.tsx"),
 ] satisfies RouteConfig;

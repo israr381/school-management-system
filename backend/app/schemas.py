@@ -314,7 +314,7 @@ class TeacherClassAssignmentResponse(BaseModel):
         from_attributes = True
 
 
-AttendanceStatus = Literal["present", "absent", "late"]
+AttendanceStatus = Literal["present", "absent", "late", "leave"]
 
 
 class StudentAttendanceRecordIn(BaseModel):
@@ -333,6 +333,7 @@ class StudentAttendanceRecordOut(BaseModel):
     student_id: int
     full_name: str
     status: AttendanceStatus
+    on_leave: bool = False
 
 
 class StudentAttendanceSheet(BaseModel):
@@ -347,6 +348,7 @@ class StudentAttendanceSheet(BaseModel):
     present_count: int
     absent_count: int
     late_count: int
+    leave_count: int = 0
     records: List[StudentAttendanceRecordOut]
 
 
@@ -360,6 +362,7 @@ class StudentAttendanceSummary(BaseModel):
     present_count: int
     absent_count: int
     late_count: int
+    leave_count: int = 0
     can_edit: bool
 
 
@@ -377,6 +380,7 @@ class TeacherAttendanceRecordOut(BaseModel):
     teacher_id: int
     full_name: str
     status: AttendanceStatus
+    on_leave: bool = False
 
 
 class TeacherAttendanceSheet(BaseModel):
@@ -386,6 +390,7 @@ class TeacherAttendanceSheet(BaseModel):
     present_count: int
     absent_count: int
     late_count: int
+    leave_count: int = 0
     records: List[TeacherAttendanceRecordOut]
 
 
@@ -395,6 +400,7 @@ class TeacherAttendanceSummary(BaseModel):
     present_count: int
     absent_count: int
     late_count: int
+    leave_count: int = 0
     can_edit: bool
 
 
@@ -411,11 +417,64 @@ class MyAttendanceResponse(BaseModel):
     records: List[MyAttendanceRecord]
 
 
+RequestType = Literal["leave"]
+RequestStatus = Literal["pending", "approved", "rejected", "cancelled"]
+RequesterRole = Literal["student", "teacher"]
+
+
+class LeaveRequestCreate(BaseModel):
+    from_date: date
+    to_date: date
+    reason: str = Field(..., min_length=3, max_length=2000)
+
+
+class LeaveRequestUpdate(BaseModel):
+    from_date: Optional[date] = None
+    to_date: Optional[date] = None
+    reason: Optional[str] = Field(None, min_length=3, max_length=2000)
+
+
+class LeaveRequestReview(BaseModel):
+    status: Literal["approved", "rejected"]
+    review_note: Optional[str] = Field(None, max_length=1000)
+
+
+class LeaveRequestResponse(BaseModel):
+    id: int
+    request_type: RequestType
+    requester_role: RequesterRole
+    requester_name: str
+    requester_email: Optional[str] = None
+    class_id: Optional[int] = None
+    class_name: Optional[str] = None
+    section_id: Optional[int] = None
+    section_name: Optional[str] = None
+    from_date: date
+    to_date: date
+    days: int
+    reason: str
+    status: RequestStatus
+    review_note: Optional[str] = None
+    reviewer_name: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    created_at: datetime
+    can_cancel: bool = False
+    can_review: bool = False
+    can_delete: bool = False
+
+
+class PendingRequestCounts(BaseModel):
+    total: int
+    student: int
+    teacher: int
+
+
 class AttendanceTotals(BaseModel):
     total: int
     present: int
     absent: int
     late: int
+    leave: int = 0
     percent: float
 
 
@@ -427,6 +486,7 @@ class AttendanceTrendPoint(BaseModel):
     present: int = 0
     absent: int = 0
     late: int = 0
+    leave: int = 0
     total: int = 0
 
 
@@ -459,6 +519,7 @@ class TeacherClassDaySummary(BaseModel):
     present_count: int
     absent_count: int
     late_count: int
+    leave_count: int = 0
     percent: float
 
 
@@ -544,6 +605,7 @@ class AdminRecentClassDay(BaseModel):
     present_count: int
     absent_count: int
     late_count: int
+    leave_count: int = 0
     total_students: int
     percent: float
 

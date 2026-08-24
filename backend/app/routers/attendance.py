@@ -20,11 +20,12 @@ def _ensure_not_future_date(attendance_date: date) -> None:
         )
 
 
-def _counts(records: list) -> tuple[int, int, int]:
+def _counts(records: list) -> tuple[int, int, int, int]:
     present = sum(1 for item in records if item.status == "present")
     absent = sum(1 for item in records if item.status == "absent")
     late = sum(1 for item in records if item.status == "late")
-    return present, absent, late
+    leave = sum(1 for item in records if item.status == "leave")
+    return present, absent, late, leave
 
 
 def _get_teacher_assignment(
@@ -108,6 +109,37 @@ def _late_sum(model):
     return func.coalesce(func.sum(case((model.status == "late", 1), else_=0)), 0)
 
 
+def _leave_sum(model):
+    return func.coalesce(func.sum(case((model.status == "leave", 1), else_=0)), 0)
+
+
+def _approved_leave_ids(
+    db: Session,
+    org_id: int,
+    attendance_date: date,
+    *,
+    student_ids: Optional[list[int]] = None,
+    teacher_ids: Optional[list[int]] = None,
+) -> set[int]:
+    query = db.query(models.LeaveRequest).filter(
+        models.LeaveRequest.organization_id == org_id,
+        models.LeaveRequest.status == "approved",
+        models.LeaveRequest.from_date <= attendance_date,
+        models.LeaveRequest.to_date >= attendance_date,
+    )
+    if student_ids is not None:
+        if not student_ids:
+            return set()
+        rows = query.filter(models.LeaveRequest.student_id.in_(student_ids)).all()
+        return {row.student_id for row in rows if row.student_id}
+    if teacher_ids is not None:
+        if not teacher_ids:
+            return set()
+        rows = query.filter(models.LeaveRequest.teacher_id.in_(teacher_ids)).all()
+        return {row.teacher_id for row in rows if row.teacher_id}
+    return set()
+
+
 @router.get("/api/student-attendance/history", response_model=List[schemas.StudentAttendanceSummary])
 def list_student_attendance_history(
     db: Session = Depends(get_db),
@@ -125,6 +157,7 @@ def list_student_attendance_history(
             _present_sum(models.StudentAttendance).label("present_count"),
             _absent_sum(models.StudentAttendance).label("absent_count"),
             _late_sum(models.StudentAttendance).label("late_count"),
+            _leave_sum(models.StudentAttendance).label("leave_count"),
         )
         .join(models.SchoolClass, models.SchoolClass.id == models.StudentAttendance.class_id)
         .join(models.Section, models.Section.id == models.StudentAttendance.section_id)
@@ -162,6 +195,7 @@ def list_student_attendance_history(
             present_count=int(row.present_count or 0),
             absent_count=int(row.absent_count or 0),
             late_count=int(row.late_count or 0),
+            leave_count=int(row.leave_count or 0),
             can_edit=can_edit,
         )
         for row in rows
@@ -247,15 +281,25 @@ def get_student_attendance(
         if is_saved
         else has_permission(current_user, "student_attendance", "take")
     )
-    records = [
-        schemas.StudentAttendanceRecordOut(
-            student_id=student.id,
-            full_name=student.full_name,
-            status=existing.get(student.id, "absent"),
+    on_leave_ids = _approved_leave_ids(
+        db, org_id, attendance_date, student_ids=[student.id for student in students]
+    )
+    records = []
+    for student in students:
+        on_leave = student.id in on_leave_ids
+        if student.id in existing:
+            status = existing[student.id]
+        else:
+            status = "leave" if on_leave else "absent"
+        records.append(
+            schemas.StudentAttendanceRecordOut(
+                student_id=student.id,
+                full_name=student.full_name,
+                status=status,
+                on_leave=on_leave,
+            )
         )
-        for student in students
-    ]
-    present_count, absent_count, late_count = _counts(records)
+    present_count, absent_count, late_count, leave_count = _counts(records)
     return schemas.StudentAttendanceSheet(
         attendance_date=attendance_date,
         class_id=school_class.id,
@@ -268,6 +312,7 @@ def get_student_attendance(
         present_count=present_count if is_saved else 0,
         absent_count=absent_count if is_saved else 0,
         late_count=late_count if is_saved else 0,
+        leave_count=leave_count if is_saved else 0,
         records=records,
     )
 
@@ -372,6 +417,7 @@ def list_teacher_attendance_history(
             _present_sum(models.TeacherAttendance).label("present_count"),
             _absent_sum(models.TeacherAttendance).label("absent_count"),
             _late_sum(models.TeacherAttendance).label("late_count"),
+            _leave_sum(models.TeacherAttendance).label("leave_count"),
         )
         .filter(models.TeacherAttendance.organization_id == org_id)
         .group_by(models.TeacherAttendance.attendance_date)
@@ -386,6 +432,7 @@ def list_teacher_attendance_history(
             present_count=int(row.present_count or 0),
             absent_count=int(row.absent_count or 0),
             late_count=int(row.late_count or 0),
+            leave_count=int(row.leave_count or 0),
             can_edit=can_edit,
         )
         for row in rows
@@ -452,15 +499,25 @@ def get_teacher_attendance(
         if is_saved
         else has_permission(current_user, "teacher_attendance", "take")
     )
-    records = [
-        schemas.TeacherAttendanceRecordOut(
-            teacher_id=teacher.id,
-            full_name=teacher.full_name,
-            status=existing.get(teacher.id, "absent"),
+    on_leave_ids = _approved_leave_ids(
+        db, org_id, attendance_date, teacher_ids=[teacher.id for teacher in teachers]
+    )
+    records = []
+    for teacher in teachers:
+        on_leave = teacher.id in on_leave_ids
+        if teacher.id in existing:
+            status = existing[teacher.id]
+        else:
+            status = "leave" if on_leave else "absent"
+        records.append(
+            schemas.TeacherAttendanceRecordOut(
+                teacher_id=teacher.id,
+                full_name=teacher.full_name,
+                status=status,
+                on_leave=on_leave,
+            )
         )
-        for teacher in teachers
-    ]
-    present_count, absent_count, late_count = _counts(records)
+    present_count, absent_count, late_count, leave_count = _counts(records)
     return schemas.TeacherAttendanceSheet(
         attendance_date=attendance_date,
         is_saved=is_saved,
@@ -468,6 +525,7 @@ def get_teacher_attendance(
         present_count=present_count if is_saved else 0,
         absent_count=absent_count if is_saved else 0,
         late_count=late_count if is_saved else 0,
+        leave_count=leave_count if is_saved else 0,
         records=records,
     )
 

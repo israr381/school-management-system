@@ -29,6 +29,11 @@ class Organization(Base):
         back_populates="organization",
         cascade="all, delete-orphan",
     )
+    leave_requests = orm_relationship(
+        "LeaveRequest",
+        back_populates="organization",
+        cascade="all, delete-orphan",
+    )
 
 class Role(Base):
     __tablename__ = "roles"
@@ -384,3 +389,38 @@ class TeacherAttendance(Base):
 
     teacher = orm_relationship("Teacher")
     organization = orm_relationship("Organization")
+
+
+class LeaveRequest(Base):
+    __tablename__ = "leave_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    organization_id = Column(
+        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    requester_user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    requester_role = Column(String, nullable=False, index=True)
+    student_id = Column(Integer, ForeignKey("students.id", ondelete="SET NULL"), nullable=True, index=True)
+    teacher_id = Column(Integer, ForeignKey("teachers.id", ondelete="SET NULL"), nullable=True, index=True)
+    class_id = Column(Integer, ForeignKey("classes.id", ondelete="SET NULL"), nullable=True, index=True)
+    section_id = Column(Integer, ForeignKey("sections.id", ondelete="SET NULL"), nullable=True, index=True)
+    request_type = Column(String, nullable=False, default="leave", index=True)
+    from_date = Column(Date, nullable=False, index=True)
+    to_date = Column(Date, nullable=False)
+    reason = Column(Text, nullable=False)
+    status = Column(String, nullable=False, default="pending", index=True)
+    reviewer_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    review_note = Column(Text, nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    organization = orm_relationship("Organization", back_populates="leave_requests")
+    requester = orm_relationship("User", foreign_keys=[requester_user_id])
+    reviewer = orm_relationship("User", foreign_keys=[reviewer_user_id])
+    student = orm_relationship("Student")
+    teacher = orm_relationship("Teacher")
+    school_class = orm_relationship("SchoolClass")
+    section = orm_relationship("Section")

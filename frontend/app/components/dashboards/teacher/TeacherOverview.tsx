@@ -83,7 +83,9 @@ export default function TeacherOverview({ user, orgName, data }: TeacherOverview
             value: data.today_taken ? data.today_class.present : "—",
             color: "#10b981",
             icon: UserCheck,
-            subtitle: data.today_taken ? `${data.today_class.absent} absent` : "Attendance not taken",
+            subtitle: data.today_taken
+              ? `${data.today_class.absent} absent${data.today_class.leave ? ` · ${data.today_class.leave} leave` : ""}`
+              : "Attendance not taken",
           },
           {
             title: "Class Attendance",
@@ -167,6 +169,7 @@ export default function TeacherOverview({ user, orgName, data }: TeacherOverview
                       </p>
                       <p className="mt-0.5 text-xs text-text-muted">
                         {day.present_count} present · {day.absent_count} absent · {day.late_count} late
+                        {day.leave_count ? ` · ${day.leave_count} leave` : ""}
                       </p>
                     </div>
                     <span className="text-sm font-bold text-success">{day.percent}%</span>

@@ -11,6 +11,9 @@ export function statusStyles(status?: AttendanceStatus | string | null) {
   if (status === "late") {
     return "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-300";
   }
+  if (status === "leave") {
+    return "border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-500/40 dark:bg-sky-500/15 dark:text-sky-300";
+  }
   return "border-border-main bg-surface-soft text-text-muted";
 }
 
@@ -136,7 +139,7 @@ export function DashboardKpiGrid({
   cards: { title: string; value: string | number; color: string; icon: LucideIcon; subtitle?: string }[];
 }) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${cards.length >= 5 ? "xl:grid-cols-5" : "xl:grid-cols-4"}`}>
       {cards.map((stat) => {
         const Icon = stat.icon;
         return (

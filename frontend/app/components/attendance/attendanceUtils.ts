@@ -1,4 +1,4 @@
-export type AttendanceStatusFilter = "all" | "present" | "absent" | "late";
+export type AttendanceStatusFilter = "all" | "present" | "absent" | "late" | "leave";
 
 export type FilterOption = {
   value: string;
@@ -49,13 +49,14 @@ export function matchesDate(date: string, selectedDate: string) {
 }
 
 export function matchesCountStatus(
-  counts: { present_count: number; absent_count: number; late_count: number },
+  counts: { present_count: number; absent_count: number; late_count: number; leave_count?: number },
   status: AttendanceStatusFilter,
 ) {
   if (status === "all") return true;
   if (status === "present") return counts.present_count > 0;
   if (status === "absent") return counts.absent_count > 0;
-  return counts.late_count > 0;
+  if (status === "late") return counts.late_count > 0;
+  return (counts.leave_count ?? 0) > 0;
 }
 
 export type AttendanceCountRow = {
