@@ -34,6 +34,7 @@ type DatePickerProps = {
   className?: string
   fromYear?: number
   toYear?: number
+  minDate?: string
   maxDate?: string
 }
 
@@ -48,9 +49,11 @@ function DatePicker({
   className,
   fromYear = new Date().getFullYear() - 10,
   toYear = new Date().getFullYear() + 1,
+  minDate,
   maxDate,
 }: DatePickerProps) {
   const selected = parseIsoDate(value)
+  const earliestDate = parseIsoDate(minDate)
   const latestDate = parseIsoDate(maxDate)
   const [open, setOpen] = React.useState(false)
   const inputId = id || name
@@ -112,14 +115,18 @@ function DatePicker({
               defaultMonth={selected}
               onSelect={(date) => {
                 if (!date) return
+                if (earliestDate && date < earliestDate) return
                 if (latestDate && date > latestDate) return
                 onChange?.(toIsoDate(date))
                 setOpen(false)
               }}
-              disabled={latestDate ? { after: latestDate } : undefined}
+              disabled={[
+                earliestDate ? { before: earliestDate } : undefined,
+                latestDate ? { after: latestDate } : undefined,
+              ].filter(Boolean) as { before?: Date; after?: Date }[]}
               captionLayout="dropdown"
               navLayout="after"
-              startMonth={new Date(fromYear, 0)}
+              startMonth={earliestDate ?? new Date(fromYear, 0)}
               endMonth={latestDate ?? new Date(toYear, 11)}
             />
           </div>

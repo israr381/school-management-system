@@ -15,6 +15,7 @@ const STATUS_OPTIONS: FilterOption[] = [
   { value: "present", label: "Present" },
   { value: "absent", label: "Absent" },
   { value: "late", label: "Late" },
+  { value: "leave", label: "Leave" },
 ];
 
 type FilterFieldProps = {

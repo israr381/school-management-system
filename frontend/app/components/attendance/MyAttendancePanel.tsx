@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarCheck, Clock, Loader2, UserCheck, UserX } from "lucide-react";
+import { CalendarCheck, CalendarOff, Clock, Loader2, UserCheck, UserX } from "lucide-react";
 import { getAccessToken } from "../../store/auth";
 import { fetchMyAttendance, type MyAttendance, type MyAttendanceRecord } from "../../store/attendance";
 import { toast } from "../toast/toast";
@@ -21,6 +21,9 @@ const PAGE_SIZE_OPTIONS = [7, 10, 20, 50];
 function statusStyles(status: string) {
   if (status === "present") return "bg-success-bg text-success border-success-border";
   if (status === "absent") return "bg-danger-bg text-danger border-danger-border";
+  if (status === "leave") {
+    return "border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-500/40 dark:bg-sky-500/15 dark:text-sky-300";
+  }
   return "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-300";
 }
 
@@ -112,8 +115,9 @@ export default function MyAttendancePanel() {
           present: acc.present + (row.status === "present" ? 1 : 0),
           absent: acc.absent + (row.status === "absent" ? 1 : 0),
           late: acc.late + (row.status === "late" ? 1 : 0),
+          leave: acc.leave + (row.status === "leave" ? 1 : 0),
         }),
-        { total: 0, present: 0, absent: 0, late: 0 },
+        { total: 0, present: 0, absent: 0, late: 0, leave: 0 },
       ),
     [scopedRecords],
   );
@@ -123,6 +127,7 @@ export default function MyAttendancePanel() {
     { key: "present", title: "Present", value: totals.present, color: "#10b981", icon: UserCheck },
     { key: "absent", title: "Absent", value: totals.absent, color: "#ef4444", icon: UserX },
     { key: "late", title: "Late", value: totals.late, color: "#f97316", icon: Clock },
+    { key: "leave", title: "Leave", value: totals.leave, color: "#0ea5e9", icon: CalendarOff },
   ];
 
   const columns = useMemo<TableColumn<MyAttendanceRecord>[]>(

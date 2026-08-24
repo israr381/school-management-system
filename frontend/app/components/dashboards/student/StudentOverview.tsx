@@ -1,6 +1,7 @@
 import {
   BookOpen,
   CalendarCheck,
+  CalendarOff,
   Clock,
   Phone,
   UserCheck,
@@ -72,6 +73,12 @@ export default function StudentOverview({ user, orgName, data }: StudentOverview
             value: data.attendance.late,
             color: "#f97316",
             icon: Clock,
+          },
+          {
+            title: "Leave",
+            value: data.attendance.leave ?? 0,
+            color: "#0ea5e9",
+            icon: CalendarOff,
           },
         ]}
       />

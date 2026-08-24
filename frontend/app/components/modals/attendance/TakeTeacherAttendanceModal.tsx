@@ -92,7 +92,11 @@ export default function TakeTeacherAttendanceModal({
   };
 
   const setAll = (status: AttendanceStatus) => {
-    setRecords((current) => current.map((record) => ({ ...record, status })));
+    setRecords((current) =>
+      current.map((record) =>
+        record.on_leave && record.status === "leave" ? record : { ...record, status },
+      ),
+    );
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -131,7 +135,7 @@ export default function TakeTeacherAttendanceModal({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="max-h-[90vh] overflow-y-auto bg-panel-bg text-text-main sm:max-w-2xl p-0 gap-0"
+        className="max-h-[90vh] overflow-y-auto bg-panel-bg text-text-main sm:max-w-3xl p-0 gap-0"
         showCloseButton={!saving}
       >
         <DialogHeader className="border-b border-border-main px-6 py-5">
@@ -139,7 +143,7 @@ export default function TakeTeacherAttendanceModal({
             {isEditing ? "Edit Teacher Attendance" : "Take Teacher Attendance"}
           </DialogTitle>
           <DialogDescription className="text-sm text-text-muted">
-            Mark each teacher present, absent, or late. Use Mark all present to fill the list quickly.
+            Mark each teacher present, absent, late, or leave. Teachers with approved leave for this date are already marked Leave.
           </DialogDescription>
         </DialogHeader>
 
@@ -171,6 +175,9 @@ export default function TakeTeacherAttendanceModal({
               <Button type="button" variant="outline" className="px-3 py-2 text-sm" onClick={() => setAll("late")}>
                 Mark all late
               </Button>
+              <Button type="button" variant="outline" className="px-3 py-2 text-sm" onClick={() => setAll("leave")}>
+                Mark all leave
+              </Button>
             </div>
           )}
 
@@ -182,12 +189,15 @@ export default function TakeTeacherAttendanceModal({
                 id: record.teacher_id,
                 name: record.full_name,
                 status: record.status,
+                onLeave: Boolean(record.on_leave),
               }))}
               disabled={!canEdit}
               onStatusChange={(id, status) =>
                 setRecords((current) =>
                   current.map((item) =>
-                    item.teacher_id === id ? { ...item, status } : item,
+                    item.teacher_id === id && !(item.on_leave && item.status === "leave")
+                      ? { ...item, status }
+                      : item,
                   ),
                 )
               }

@@ -41,6 +41,7 @@ export function RecentClassAttendanceCard({ days }: { days: AdminRecentClassDay[
                 </p>
                 <p className="mt-0.5 text-xs leading-relaxed text-text-muted">
                   {item.present_count} present · {item.absent_count} absent · {item.late_count} late
+                  {item.leave_count ? ` · ${item.leave_count} leave` : ""}
                 </p>
                 <p className="mt-1 text-[11px] text-text-muted/80">
                   {formatAttendanceDate(item.attendance_date)}

@@ -20,6 +20,7 @@ def _totals(statuses: list[str]) -> schemas.AttendanceTotals:
     present = sum(1 for item in statuses if item == "present")
     absent = sum(1 for item in statuses if item == "absent")
     late = sum(1 for item in statuses if item == "late")
+    leave = sum(1 for item in statuses if item == "leave")
     total = len(statuses)
     percent = round(((present + late) / total) * 100, 1) if total else 0.0
     return schemas.AttendanceTotals(
@@ -27,6 +28,7 @@ def _totals(statuses: list[str]) -> schemas.AttendanceTotals:
         present=present,
         absent=absent,
         late=late,
+        leave=leave,
         percent=percent,
     )
 
@@ -35,8 +37,8 @@ def _empty_totals() -> schemas.AttendanceTotals:
     return _totals([])
 
 
-def _totals_from_counts(present: int, absent: int, late: int) -> schemas.AttendanceTotals:
-    return _totals(["present"] * present + ["absent"] * absent + ["late"] * late)
+def _totals_from_counts(present: int, absent: int, late: int, leave: int = 0) -> schemas.AttendanceTotals:
+    return _totals(["present"] * present + ["absent"] * absent + ["late"] * late + ["leave"] * leave)
 
 
 def _trend_dates() -> list[date]:
@@ -50,6 +52,8 @@ def _status_percent(status: Optional[str]) -> float:
     if status == "late":
         return 50.0
     if status == "absent":
+        return 0.0
+    if status == "leave":
         return 0.0
     return 0.0
 
@@ -101,6 +105,7 @@ def _personal_trend(records: list[models.StudentAttendance] | list[models.Teache
                 present=1 if status == "present" else 0,
                 absent=1 if status == "absent" else 0,
                 late=1 if status == "late" else 0,
+                leave=1 if status == "leave" else 0,
                 total=1 if status else 0,
             )
         )
@@ -211,6 +216,7 @@ def _teacher_dashboard(db: Session, user: models.User, org_id: int) -> schemas.T
                 present=day_totals.present,
                 absent=day_totals.absent,
                 late=day_totals.late,
+                leave=day_totals.leave,
                 total=day_totals.total,
             )
         )
@@ -228,6 +234,7 @@ def _teacher_dashboard(db: Session, user: models.User, org_id: int) -> schemas.T
                 present_count=day_totals.present,
                 absent_count=day_totals.absent,
                 late_count=day_totals.late,
+                leave_count=day_totals.leave,
                 percent=day_totals.percent,
             )
         )
@@ -391,6 +398,7 @@ def _parent_dashboard(db: Session, user: models.User, org_id: int) -> schemas.Pa
                 present=day_totals.present,
                 absent=day_totals.absent,
                 late=day_totals.late,
+                leave=day_totals.leave,
                 total=day_totals.total,
             )
         )
@@ -420,17 +428,22 @@ def _late_sum(model):
     return func.coalesce(func.sum(case((model.status == "late", 1), else_=0)), 0)
 
 
+def _leave_sum(model):
+    return func.coalesce(func.sum(case((model.status == "leave", 1), else_=0)), 0)
+
+
 def _query_attendance_totals(db: Session, model, org_id: int, attendance_date: Optional[date] = None):
     query = db.query(
         func.count(model.id),
         _present_sum(model),
         _absent_sum(model),
         _late_sum(model),
+        _leave_sum(model),
     ).filter(model.organization_id == org_id)
     if attendance_date is not None:
         query = query.filter(model.attendance_date == attendance_date)
     row = query.one()
-    return _totals_from_counts(int(row[1] or 0), int(row[2] or 0), int(row[3] or 0))
+    return _totals_from_counts(int(row[1] or 0), int(row[2] or 0), int(row[3] or 0), int(row[4] or 0))
 
 
 def _academic_year(today: date) -> str:
@@ -470,6 +483,7 @@ def _admin_dashboard(db: Session, org_id: int) -> schemas.AdminDashboardData:
             _present_sum(models.StudentAttendance),
             _absent_sum(models.StudentAttendance),
             _late_sum(models.StudentAttendance),
+            _leave_sum(models.StudentAttendance),
         )
         .filter(
             models.StudentAttendance.organization_id == org_id,
@@ -479,7 +493,7 @@ def _admin_dashboard(db: Session, org_id: int) -> schemas.AdminDashboardData:
         .all()
     )
     trend_by_date = {
-        row[0]: _totals_from_counts(int(row[2] or 0), int(row[3] or 0), int(row[4] or 0))
+        row[0]: _totals_from_counts(int(row[2] or 0), int(row[3] or 0), int(row[4] or 0), int(row[5] or 0))
         for row in trend_rows
     }
     trend = []
@@ -494,6 +508,7 @@ def _admin_dashboard(db: Session, org_id: int) -> schemas.AdminDashboardData:
                 present=day_totals.present,
                 absent=day_totals.absent,
                 late=day_totals.late,
+                leave=day_totals.leave,
                 total=day_totals.total,
             )
         )
@@ -603,6 +618,7 @@ def _admin_dashboard(db: Session, org_id: int) -> schemas.AdminDashboardData:
             _present_sum(models.StudentAttendance),
             _absent_sum(models.StudentAttendance),
             _late_sum(models.StudentAttendance),
+            _leave_sum(models.StudentAttendance),
         )
         .join(models.SchoolClass, models.SchoolClass.id == models.StudentAttendance.class_id)
         .join(models.Section, models.Section.id == models.StudentAttendance.section_id)
@@ -625,7 +641,10 @@ def _admin_dashboard(db: Session, org_id: int) -> schemas.AdminDashboardData:
             present_count=int(row[4] or 0),
             absent_count=int(row[5] or 0),
             late_count=int(row[6] or 0),
-            percent=_totals_from_counts(int(row[4] or 0), int(row[5] or 0), int(row[6] or 0)).percent,
+            leave_count=int(row[7] or 0),
+            percent=_totals_from_counts(
+                int(row[4] or 0), int(row[5] or 0), int(row[6] or 0), int(row[7] or 0)
+            ).percent,
         )
         for row in recent_day_rows
     ]

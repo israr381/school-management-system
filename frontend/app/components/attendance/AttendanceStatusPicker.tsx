@@ -17,6 +17,11 @@ const OPTIONS: { value: AttendanceStatus; label: string; activeClass: string }[]
     label: "Late",
     activeClass: "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-300",
   },
+  {
+    value: "leave",
+    label: "Leave",
+    activeClass: "border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-500/40 dark:bg-sky-500/15 dark:text-sky-300",
+  },
 ];
 
 interface AttendanceStatusPickerProps {

@@ -5,7 +5,9 @@ import {
   ChevronLeft,
   ClipboardCheck,
   GraduationCap,
+  Inbox,
   LayoutDashboard,
+  Send,
   Settings,
   UserCheck,
   Users,
@@ -13,6 +15,8 @@ import {
 import { useLocation, useNavigate } from "react-router";
 import { formatRoleLabel } from "../lib/permissions";
 import { usePermission } from "../hooks/usePermission";
+import { usePendingRequestCounts } from "../hooks/usePendingRequestCounts";
+import { formatPendingCount } from "./requests/requestUtils";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -48,10 +52,15 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
     { name: "Student Attendance", path: "/attendance/students", icon: ClipboardCheck, permission: "student_attendance.view" },
     { name: "Teacher Attendance", path: "/attendance/teachers", icon: UserCheck, permission: "teacher_attendance.view" },
     { name: "My Attendance", path: "/attendance/me", icon: CalendarCheck, permission: "my_attendance.view" },
+    { name: "My Request", path: "/requests/me", icon: Send, permission: "my_requests.view" },
+    { name: "Requests", path: "/requests", icon: Inbox, permission: "requests.view" },
     { name: "Settings", path: "/settings", icon: Settings, permission: "settings.view" },
   ];
 
   const sidebarItems = navigation.filter((item) => hasPermission(item.permission));
+  const canViewRequests = hasPermission("requests.view");
+  const pendingCounts = usePendingRequestCounts(canViewRequests);
+  const pendingCount = pendingCounts.total;
 
   const isPlatformAdmin = !org;
   const brandName = org?.name || formatRoleLabel(role);
@@ -119,6 +128,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
                 : currentPath === item.path;
             const Icon = item.icon;
             const colorClass = iconColors[index % iconColors.length];
+            const pendingLabel =
+              item.path === "/requests" ? formatPendingCount(pendingCount) : "";
 
             return (
               <button
@@ -131,7 +142,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
                     ? "text-white"
                     : "text-text-muted hover:bg-surface-soft/80 hover:text-text-main"
                 }`}
-                title={isCollapsed ? item.name : undefined}
+                title={
+                  isCollapsed
+                    ? pendingLabel
+                      ? `${item.name} (${pendingLabel} pending)`
+                      : item.name
+                    : undefined
+                }
               >
                 {/* Gradient background — fades in/out via opacity */}
                 <span
@@ -147,16 +164,34 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
                   }`}
                 >
                   <Icon className="h-4 w-4" />
+                  {isCollapsed && pendingLabel ? (
+                    <span
+                      className={`absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold ${
+                        isActive ? "bg-white text-brand" : "bg-danger text-white ring-2 ring-panel-bg"
+                      }`}
+                    >
+                      {pendingLabel}
+                    </span>
+                  ) : null}
                 </span>
                 {!isCollapsed && (
                   <span
-                    className={`relative z-10 transition-opacity duration-200 ease-out ${
+                    className={`relative z-10 min-w-0 flex-1 truncate text-left transition-opacity duration-200 ease-out ${
                       isActive ? "font-semibold opacity-100" : "opacity-80"
                     }`}
                   >
                     {item.name}
                   </span>
                 )}
+                {!isCollapsed && pendingLabel ? (
+                  <span
+                    className={`relative z-10 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
+                      isActive ? "bg-white text-brand" : "bg-danger text-white"
+                    }`}
+                  >
+                    {pendingLabel}
+                  </span>
+                ) : null}
               </button>
             );
           })}

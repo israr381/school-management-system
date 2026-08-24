@@ -47,14 +47,16 @@ export default function AdminOverview({ user, org, data }: AdminOverviewProps) {
       title: "Present Today",
       value: data.today_student.total ? data.today_student.present.toLocaleString() : "—",
       subtitle: data.today_student.total
-        ? `${data.today_student.absent} absent · ${data.today_student.late} late`
+        ? `${data.today_student.absent} absent · ${data.today_student.late} late${
+            data.today_student.leave ? ` · ${data.today_student.leave} leave` : ""
+          }`
         : "Not taken yet",
       color: "#f97316",
     },
   ];
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-5">
+    <div className="mx-auto max-w-350 space-y-5">
       <DashboardHero
         userName={user.full_name}
         schoolName={schoolName}

@@ -6,12 +6,14 @@ const STATUS_COLUMNS: { value: AttendanceStatus; label: string }[] = [
   { value: "present", label: "Present" },
   { value: "absent", label: "Absent" },
   { value: "late", label: "Late" },
+  { value: "leave", label: "Leave" },
 ];
 
 export type AttendanceMarkRow = {
   id: string | number;
   name: string;
   status: AttendanceStatus;
+  onLeave?: boolean;
 };
 
 function StatusCheckbox({
@@ -77,7 +79,12 @@ export default function AttendanceMarkTable({
           {rows.map((row) => (
             <tr key={row.id} className="bg-panel-bg">
               <td className="border-b border-r border-border-main px-4 py-3 font-semibold text-text-main">
-                {row.name}
+                <span>{row.name}</span>
+                {row.onLeave ? (
+                  <span className="ml-2 inline-flex rounded-full border border-sky-300 bg-sky-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-700 dark:border-sky-500/40 dark:bg-sky-500/15 dark:text-sky-300">
+                    On leave
+                  </span>
+                ) : null}
               </td>
               {STATUS_COLUMNS.map((column) => (
                 <td
@@ -86,7 +93,7 @@ export default function AttendanceMarkTable({
                 >
                   <StatusCheckbox
                     checked={row.status === column.value}
-                    disabled={disabled}
+                    disabled={disabled || (Boolean(row.onLeave) && row.status === "leave")}
                     label={`Mark ${row.name} ${column.label.toLowerCase()}`}
                     onSelect={() => onStatusChange(row.id, column.value)}
                   />
