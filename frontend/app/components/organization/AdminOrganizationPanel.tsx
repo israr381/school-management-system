@@ -360,7 +360,7 @@ export default function AdminOrganizationPanel({
               setSavedMessage("");
               setErrorMessage("");
             }}
-            placeholder="e.g. Opelae High School"
+            placeholder="e.g. Green Valley High School"
             leftIcon={<Building2 className="h-4 w-4" />}
             className="rounded-md py-2.5 text-sm"
             required
@@ -376,7 +376,7 @@ export default function AdminOrganizationPanel({
               setSavedMessage("");
               setErrorMessage("");
             }}
-            placeholder="e.g. opelae-high.edu"
+            placeholder="e.g. greenvalley.edu"
             leftIcon={<Globe className="h-4 w-4" />}
             className="rounded-md py-2.5 text-sm"
             required

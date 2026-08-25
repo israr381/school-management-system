@@ -38,8 +38,8 @@ interface DashboardContext {
 
 export function meta() {
   return [
-    { title: "Dashboard - Opelae School" },
-    { name: "description", content: "Opelae School management dashboard." },
+    { title: "Dashboard - School Management" },
+    { name: "description", content: "School management dashboard." },
   ];
 }
 

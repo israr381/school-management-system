@@ -93,7 +93,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
               <div className="select-none">
                 <h1 className="text-base font-bold leading-none text-text-main">{brandName}</h1>
                 <span className="text-[10px] font-medium uppercase tracking-wider text-text-muted">
-                  School Portal
+                  {isPlatformAdmin ? "Platform" : "Workspace"}
                 </span>
               </div>
             )}

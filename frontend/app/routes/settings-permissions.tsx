@@ -4,7 +4,7 @@ import AccessRestricted from "../components/AccessRestricted";
 
 export function meta() {
   return [
-    { title: "Manage Permissions - Opelae School" },
+    { title: "Manage Permissions - School Management" },
     { name: "description", content: "Assign module permissions to each role." },
   ];
 }

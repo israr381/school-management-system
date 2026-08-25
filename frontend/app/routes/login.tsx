@@ -20,7 +20,7 @@ import loginIllustration from "../assets/login-illustration.png";
 
 export function meta() {
   return [
-    { title: "Sign In - Opelae School" },
+    { title: "Sign In - School Management" },
     { name: "description", content: "Access your dashboard and manage school operations." },
   ];
 }
@@ -86,8 +86,8 @@ export default function Login() {
             <GraduationCap className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-bold leading-tight text-text-main">Opelae School</p>
-            <p className="text-xs leading-tight text-text-muted">Management System</p>
+            <p className="text-sm font-bold leading-tight text-text-main">School Management</p>
+            <p className="text-xs leading-tight text-text-muted">Multi-tenant platform</p>
           </div>
         </div>
 

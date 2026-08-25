@@ -4,7 +4,7 @@ import AccessRestricted from "../components/AccessRestricted";
 
 export function meta() {
   return [
-    { title: "My Request - Opelae School" },
+    { title: "My Request - School Management" },
     { name: "description", content: "Submit and track your leave requests." },
   ];
 }

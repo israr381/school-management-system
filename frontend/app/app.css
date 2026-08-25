@@ -70,7 +70,7 @@
   --border-main: #e2e8f0;
   --input-bg: #ffffff;
 
-  /* Brand — Opelae indigo → purple gradient */
+  /* Brand — indigo → purple gradient */
   --brand: #4f46e5;
   --brand-hover: #4338ca;
   --brand-soft: #eef2ff;
@@ -350,7 +350,7 @@ html.disable-theme-transitions *::after {
   }
 }
 
-/* Opelae-style utilities */
+/* Shared UI utilities */
 .gradient-banner {
   background: linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
   box-shadow: 0 10px 40px -10px rgba(79, 70, 229, 0.35);

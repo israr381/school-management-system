@@ -4,8 +4,8 @@ import ThemeToggle from "../components/ThemeToggle";
 
 export function meta() {
   return [
-    { title: "EduManage - School & Organization Management" },
-    { name: "description", content: "EduManage is a modern school management platform for organizing students, teachers, and classes." },
+    { title: "School Management" },
+    { name: "description", content: "A multi-tenant school management platform for organizing students, teachers, and classes." },
   ];
 }
 
@@ -25,9 +25,9 @@ export default function Home() {
       <header className="h-20 px-8 max-w-7xl w-full mx-auto flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/20">
-            E
+            S
           </div>
-          <span className="font-bold text-lg tracking-tight">EduManage</span>
+          <span className="font-bold text-lg tracking-tight">School Management</span>
         </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />
@@ -89,7 +89,7 @@ export default function Home() {
       </main>
 
       <footer className="py-8 border-t border-border-main text-center text-xs text-text-muted">
-        © 2026 EduManage Inc. All rights reserved.
+        © 2026 School Management. All rights reserved.
       </footer>
 
     </div>

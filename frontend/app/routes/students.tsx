@@ -4,7 +4,7 @@ import AccessRestricted from "../components/AccessRestricted";
 
 export function meta() {
   return [
-    { title: "Students - Opelae School" },
+    { title: "Students - School Management" },
     { name: "description", content: "Manage students, classes, and parent accounts." },
   ];
 }
