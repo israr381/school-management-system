@@ -245,14 +245,7 @@ export default function ProfileSettings({ user, onUserChange }: ProfileSettingsP
             </div>
           </div>
           <div className="space-y-2 max-w-sm">
-            <Label htmlFor="role">Role</Label>
-            <Input
-              id="role"
-              name="role"
-              defaultValue={formatRoleLabel(user.role)}
-              disabled
-              className="bg-surface-soft border-border-main h-10"
-            />
+          
           </div>
         </CardContent>
         <CardFooter className="justify-end gap-2 bg-transparent border-border-main">
