@@ -4,7 +4,7 @@ import AccessRestricted from "../components/AccessRestricted";
 
 export function meta() {
   return [
-    { title: "Teacher Attendance - Opelae School" },
+    { title: "Teacher Attendance - School Management" },
     { name: "description", content: "Take and review teacher attendance." },
   ];
 }

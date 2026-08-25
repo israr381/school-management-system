@@ -11,7 +11,7 @@ interface SettingsContext {
 
 export function meta() {
   return [
-    { title: "Settings - Opelae School" },
+    { title: "Settings - School Management" },
     { name: "description", content: "Manage your account settings." },
   ];
 }

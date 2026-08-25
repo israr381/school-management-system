@@ -34,7 +34,7 @@ export default function AppearanceSettings() {
         <CardHeader className="border-b border-border-main">
           <CardTitle className="text-text-main">Theme</CardTitle>
           <CardDescription className="text-text-muted">
-            Choose how EduManage looks across the console.
+            Choose how the console looks for this school.
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-4">

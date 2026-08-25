@@ -37,7 +37,7 @@ interface OrganizationContext {
 
 export function meta() {
   return [
-    { title: "Organization - Opelae School" },
+    { title: "Organization - School Management" },
     { name: "description", content: "Manage your organization details." },
   ];
 }

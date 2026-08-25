@@ -23,7 +23,7 @@ interface AdminOverviewProps {
 const kpiIcons = [User, Users, ClipboardCheck, UserCheck];
 
 export default function AdminOverview({ user, org, data }: AdminOverviewProps) {
-  const schoolName = org?.name ?? "Opelae School";
+  const schoolName = org?.name ?? "School";
   const kpiCards = [
     {
       title: "Total Students",
