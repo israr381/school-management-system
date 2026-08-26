@@ -36,6 +36,7 @@ def _teacher_response(teacher: models.Teacher) -> schemas.TeacherResponse:
         address=teacher.address,
         subject=teacher.subject,
         status=teacher.status,
+        avatar_url=teacher.user.avatar_url if teacher.user else None,
         created_at=teacher.created_at,
     )
 

@@ -53,6 +53,30 @@ function initials(name: string) {
     .toUpperCase();
 }
 
+function TeacherListAvatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }) {
+  const [failed, setFailed] = useState(false);
+  const showImage = Boolean(avatarUrl) && !failed;
+
+  useEffect(() => {
+    setFailed(false);
+  }, [avatarUrl]);
+
+  return (
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-brand-soft text-sm font-bold text-brand">
+      {showImage ? (
+        <img
+          src={avatarUrl ?? undefined}
+          alt={`${name} avatar`}
+          onError={() => setFailed(true)}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        initials(name)
+      )}
+    </div>
+  );
+}
+
 function StatusBadge({ status }: { status: string }) {
   const styles =
     status === "active"
@@ -229,9 +253,7 @@ export default function TeachersPanel() {
         sortValue: (teacher) => teacher.full_name,
         render: (teacher) => (
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-brand-soft text-sm font-bold text-brand">
-              {initials(teacher.full_name)}
-            </div>
+            <TeacherListAvatar name={teacher.full_name} avatarUrl={teacher.avatar_url} />
             <div className="min-w-0">
               <p className="truncate font-semibold text-text-main">{teacher.full_name}</p>
               <p className="truncate text-xs font-normal text-text-muted">{teacher.email}</p>

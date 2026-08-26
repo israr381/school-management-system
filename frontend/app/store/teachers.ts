@@ -8,6 +8,7 @@ export interface Teacher {
   address: string;
   subject?: string | null;
   status: "active" | "disabled" | string;
+  avatar_url?: string | null;
   created_at: string;
 }
 

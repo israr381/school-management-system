@@ -281,6 +281,7 @@ class TeacherResponse(BaseModel):
     address: str
     subject: Optional[str] = None
     status: str
+    avatar_url: Optional[str] = None
     created_at: datetime
 
     class Config:
