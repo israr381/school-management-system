@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Teacher } from "../../../store/teachers";
 import Button from "../../button/Button";
+import UserAvatar from "../../settings/UserAvatar";
 import {
   Dialog,
   DialogContent,
@@ -69,6 +70,17 @@ export default function TeacherViewModal({
         </DialogHeader>
 
         <div className="space-y-5 px-6 py-5">
+          <div className="flex items-center gap-4">
+            <UserAvatar
+              name={teacher.full_name}
+              avatarUrl={teacher.avatar_url}
+              className="h-16 w-16 rounded-sm text-lg"
+            />
+            <div className="min-w-0">
+              <p className="truncate text-base font-semibold text-text-main">{teacher.full_name}</p>
+              <p className="truncate text-sm text-text-muted">{teacher.email}</p>
+            </div>
+          </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <DetailItem label="Name" value={teacher.full_name} />
             <DetailItem label="Email" value={teacher.email} />
