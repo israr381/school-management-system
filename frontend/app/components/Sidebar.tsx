@@ -102,7 +102,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
           {!isCollapsed && (
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="shrink-0 cursor-pointer rounded-md p-1 text-text-muted transition-colors duration-150 hover:bg-surface-soft hover:text-text-main"
+              className="hidden shrink-0 cursor-pointer rounded-md p-1 text-text-muted transition-colors duration-150 hover:bg-surface-soft hover:text-text-main lg:block"
               title="Collapse Sidebar"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -113,7 +113,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, role, org }: Side
         {isCollapsed && (
           <button
             onClick={() => setIsCollapsed(false)}
-            className="absolute left-17 top-6 z-50 cursor-pointer rounded-full border border-border-main bg-panel-bg p-[2px] shadow-sm transition-transform duration-150 hover:scale-105"
+            className="absolute left-17 top-6 z-50 hidden cursor-pointer rounded-full border border-border-main bg-panel-bg p-[2px] shadow-sm transition-transform duration-150 hover:scale-105 lg:block"
             title="Expand Sidebar"
           >
             <ChevronLeft className="h-4 w-4 rotate-180 text-text-muted" />

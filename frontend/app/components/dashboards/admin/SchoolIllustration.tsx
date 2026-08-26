@@ -48,17 +48,7 @@ export default function SchoolIllustration() {
       <rect x="86" y="154" width="48" height="6" rx="1" fill="#94a3b8" opacity="0.35" />
 
       <rect x="72" y="152" width="76" height="14" rx="3" fill="#4f46e5" />
-      <text
-        x="110"
-        y="162"
-        textAnchor="middle"
-        fill="white"
-        fontSize="7"
-        fontWeight="700"
-        letterSpacing="0.5"
-      >
-        OPELAE SCHOOL
-      </text>
+    
 
       <circle cx="160" cy="30" r="3" fill="#fbbf24" opacity="0.8" />
       <circle cx="175" cy="45" r="2" fill="#f472b6" opacity="0.7" />

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   isRouteErrorResponse,
   Links,
@@ -127,6 +127,13 @@ export default function App() {
     syncSidebar();
     media.addEventListener("change", syncSidebar);
     return () => media.removeEventListener("change", syncSidebar);
+  }, []);
+
+  const handleSetCollapsed = useCallback((collapsed: boolean) => {
+    if (window.matchMedia("(max-width: 1023px)").matches && !collapsed) {
+      return;
+    }
+    setIsCollapsed(collapsed);
   }, []);
 
   const fetchTenantData = async (token: string) => {
@@ -280,7 +287,7 @@ export default function App() {
     <div data-role={user.role} className="h-screen overflow-hidden flex bg-app-bg text-text-main w-full animate-fade-in">
       <Sidebar
         isCollapsed={isCollapsed}
-        setIsCollapsed={setIsCollapsed}
+        setIsCollapsed={handleSetCollapsed}
         role={user.role}
         org={org}
       />
