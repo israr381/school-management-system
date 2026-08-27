@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, Date, DateTime, ForeignKey, Text, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Boolean, Date, DateTime, ForeignKey, Text, UniqueConstraint, false, true
 from sqlalchemy.orm import object_session, relationship as orm_relationship
 from app.database import Base
 
@@ -11,7 +11,7 @@ class Organization(Base):
     domain = Column(String, unique=True, index=True, nullable=False)
     logo_url = Column(String, nullable=True)
     logo_public_id = Column(String, nullable=True)
-    is_active = Column(Boolean, default=True, nullable=False)
+    is_active = Column(Boolean, default=True, server_default=true(), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     users = orm_relationship("User", back_populates="organization", cascade="all, delete-orphan")
     classes = orm_relationship("SchoolClass", back_populates="organization", cascade="all, delete-orphan")
@@ -115,7 +115,7 @@ class User(Base):
     avatar_url = Column(String, nullable=True)
     avatar_public_id = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
-    must_change_password = Column(Boolean, default=False, nullable=False)
+    must_change_password = Column(Boolean, default=False, server_default=false(), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

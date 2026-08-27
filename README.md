@@ -7,6 +7,8 @@ A modern School Management System web application built with a FastAPI backend a
 ```text
 school-management-system/
 ├── backend/            # FastAPI Python backend
+│   ├── alembic/        # Alembic migration environment and versions
+│   ├── alembic.ini     # Alembic configuration
 │   ├── app/
 │   │   ├── database.py # SQLAlchemy connection configuration & health check
 │   │   └── main.py     # Main FastAPI application & lifespan management
@@ -65,6 +67,21 @@ Starts the FastAPI backend development server (using uvicorn in the virtual envi
 npm run backend
 ```
 
+#### Apply Database Migrations
+Schema changes are managed with [Alembic](https://alembic.sqlalchemy.org/). Run this from the `backend/` directory before starting the API on a new database, and after pulling schema changes:
+
+```bash
+.venv/bin/alembic upgrade head
+```
+
+After changing SQLAlchemy models, generate a new migration:
+
+```bash
+.venv/bin/alembic revision --autogenerate -m "describe the schema change"
+```
+
+Review the generated file in `backend/alembic/versions/`, then apply it with `.venv/bin/alembic upgrade head`.
+
 ---
 
 ## Technical Details
@@ -72,10 +89,10 @@ npm run backend
 ### Backend (FastAPI)
 - **Framework**: [FastAPI](https://fastapi.tiangolo.com/)
 - **ORM**: [SQLAlchemy](https://www.sqlalchemy.org/)
+- **Migrations**: [Alembic](https://alembic.sqlalchemy.org/)
 - **Database Driver**: `psycopg2-binary`
 - **Configuration**: Loads variables from `.env` via `python-dotenv`.
-- **Health Check**: When you start the backend, it tests database connectivity automatically and prints:
-  `Database run correctly` to the terminal console.
+- **Health Check**: When you start the backend, it tests database connectivity automatically.
 
 ### Frontend (React Router + TailwindCSS)
 - **Framework**: [React Router v8](https://reactrouter.com/) (formerly Remix)

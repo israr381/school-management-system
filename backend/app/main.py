@@ -5,8 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.database import Base, SessionLocal, check_db_connection, engine, get_db
-from app.db_migrations import ensure_organization_logo_columns, ensure_user_avatar_columns
+from app.database import SessionLocal, check_db_connection, get_db
 from app import models
 from app.permissions import backfill_organization_role_permissions, seed_permissions
 from app.routers.attendance import router as attendance_router
@@ -25,10 +24,6 @@ from app.routers.users import router as users_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
-    ensure_organization_logo_columns()
-    ensure_user_avatar_columns()
-
     db = SessionLocal()
     try:
         default_roles = ["superadmin", "admin", "student", "parent", "teacher"]
@@ -47,7 +42,7 @@ async def lifespan(app: FastAPI):
         db.close()
 
     if check_db_connection():
-        print("Database run correctly and tables verified/created")
+        print("Database connected successfully")
     else:
         print("Database connection FAILED")
     yield
