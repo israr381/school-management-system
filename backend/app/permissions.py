@@ -175,6 +175,7 @@ def seed_permissions(db: Session) -> None:
                 db.add(models.Permission(module=module["key"], action=action))
     db.flush()
     prune_obsolete_permissions(db)
+    db.commit()
     grant_missing_default_permissions(db)
     db.commit()
 
@@ -234,53 +235,7 @@ def grant_missing_default_permissions(db: Session) -> None:
                         models.RolePermission(role_id=role.id, permission_id=permission.id)
                     )
 
-    grant_missing_organization_module_permissions(db)
     grant_missing_organization_action_permissions(db)
-
-
-def grant_missing_organization_module_permissions(db: Session) -> None:
-    permissions_by_key = _permissions_by_key(db)
-    organizations = db.query(models.Organization.id).all()
-    tenant_roles = (
-        db.query(models.Role).filter(models.Role.name.in_(TENANT_ROLE_NAMES)).all()
-    )
-
-    for (organization_id,) in organizations:
-        if not organization_has_role_permissions(db, organization_id):
-            continue
-
-        for role in tenant_roles:
-            defaults = DEFAULT_ROLE_PERMISSIONS.get(role.name, {})
-            existing_modules = {
-                module
-                for module, in (
-                    db.query(models.Permission.module)
-                    .join(
-                        models.OrganizationRolePermission,
-                        models.OrganizationRolePermission.permission_id == models.Permission.id,
-                    )
-                    .filter(
-                        models.OrganizationRolePermission.organization_id == organization_id,
-                        models.OrganizationRolePermission.role_id == role.id,
-                    )
-                    .distinct()
-                    .all()
-                )
-            }
-
-            for module_key, actions in defaults.items():
-                if module_key in existing_modules:
-                    continue
-                for action in actions:
-                    permission = permissions_by_key.get(permission_key(module_key, action))
-                    if permission:
-                        db.add(
-                            models.OrganizationRolePermission(
-                                organization_id=organization_id,
-                                role_id=role.id,
-                                permission_id=permission.id,
-                            )
-                        )
 
 
 def grant_missing_organization_action_permissions(db: Session) -> None:
