@@ -145,6 +145,17 @@ export async function fetchCurrentUser(token: string): Promise<UserPayload> {
   return data as UserPayload;
 }
 
+function parseApiError(data: unknown, fallback: string) {
+  const detail =
+    data && typeof data === "object" && "detail" in data
+      ? (data as { detail: unknown }).detail
+      : undefined;
+
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail) && detail[0]?.msg) return detail[0].msg;
+  return fallback;
+}
+
 export async function changePassword(
   token: string,
   payload: {
@@ -165,14 +176,49 @@ export async function changePassword(
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    const detail = data.detail;
-    const message =
-      typeof detail === "string"
-        ? detail
-        : Array.isArray(detail) && detail[0]?.msg
-          ? detail[0].msg
-          : "Failed to update password.";
-    throw new Error(message);
+    throw new Error(parseApiError(data, "Failed to update password."));
+  }
+
+  return data as { message: string };
+}
+
+export async function requestPasswordReset(email: string) {
+  const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(parseApiError(data, "Unable to start password reset."));
+  }
+
+  return data as { message: string; email: string; reset_token: string };
+}
+
+export async function resetPassword(payload: {
+  email: string;
+  reset_token: string;
+  current_password: string;
+  new_password: string;
+  confirm_password: string;
+}) {
+  const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(parseApiError(data, "Failed to update password."));
   }
 
   return data as { message: string };

@@ -5,6 +5,7 @@ import AuthLayout from "../components/auth/AuthLayout";
 import Button from "../components/button/Button";
 import Input from "../components/input/Input";
 import { toast } from "../components/toast/toast";
+import { resetPassword } from "../store/auth";
 
 export function meta() {
   return [
@@ -36,6 +37,7 @@ export default function ChangePassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email")?.trim() ?? "";
+  const resetToken = searchParams.get("token")?.trim() ?? "";
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -44,14 +46,15 @@ export default function ChangePassword() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!email) {
+    if (!email || !resetToken) {
       navigate("/forgot-password", { replace: true });
     }
-  }, [email, navigate]);
+  }, [email, resetToken, navigate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -70,11 +73,25 @@ export default function ChangePassword() {
       return;
     }
 
-    toast.success("Password updated successfully.");
-    navigate("/login");
+    setLoading(true);
+    try {
+      await resetPassword({
+        email,
+        reset_token: resetToken,
+        current_password: currentPassword,
+        new_password: newPassword,
+        confirm_password: confirmPassword,
+      });
+      toast.success("Password updated successfully.");
+      navigate("/login");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to update password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (!email) return null;
+  if (!email || !resetToken) return null;
 
   return (
     <AuthLayout>
@@ -156,7 +173,7 @@ export default function ChangePassword() {
           }
         />
 
-        <Button type="submit" fullWidth className="mt-1">
+        <Button type="submit" loading={loading} fullWidth className="mt-1">
           Update Password
         </Button>
       </form>

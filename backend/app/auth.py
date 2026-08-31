@@ -1,4 +1,6 @@
+import hashlib
 import os
+import secrets
 import bcrypt
 import jwt
 from datetime import datetime, timedelta
@@ -13,6 +15,7 @@ SECRET_KEY = os.getenv("JWT_SECRET", "db3a5b6c8d7e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 600
 REFRESH_TOKEN_EXPIRE_DAYS = 7
+PASSWORD_RESET_EXPIRE_MINUTES = 15
 DEFAULT_ADMIN_PASSWORD = "passpass"
 
 
@@ -63,6 +66,20 @@ def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) 
     to_encode.update({"exp": expire, "type": "refresh"})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+def generate_password_reset_token() -> str:
+    return secrets.token_urlsafe(32)
+
+
+def hash_password_reset_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def reset_tokens_match(plain_token: str, stored_hash: Optional[str]) -> bool:
+    if not stored_hash:
+        return False
+    return secrets.compare_digest(hash_password_reset_token(plain_token), stored_hash)
+
 
 def decode_token(token: str, expected_type: Optional[str] = None) -> dict:
     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

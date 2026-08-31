@@ -116,6 +116,8 @@ class User(Base):
     avatar_public_id = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     must_change_password = Column(Boolean, default=False, server_default=false(), nullable=False)
+    password_reset_token_hash = Column(String, nullable=True)
+    password_reset_expires_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
