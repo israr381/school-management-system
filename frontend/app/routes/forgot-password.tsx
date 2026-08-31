@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Mail } from "lucide-react";
 import AuthLayout from "../components/auth/AuthLayout";
 import Button from "../components/button/Button";
 import Input from "../components/input/Input";
+import { requestPasswordReset } from "../store/auth";
 
 export function meta() {
   return [
@@ -16,8 +17,9 @@ export default function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -27,7 +29,19 @@ export default function ForgotPassword() {
       return;
     }
 
-    navigate(`/change-password?email=${encodeURIComponent(trimmed)}`);
+    setLoading(true);
+    try {
+      const data = await requestPasswordReset(trimmed);
+      const params = new URLSearchParams({
+        email: data.email,
+        token: data.reset_token,
+      });
+      navigate(`/change-password?${params.toString()}`);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Unable to start password reset.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,7 +54,7 @@ export default function ForgotPassword() {
           Forgot Password?
         </h2>
         <p className="mt-2 text-sm text-text-muted">
-          Enter your email and we will take you to change your password.
+          Enter your account email to continue resetting your password.
         </p>
       </div>
 
@@ -63,7 +77,7 @@ export default function ForgotPassword() {
           leftIcon={<Mail className="w-4.5 h-4.5" />}
         />
 
-        <Button type="submit" fullWidth className="mt-1">
+        <Button type="submit" loading={loading} fullWidth className="mt-1">
           Next
           <ArrowRight className="w-4.5 h-4.5" />
         </Button>

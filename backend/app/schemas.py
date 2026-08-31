@@ -100,6 +100,28 @@ class ChangePasswordRequest(BaseModel):
     new_password: str = Field(..., min_length=6)
     confirm_password: str = Field(..., min_length=6)
 
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+    email: EmailStr
+    reset_token: str
+
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    reset_token: str = Field(..., min_length=1)
+    current_password: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=6)
+    confirm_password: str = Field(..., min_length=6)
+
+
+class MessageResponse(BaseModel):
+    message: str
+
 class OrganizationUpdate(BaseModel):
     name: str = Field(..., min_length=1)
     domain: str = Field(..., min_length=3)
