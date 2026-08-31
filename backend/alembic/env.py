@@ -11,7 +11,7 @@ if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 from app.database import DATABASE_URL, Base
-from app import models  # noqa: F401
+from app import models  
 
 config = context.config
 

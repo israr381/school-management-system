@@ -118,7 +118,11 @@ export default function App() {
   const [tenantData, setTenantData] = useState<TenantApiResponse | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
 
-  const isPublicRoute = location.pathname === "/login" || location.pathname === "/";
+  const isPublicRoute =
+    location.pathname === "/login" ||
+    location.pathname === "/forgot-password" ||
+    location.pathname === "/change-password" ||
+    location.pathname === "/";
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 1023px)");
