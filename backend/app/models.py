@@ -4,6 +4,11 @@ from sqlalchemy.orm import object_session, relationship as orm_relationship
 from app.database import Base
 
 
+class TimestampMixin:
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
 class SoftDeleteMixin:
     is_active = Column(Boolean, default=True, server_default=true(), nullable=False)
     deleted_at = Column(DateTime, nullable=True, index=True)
@@ -12,6 +17,8 @@ class SoftDeleteMixin:
         stamp = when or datetime.utcnow()
         self.is_active = False
         self.deleted_at = stamp
+        if hasattr(self, "updated_at"):
+            self.updated_at = stamp
         return stamp
 
 
@@ -30,13 +37,13 @@ def bulk_soft_delete(db, model, *criterion) -> int:
         db.query(model)
         .filter(*criterion, model.deleted_at.is_(None))
         .update(
-            {model.is_active: False, model.deleted_at: now},
+            {model.is_active: False, model.deleted_at: now, model.updated_at: now},
             synchronize_session=False,
         )
     )
 
 
-class Organization(SoftDeleteMixin, Base):
+class Organization(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "organizations"
     __table_args__ = (
         Index(
@@ -52,7 +59,6 @@ class Organization(SoftDeleteMixin, Base):
     domain = Column(String, nullable=False)
     logo_url = Column(String, nullable=True)
     logo_public_id = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
     users = orm_relationship("User", back_populates="organization", cascade="all, delete-orphan")
     classes = orm_relationship("SchoolClass", back_populates="organization", cascade="all, delete-orphan")
     subjects = orm_relationship("Subject", back_populates="organization", cascade="all, delete-orphan")
@@ -75,7 +81,7 @@ class Organization(SoftDeleteMixin, Base):
         cascade="all, delete-orphan",
     )
 
-class Role(Base):
+class Role(TimestampMixin, Base):
     __tablename__ = "roles"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -88,7 +94,7 @@ class Role(Base):
     )
 
 
-class Permission(Base):
+class Permission(TimestampMixin, Base):
     __tablename__ = "permissions"
     __table_args__ = (
         UniqueConstraint("module", "action", name="uq_permission_module_action"),
@@ -105,7 +111,7 @@ class Permission(Base):
     )
 
 
-class RolePermission(Base):
+class RolePermission(TimestampMixin, Base):
     __tablename__ = "role_permissions"
     __table_args__ = (
         UniqueConstraint("role_id", "permission_id", name="uq_role_permission"),
@@ -118,7 +124,7 @@ class RolePermission(Base):
     )
 
 
-class OrganizationRolePermission(Base):
+class OrganizationRolePermission(TimestampMixin, Base):
     __tablename__ = "organization_role_permissions"
     __table_args__ = (
         UniqueConstraint(
@@ -143,7 +149,7 @@ class OrganizationRolePermission(Base):
     permission = orm_relationship("Permission")
 
 
-class User(SoftDeleteMixin, Base):
+class User(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "users"
     __table_args__ = (
         Index(
@@ -165,7 +171,6 @@ class User(SoftDeleteMixin, Base):
     must_change_password = Column(Boolean, default=False, server_default=false(), nullable=False)
     password_reset_token_hash = Column(String, nullable=True)
     password_reset_expires_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
     organization = orm_relationship("Organization", back_populates="users")
@@ -212,7 +217,7 @@ class User(SoftDeleteMixin, Base):
         return sorted(f"{permission.module}.{permission.action}" for permission in role.permissions)
 
 
-class SchoolClass(SoftDeleteMixin, Base):
+class SchoolClass(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "classes"
     __table_args__ = (
         Index(
@@ -230,8 +235,6 @@ class SchoolClass(SoftDeleteMixin, Base):
     organization_id = Column(
         Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     organization = orm_relationship("Organization", back_populates="classes")
     sections = orm_relationship("Section", back_populates="school_class", cascade="all, delete-orphan")
@@ -244,7 +247,7 @@ class SchoolClass(SoftDeleteMixin, Base):
     )
 
 
-class Section(SoftDeleteMixin, Base):
+class Section(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "sections"
     __table_args__ = (
         Index(
@@ -262,8 +265,6 @@ class Section(SoftDeleteMixin, Base):
     organization_id = Column(
         Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     school_class = orm_relationship("SchoolClass", back_populates="sections")
     organization = orm_relationship("Organization")
@@ -276,7 +277,7 @@ class Section(SoftDeleteMixin, Base):
     )
 
 
-class Subject(SoftDeleteMixin, Base):
+class Subject(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "subjects"
     __table_args__ = (
         Index(
@@ -295,15 +296,13 @@ class Subject(SoftDeleteMixin, Base):
     organization_id = Column(
         Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     school_class = orm_relationship("SchoolClass", back_populates="subjects")
     section = orm_relationship("Section", back_populates="subjects")
     organization = orm_relationship("Organization", back_populates="subjects")
 
 
-class Parent(SoftDeleteMixin, Base):
+class Parent(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "parents"
     __table_args__ = (
         Index(
@@ -325,14 +324,13 @@ class Parent(SoftDeleteMixin, Base):
     phone = Column(String, nullable=False)
     relationship = Column(String, nullable=False, default="father")
     address = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = orm_relationship("User", back_populates="parent_profile")
     organization = orm_relationship("Organization", back_populates="parents")
     students = orm_relationship("Student", back_populates="parent")
 
 
-class Student(SoftDeleteMixin, Base):
+class Student(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "students"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -348,7 +346,6 @@ class Student(SoftDeleteMixin, Base):
     phone = Column(String, nullable=False)
     address = Column(Text, nullable=False)
     status = Column(String, nullable=False, default="active", index=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = orm_relationship("User", back_populates="student_profile")
     parent = orm_relationship("Parent", back_populates="students")
@@ -357,7 +354,7 @@ class Student(SoftDeleteMixin, Base):
     section = orm_relationship("Section", back_populates="students")
 
 
-class Teacher(SoftDeleteMixin, Base):
+class Teacher(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "teachers"
     __table_args__ = (
         Index(
@@ -380,7 +377,6 @@ class Teacher(SoftDeleteMixin, Base):
     address = Column(Text, nullable=False)
     subject = Column(String, nullable=True)
     status = Column(String, nullable=False, default="active", index=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = orm_relationship("User", back_populates="teacher_profile")
     organization = orm_relationship("Organization", back_populates="teachers")
@@ -392,7 +388,7 @@ class Teacher(SoftDeleteMixin, Base):
     )
 
 
-class TeacherClassAssignment(SoftDeleteMixin, Base):
+class TeacherClassAssignment(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "teacher_class_assignments"
     __table_args__ = (
         Index(
@@ -414,8 +410,6 @@ class TeacherClassAssignment(SoftDeleteMixin, Base):
     organization_id = Column(
         Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     teacher = orm_relationship("Teacher", back_populates="class_assignment")
     school_class = orm_relationship("SchoolClass", back_populates="teacher_assignments")
@@ -423,7 +417,7 @@ class TeacherClassAssignment(SoftDeleteMixin, Base):
     organization = orm_relationship("Organization", back_populates="teacher_class_assignments")
 
 
-class StudentAttendance(SoftDeleteMixin, Base):
+class StudentAttendance(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "student_attendance"
     __table_args__ = (
         Index(
@@ -449,8 +443,6 @@ class StudentAttendance(SoftDeleteMixin, Base):
     attendance_date = Column(Date, nullable=False, index=True)
     status = Column(String, nullable=False, default="absent")
     marked_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     student = orm_relationship("Student")
     school_class = orm_relationship("SchoolClass")
@@ -458,7 +450,7 @@ class StudentAttendance(SoftDeleteMixin, Base):
     organization = orm_relationship("Organization")
 
 
-class TeacherAttendance(SoftDeleteMixin, Base):
+class TeacherAttendance(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "teacher_attendance"
     __table_args__ = (
         Index(
@@ -480,14 +472,12 @@ class TeacherAttendance(SoftDeleteMixin, Base):
     attendance_date = Column(Date, nullable=False, index=True)
     status = Column(String, nullable=False, default="absent")
     marked_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     teacher = orm_relationship("Teacher")
     organization = orm_relationship("Organization")
 
 
-class LeaveRequest(SoftDeleteMixin, Base):
+class LeaveRequest(TimestampMixin, SoftDeleteMixin, Base):
     __tablename__ = "leave_requests"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -510,8 +500,6 @@ class LeaveRequest(SoftDeleteMixin, Base):
     reviewer_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     review_note = Column(Text, nullable=True)
     reviewed_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     organization = orm_relationship("Organization", back_populates="leave_requests")
     requester = orm_relationship("User", foreign_keys=[requester_user_id])
