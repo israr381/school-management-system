@@ -24,13 +24,17 @@ def _find_user_by_email(db: Session, email: str) -> models.User | None:
 
 
 def _ensure_account_usable(user: models.User) -> None:
-    if not user.is_active:
+    if not user.is_active or user.deleted_at is not None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="This account has been disabled. Please contact support.",
         )
 
-    if user.organization_id and user.organization and not user.organization.is_active:
+    if user.organization_id and (
+        user.organization is None
+        or not user.organization.is_active
+        or user.organization.deleted_at is not None
+    ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="This organization has been disabled. Please contact support.",
@@ -129,17 +133,7 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
             detail="Incorrect email or password",
         )
 
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This account has been disabled. Please contact support.",
-        )
-
-    if user.organization_id and user.organization and not user.organization.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This organization has been disabled. Please contact support.",
-        )
+    _ensure_account_usable(user)
 
     access_token = auth.create_access_token(data={"sub": user.email})
     refresh_token = None
@@ -175,17 +169,7 @@ def refresh_access_token(payload: schemas.RefreshTokenRequest, db: Session = Dep
     if not user:
         raise credentials_exception
 
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This account has been disabled. Please contact support.",
-        )
-
-    if user.organization_id and user.organization and not user.organization.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This organization has been disabled. Please contact support.",
-        )
+    _ensure_account_usable(user)
 
     access_token = auth.create_access_token(data={"sub": user.email})
     refresh_token = auth.create_refresh_token(data={"sub": user.email})

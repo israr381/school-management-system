@@ -223,15 +223,13 @@ def delete_student_attendance(
     school_class, section, _locked = _student_class_scope(
         db, current_user, org_id, class_id, section_id
     )
-    deleted = (
-        db.query(models.StudentAttendance)
-        .filter(
-            models.StudentAttendance.organization_id == org_id,
-            models.StudentAttendance.class_id == school_class.id,
-            models.StudentAttendance.section_id == section.id,
-            models.StudentAttendance.attendance_date == attendance_date,
-        )
-        .delete(synchronize_session=False)
+    deleted = models.bulk_soft_delete(
+        db,
+        models.StudentAttendance,
+        models.StudentAttendance.organization_id == org_id,
+        models.StudentAttendance.class_id == school_class.id,
+        models.StudentAttendance.section_id == section.id,
+        models.StudentAttendance.attendance_date == attendance_date,
     )
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attendance record not found")
@@ -455,13 +453,11 @@ def delete_teacher_attendance(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to delete teacher attendance",
         )
-    deleted = (
-        db.query(models.TeacherAttendance)
-        .filter(
-            models.TeacherAttendance.organization_id == org_id,
-            models.TeacherAttendance.attendance_date == attendance_date,
-        )
-        .delete(synchronize_session=False)
+    deleted = models.bulk_soft_delete(
+        db,
+        models.TeacherAttendance,
+        models.TeacherAttendance.organization_id == org_id,
+        models.TeacherAttendance.attendance_date == attendance_date,
     )
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attendance record not found")
