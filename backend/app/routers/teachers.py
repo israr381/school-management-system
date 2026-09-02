@@ -204,10 +204,6 @@ def delete_teacher(
     org_id: int = Depends(require_org_permission("teachers", "delete")),
 ):
     teacher = _get_org_teacher(db, teacher_id, org_id)
-    teacher_user = teacher.user
-    if teacher_user:
-        db.delete(teacher_user)
-    else:
-        db.delete(teacher)
+    models.mark_deleted(teacher, teacher.user, teacher.class_assignment)
     db.commit()
     return {"message": "Teacher deleted successfully", "teacher_id": teacher_id}

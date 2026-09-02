@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import create_engine, event, text
+from sqlalchemy.orm import Session, declarative_base, sessionmaker, with_loader_criteria
 
 load_dotenv()
 
@@ -12,6 +12,23 @@ if not DATABASE_URL:
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+
+@event.listens_for(Session, "do_orm_execute")
+def _hide_soft_deleted(execute_state):
+    if not execute_state.is_select or execute_state.is_column_load:
+        return
+    if execute_state.execution_options.get("include_deleted"):
+        return
+    from app.models import SoftDeleteMixin
+
+    execute_state.statement = execute_state.statement.options(
+        with_loader_criteria(
+            SoftDeleteMixin,
+            lambda cls: cls.deleted_at.is_(None),
+            include_aliases=True,
+        )
+    )
 
 def get_db():
     """Dependency generator for database sessions."""

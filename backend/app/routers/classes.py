@@ -226,7 +226,14 @@ def delete_class(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot delete a class that has students",
         )
-    db.delete(school_class)
+    now = datetime.utcnow()
+    school_class.mark_deleted(now)
+    for section in school_class.sections:
+        section.mark_deleted(now)
+    for subject in school_class.subjects:
+        subject.mark_deleted(now)
+    for assignment in school_class.teacher_assignments:
+        assignment.mark_deleted(now)
     db.commit()
     return {"message": "Class deleted successfully", "class_id": class_id}
 
@@ -335,7 +342,12 @@ def delete_section(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot delete a section that has students",
         )
-    db.delete(section)
+    now = datetime.utcnow()
+    section.mark_deleted(now)
+    for subject in section.subjects:
+        subject.mark_deleted(now)
+    for assignment in section.teacher_assignments:
+        assignment.mark_deleted(now)
     db.commit()
     return {"message": "Section deleted successfully", "section_id": section_id}
 
@@ -470,6 +482,6 @@ def delete_subject(
     org_id: int = Depends(require_org_permission("subjects", "delete")),
 ):
     subject = _get_org_subject(db, subject_id, org_id)
-    db.delete(subject)
+    subject.mark_deleted()
     db.commit()
     return {"message": "Subject deleted successfully", "subject_id": subject_id}

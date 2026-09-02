@@ -217,6 +217,6 @@ def delete_teacher_assignment(
     org_id: int = Depends(require_org_permission("teachers", "delete")),
 ):
     assignment = _get_org_assignment(db, assignment_id, org_id)
-    db.delete(assignment)
+    assignment.mark_deleted()
     db.commit()
     return {"message": "Assignment deleted successfully", "assignment_id": assignment_id}

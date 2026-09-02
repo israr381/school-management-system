@@ -209,7 +209,21 @@ def delete_organization(
             detail="Organization not found",
         )
 
-    db.delete(org)
+    org.mark_deleted()
+    for model in (
+        models.User,
+        models.SchoolClass,
+        models.Section,
+        models.Subject,
+        models.Parent,
+        models.Student,
+        models.Teacher,
+        models.TeacherClassAssignment,
+        models.StudentAttendance,
+        models.TeacherAttendance,
+        models.LeaveRequest,
+    ):
+        models.bulk_soft_delete(db, model, model.organization_id == org.id)
     db.commit()
     return {"message": "Organization deleted successfully", "organization_id": org_id}
 

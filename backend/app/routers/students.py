@@ -196,9 +196,14 @@ def get_student_stats(
         .outerjoin(
             models.Student,
             (models.Student.class_id == models.SchoolClass.id)
-            & (models.Student.organization_id == org_id),
+            & (models.Student.organization_id == org_id)
+            & (models.Student.deleted_at.is_(None)),
         )
-        .filter(models.SchoolClass.organization_id == org_id)
+        .filter(
+            models.SchoolClass.organization_id == org_id,
+            models.SchoolClass.deleted_at.is_(None),
+        )
+        .execution_options(include_deleted=True)
         .group_by(models.SchoolClass.id, models.SchoolClass.name)
         .order_by(models.SchoolClass.name.asc())
         .all()
@@ -244,8 +249,16 @@ def list_parents(
 ):
     rows = (
         db.query(models.Parent, func.count(models.Student.id))
-        .outerjoin(models.Student, models.Student.parent_id == models.Parent.id)
-        .filter(models.Parent.organization_id == org_id)
+        .execution_options(include_deleted=True)
+        .outerjoin(
+            models.Student,
+            (models.Student.parent_id == models.Parent.id)
+            & (models.Student.deleted_at.is_(None)),
+        )
+        .filter(
+            models.Parent.organization_id == org_id,
+            models.Parent.deleted_at.is_(None),
+        )
         .group_by(models.Parent.id)
         .order_by(models.Parent.full_name.asc())
         .all()
@@ -461,10 +474,6 @@ def delete_student(
     org_id: int = Depends(require_org_permission("students", "delete")),
 ):
     student = _get_org_student(db, student_id, org_id)
-    student_user = student.user
-    if student_user:
-        db.delete(student_user)
-    else:
-        db.delete(student)
+    models.mark_deleted(student, student.user)
     db.commit()
     return {"message": "Student deleted successfully", "student_id": student_id}

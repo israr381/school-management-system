@@ -428,6 +428,6 @@ def delete_request(
     )
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
-    db.delete(row)
+    row.mark_deleted()
     db.commit()
     return {"message": "Request deleted successfully"}

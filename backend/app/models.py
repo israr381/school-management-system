@@ -1,17 +1,57 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, Date, DateTime, ForeignKey, Text, UniqueConstraint, false, true
+from sqlalchemy import Column, Integer, String, Boolean, Date, DateTime, ForeignKey, Index, Text, UniqueConstraint, false, true, text
 from sqlalchemy.orm import object_session, relationship as orm_relationship
 from app.database import Base
 
-class Organization(Base):
+
+class SoftDeleteMixin:
+    is_active = Column(Boolean, default=True, server_default=true(), nullable=False)
+    deleted_at = Column(DateTime, nullable=True, index=True)
+
+    def mark_deleted(self, when: datetime | None = None) -> datetime:
+        stamp = when or datetime.utcnow()
+        self.is_active = False
+        self.deleted_at = stamp
+        return stamp
+
+
+def mark_deleted(*instances, when: datetime | None = None) -> datetime:
+    stamp = when or datetime.utcnow()
+    for instance in instances:
+        if instance is None:
+            continue
+        instance.mark_deleted(stamp)
+    return stamp
+
+
+def bulk_soft_delete(db, model, *criterion) -> int:
+    now = datetime.utcnow()
+    return (
+        db.query(model)
+        .filter(*criterion, model.deleted_at.is_(None))
+        .update(
+            {model.is_active: False, model.deleted_at: now},
+            synchronize_session=False,
+        )
+    )
+
+
+class Organization(SoftDeleteMixin, Base):
     __tablename__ = "organizations"
+    __table_args__ = (
+        Index(
+            "ix_organizations_domain",
+            "domain",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    domain = Column(String, unique=True, index=True, nullable=False)
+    domain = Column(String, nullable=False)
     logo_url = Column(String, nullable=True)
     logo_public_id = Column(String, nullable=True)
-    is_active = Column(Boolean, default=True, server_default=true(), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     users = orm_relationship("User", back_populates="organization", cascade="all, delete-orphan")
     classes = orm_relationship("SchoolClass", back_populates="organization", cascade="all, delete-orphan")
@@ -103,18 +143,25 @@ class OrganizationRolePermission(Base):
     permission = orm_relationship("Permission")
 
 
-class User(Base):
+class User(SoftDeleteMixin, Base):
     __tablename__ = "users"
+    __table_args__ = (
+        Index(
+            "ix_users_email",
+            "email",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, nullable=False)
     password_hash = Column(String, nullable=False)
     full_name = Column(String, nullable=False)
     role_id = Column(Integer, ForeignKey("roles.id", ondelete="RESTRICT"), nullable=False)
     organization_id = Column(Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=True)
     avatar_url = Column(String, nullable=True)
     avatar_public_id = Column(String, nullable=True)
-    is_active = Column(Boolean, default=True)
     must_change_password = Column(Boolean, default=False, server_default=false(), nullable=False)
     password_reset_token_hash = Column(String, nullable=True)
     password_reset_expires_at = Column(DateTime, nullable=True)
@@ -165,10 +212,16 @@ class User(Base):
         return sorted(f"{permission.module}.{permission.action}" for permission in role.permissions)
 
 
-class SchoolClass(Base):
+class SchoolClass(SoftDeleteMixin, Base):
     __tablename__ = "classes"
     __table_args__ = (
-        UniqueConstraint("organization_id", "name", name="uq_class_org_name"),
+        Index(
+            "uq_class_org_name",
+            "organization_id",
+            "name",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -191,10 +244,16 @@ class SchoolClass(Base):
     )
 
 
-class Section(Base):
+class Section(SoftDeleteMixin, Base):
     __tablename__ = "sections"
     __table_args__ = (
-        UniqueConstraint("class_id", "name", name="uq_section_class_name"),
+        Index(
+            "uq_section_class_name",
+            "class_id",
+            "name",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -217,10 +276,16 @@ class Section(Base):
     )
 
 
-class Subject(Base):
+class Subject(SoftDeleteMixin, Base):
     __tablename__ = "subjects"
     __table_args__ = (
-        UniqueConstraint("section_id", "name", name="uq_subject_section_name"),
+        Index(
+            "uq_subject_section_name",
+            "section_id",
+            "name",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -238,10 +303,16 @@ class Subject(Base):
     organization = orm_relationship("Organization", back_populates="subjects")
 
 
-class Parent(Base):
+class Parent(SoftDeleteMixin, Base):
     __tablename__ = "parents"
     __table_args__ = (
-        UniqueConstraint("organization_id", "email", name="uq_parent_org_email"),
+        Index(
+            "uq_parent_org_email",
+            "organization_id",
+            "email",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -261,7 +332,7 @@ class Parent(Base):
     students = orm_relationship("Student", back_populates="parent")
 
 
-class Student(Base):
+class Student(SoftDeleteMixin, Base):
     __tablename__ = "students"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -286,10 +357,16 @@ class Student(Base):
     section = orm_relationship("Section", back_populates="students")
 
 
-class Teacher(Base):
+class Teacher(SoftDeleteMixin, Base):
     __tablename__ = "teachers"
     __table_args__ = (
-        UniqueConstraint("organization_id", "email", name="uq_teacher_org_email"),
+        Index(
+            "uq_teacher_org_email",
+            "organization_id",
+            "email",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -315,10 +392,15 @@ class Teacher(Base):
     )
 
 
-class TeacherClassAssignment(Base):
+class TeacherClassAssignment(SoftDeleteMixin, Base):
     __tablename__ = "teacher_class_assignments"
     __table_args__ = (
-        UniqueConstraint("teacher_id", name="uq_teacher_one_class_assignment"),
+        Index(
+            "uq_teacher_one_class_assignment",
+            "teacher_id",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -341,10 +423,16 @@ class TeacherClassAssignment(Base):
     organization = orm_relationship("Organization", back_populates="teacher_class_assignments")
 
 
-class StudentAttendance(Base):
+class StudentAttendance(SoftDeleteMixin, Base):
     __tablename__ = "student_attendance"
     __table_args__ = (
-        UniqueConstraint("student_id", "attendance_date", name="uq_student_attendance_date"),
+        Index(
+            "uq_student_attendance_date",
+            "student_id",
+            "attendance_date",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -370,10 +458,16 @@ class StudentAttendance(Base):
     organization = orm_relationship("Organization")
 
 
-class TeacherAttendance(Base):
+class TeacherAttendance(SoftDeleteMixin, Base):
     __tablename__ = "teacher_attendance"
     __table_args__ = (
-        UniqueConstraint("teacher_id", "attendance_date", name="uq_teacher_attendance_date"),
+        Index(
+            "uq_teacher_attendance_date",
+            "teacher_id",
+            "attendance_date",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -393,7 +487,7 @@ class TeacherAttendance(Base):
     organization = orm_relationship("Organization")
 
 
-class LeaveRequest(Base):
+class LeaveRequest(SoftDeleteMixin, Base):
     __tablename__ = "leave_requests"
 
     id = Column(Integer, primary_key=True, index=True)

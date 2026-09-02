@@ -522,9 +522,14 @@ def _admin_dashboard(db: Session, org_id: int) -> schemas.AdminDashboardData:
         .outerjoin(
             models.Student,
             (models.Student.class_id == models.SchoolClass.id)
-            & (models.Student.organization_id == org_id),
+            & (models.Student.organization_id == org_id)
+            & (models.Student.deleted_at.is_(None)),
         )
-        .filter(models.SchoolClass.organization_id == org_id)
+        .filter(
+            models.SchoolClass.organization_id == org_id,
+            models.SchoolClass.deleted_at.is_(None),
+        )
+        .execution_options(include_deleted=True)
         .group_by(models.SchoolClass.id, models.SchoolClass.name)
         .order_by(func.count(models.Student.id).desc(), models.SchoolClass.name.asc())
         .all()

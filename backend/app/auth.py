@@ -23,7 +23,9 @@ def organization_is_active(user: User) -> bool:
     if not user.organization_id:
         return True
     org = user.organization
-    return org is None or bool(org.is_active)
+    if org is None or org.deleted_at is not None:
+        return False
+    return bool(org.is_active)
 
 
 def enforce_active_organization(user: User) -> None:
@@ -113,7 +115,7 @@ def get_current_user(token: Optional[str] = Depends(oauth2_scheme), db: Session 
     if user is None:
         raise credentials_exception
 
-    if not user.is_active:
+    if not user.is_active or user.deleted_at is not None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="This account has been disabled",
