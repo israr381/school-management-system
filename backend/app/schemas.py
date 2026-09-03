@@ -526,9 +526,13 @@ class DashboardStudentCard(BaseModel):
     status: str
     class_name: str
     section_name: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
     avatar_url: Optional[str] = None
     today_status: Optional[AttendanceStatus] = None
     attendance: AttendanceTotals
+    trend: List[AttendanceTrendPoint] = []
     recent: List[DashboardAttendanceRecord] = []
     parent_name: Optional[str] = None
     parent_phone: Optional[str] = None
@@ -590,6 +594,8 @@ class ParentDashboardData(BaseModel):
     children_count: int
     today_present: int
     today_absent: int
+    today_late: int = 0
+    today_leave: int = 0
     combined_attendance: AttendanceTotals
     trend: List[AttendanceTrendPoint] = []
     children: List[DashboardStudentCard] = []
