@@ -35,9 +35,13 @@ export interface DashboardStudentCard {
   status: string;
   class_name: string;
   section_name: string;
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
   avatar_url?: string | null;
   today_status?: AttendanceStatus | null;
   attendance: AttendanceTotals;
+  trend?: AttendanceTrendPoint[];
   recent: DashboardAttendanceRecord[];
   parent_name?: string | null;
   parent_phone?: string | null;
@@ -99,6 +103,8 @@ export interface ParentDashboardData {
   children_count: number;
   today_present: number;
   today_absent: number;
+  today_late?: number;
+  today_leave?: number;
   combined_attendance: AttendanceTotals;
   trend: AttendanceTrendPoint[];
   children: DashboardStudentCard[];

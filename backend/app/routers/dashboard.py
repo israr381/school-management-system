@@ -64,6 +64,7 @@ def _student_card(
     today_status: Optional[str],
     recent_rows: list[models.StudentAttendance],
     include_parent: bool = False,
+    trend: Optional[list[schemas.AttendanceTrendPoint]] = None,
 ) -> schemas.DashboardStudentCard:
     parent = student.parent if include_parent else None
     return schemas.DashboardStudentCard(
@@ -72,9 +73,13 @@ def _student_card(
         status=student.status,
         class_name=student.school_class.name if student.school_class else "",
         section_name=student.section.name if student.section else "",
+        email=student.email,
+        phone=student.phone,
+        address=student.address,
         avatar_url=student.user.avatar_url if student.user else None,
         today_status=today_status,
         attendance=_totals(statuses),
+        trend=trend or [],
         recent=[
             schemas.DashboardAttendanceRecord(
                 attendance_date=row.attendance_date,
@@ -362,20 +367,28 @@ def _parent_dashboard(db: Session, user: models.User, org_id: int) -> schemas.Pa
     today = date.today()
     today_present = 0
     today_absent = 0
+    today_late = 0
+    today_leave = 0
     cards = []
     for child in children:
         child_rows = by_student.get(child.id, [])
         child_today = next((row.status for row in child_rows if row.attendance_date == today), None)
-        if child_today == "present" or child_today == "late":
+        if child_today == "present":
             today_present += 1
+        elif child_today == "late":
+            today_present += 1
+            today_late += 1
         elif child_today == "absent":
             today_absent += 1
+        elif child_today == "leave":
+            today_leave += 1
         cards.append(
             _student_card(
                 child,
                 [row.status for row in child_rows],
                 child_today,
                 child_rows[:RECENT_LIMIT],
+                trend=_personal_trend(child_rows),
             )
         )
 
@@ -410,6 +423,8 @@ def _parent_dashboard(db: Session, user: models.User, org_id: int) -> schemas.Pa
         children_count=len(children),
         today_present=today_present,
         today_absent=today_absent,
+        today_late=today_late,
+        today_leave=today_leave,
         combined_attendance=_totals([row.status for row in rows]),
         trend=trend,
         children=cards,
