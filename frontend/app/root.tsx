@@ -286,6 +286,7 @@ export default function App() {
   if (!user) return null;
 
   const isSuperAdmin = !user.organization_id;
+  const lockMainScroll = location.pathname === "/settings/permissions";
 
   return (
     <div data-role={user.role} className="h-screen overflow-hidden flex bg-app-bg text-text-main w-full animate-fade-in">
@@ -303,7 +304,13 @@ export default function App() {
           onLogout={handleLogout}
         />
 
-        <main className="flex-1 overflow-y-auto p-5 lg:p-8">
+        <main
+          className={
+            lockMainScroll
+              ? "flex min-h-0 flex-1 flex-col overflow-hidden p-5 lg:p-8"
+              : "min-h-0 flex-1 overflow-y-auto p-5 lg:p-8"
+          }
+        >
           <Outlet
             context={{
               user,
