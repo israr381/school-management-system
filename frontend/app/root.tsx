@@ -9,7 +9,6 @@ import {
   useLocation,
   useNavigate,
 } from "react-router";
-
 import type { Route } from "./+types/root";
 import "./app.css";
 import Sidebar from "./components/Sidebar";
@@ -21,7 +20,6 @@ import { ThemeProvider } from "./context/ThemeContext";
 import Toaster from "./components/toast/Toaster";
 import ChangePasswordModal from "./components/modals/change-password/ChangePasswordModal";
 import { toast } from "./components/toast/toast";
-
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -106,7 +104,6 @@ interface TenantApiResponse {
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
-
   const [user, setUser] = useState<UserResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(() =>
@@ -114,7 +111,6 @@ export default function App() {
   );
   const [org, setOrg] = useState<UserResponse["organization"]>(null);
   const [showChangePassword, setShowChangePassword] = useState(false);
-
   const [tenantData, setTenantData] = useState<TenantApiResponse | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
 
