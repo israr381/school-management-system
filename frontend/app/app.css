@@ -9,7 +9,6 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-  /* App Theme Variables mapping to colors */
   --color-app-bg: var(--app-bg);
   --color-app-bg-radial-start: var(--app-bg-radial-start);
   --color-app-bg-radial-end: var(--app-bg-radial-end);
@@ -20,7 +19,6 @@
   --color-border-main: var(--border-main);
   --color-input-bg: var(--input-bg);
 
-  /* Role Theme Variables mapping */
   --color-role-active-bg: var(--role-active-bg);
   --color-role-active-text: var(--role-active-text);
   --color-role-badge-bg: var(--role-badge-bg);
@@ -32,7 +30,6 @@
   --color-btn-primary-from-hover: var(--btn-primary-from-hover);
   --color-btn-primary-to-hover: var(--btn-primary-to-hover);
 
-  /* Semantic Theme Variables mapping */
   --color-danger: var(--danger);
   --color-danger-bg: var(--danger-bg);
   --color-danger-border: var(--danger-border);
@@ -70,7 +67,6 @@
   --border-main: #e2e8f0;
   --input-bg: #ffffff;
 
-  /* Brand — indigo → purple gradient */
   --brand: #4f46e5;
   --brand-hover: #4338ca;
   --brand-soft: #eef2ff;
@@ -80,7 +76,6 @@
   --gradient-from: #4f46e5;
   --gradient-to: #9333ea;
 
-  /* Navigation & buttons */
   --role-active-bg: #eef2ff;
   --role-active-text: #4f46e5;
   --role-badge-bg: #eef2ff;
@@ -92,7 +87,6 @@
   --btn-primary-from-hover: #4338ca;
   --btn-primary-to-hover: #7e22ce;
 
-  /* Semantic — light */
   --danger: #ef4444;
   --danger-bg: #fef2f2;
   --danger-border: #fecaca;
@@ -147,7 +141,6 @@
   --sidebar-ring: #6366f1;
 }
 
-/* Unified gradient theme for all roles */
 [data-role="superadmin"],
 [data-role="admin"],
 [data-role="teacher"] {
@@ -350,7 +343,6 @@ html.disable-theme-transitions *::after {
   }
 }
 
-/* Shared UI utilities */
 .gradient-banner {
   background: linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
   box-shadow: 0 10px 40px -10px rgba(79, 70, 229, 0.35);
