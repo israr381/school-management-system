@@ -1,7 +1,5 @@
 import { API_BASE_URL } from "./config";
-
 export type AttendanceStatus = "present" | "absent" | "late" | "leave";
-
 export interface StudentAttendanceRecord {
   student_id: number;
   full_name: string;

@@ -4,7 +4,7 @@ import type { UserPayload } from "./user";
 const ACCESS_TOKEN_KEY = "token";
 const REFRESH_TOKEN_KEY = "refresh_token";
 const REMEMBER_ME_KEY = "remember_me";
-const REFRESH_INTERVAL_MS = (9 * 60 + 50) * 60 * 1000; // 9 hours 50 minutes
+const REFRESH_INTERVAL_MS = (9 * 60 + 50) * 60 * 1000; 
 
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
 
