@@ -77,7 +77,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
 
   return (
     <aside
-      className={`relative mr-3 flex shrink-0 flex-col justify-between rounded-2xl border border-white/10 bg-panel-bg py-4 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-[width] duration-200 ease-out dark:border-white/8 dark:bg-[#152036] dark:shadow-[0_8px_30px_rgba(0,0,0,0.25)] ${
+      className={`relative mr-3 flex shrink-0 flex-col justify-between rounded-xl border border-white/10 bg-panel-bg py-4 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-[width] duration-200 ease-out dark:border-white/8 dark:bg-[#152036] dark:shadow-[0_8px_30px_rgba(0,0,0,0.25)] ${
         isCollapsed ? "w-[84px] px-2.5" : "w-[260px] px-3.5"
       }`}
     >
@@ -104,7 +104,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
             <button
               key={item.name}
               onClick={() => navigate(item.path)}
-              className={`relative flex w-full cursor-pointer items-center overflow-hidden rounded-2xl text-sm font-medium transition-colors duration-200 ease-out ${
+              className={`relative flex w-full cursor-pointer items-center overflow-hidden rounded-xl text-sm font-medium transition-colors duration-200 ease-out ${
                 isCollapsed ? "justify-center p-2.5" : "gap-3 px-2.5 py-2"
               } ${
                 isActive
@@ -121,7 +121,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
             >
               <span
                 aria-hidden
-                className={`nav-active absolute inset-0 rounded-2xl transition-opacity duration-200 ease-out ${
+                className={`nav-active absolute inset-0 rounded-xl transition-opacity duration-200 ease-out ${
                   isActive ? "opacity-100" : "opacity-0"
                 }`}
               />
@@ -165,8 +165,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
             <Building2 className="h-4 w-4" />
           </div>
         ) : (
-          <div className="flex items-center gap-3 rounded-2xl border border-border-main/80 bg-surface-soft/80 px-3 py-3 dark:border-white/10 dark:bg-white/5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-500 dark:bg-indigo-500/25 dark:text-indigo-300">
+          <div className="flex items-center gap-3 rounded-xl border border-border-main/80 bg-surface-soft/80 px-3 py-3 dark:border-white/10 dark:bg-white/5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-indigo-50 text-indigo-500 dark:bg-indigo-500/25 dark:text-indigo-300">
               <Building2 className="h-4 w-4" />
             </div>
             <div className="min-w-0">
