@@ -37,7 +37,7 @@ export default function UserMenuDropdown({
         render={
           <button
             type="button"
-            className="flex cursor-pointer items-center gap-2 rounded-full border border-transparent p-1.5 transition-all hover:bg-surface-soft sm:gap-2.5 sm:pr-2.5 dark:hover:bg-white/5"
+            className="flex cursor-pointer items-center gap-2 rounded-md border border-transparent p-1.5 transition-all hover:bg-surface-soft sm:gap-2.5 sm:pr-2.5 dark:hover:bg-white/5"
             aria-label="Open user menu"
           />
         }
