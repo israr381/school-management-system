@@ -285,26 +285,26 @@ export default function App() {
   const lockMainScroll = location.pathname === "/settings/permissions";
 
   return (
-    <div data-role={user.role} className="h-screen overflow-hidden flex bg-app-bg text-text-main w-full animate-fade-in">
-      <Sidebar
-        isCollapsed={isCollapsed}
-        setIsCollapsed={handleSetCollapsed}
-        role={user.role}
+    <div data-role={user.role} className="flex h-screen w-full animate-fade-in flex-col overflow-hidden bg-app-bg p-3 text-text-main">
+      <Header
+        user={user}
+        isSuperAdmin={isSuperAdmin}
+        onLogout={handleLogout}
         org={org}
       />
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header
-          user={user}
-          isSuperAdmin={isSuperAdmin}
-          onLogout={handleLogout}
+      <div className="mt-3 flex min-h-0 flex-1">
+        <Sidebar
+          isCollapsed={isCollapsed}
+          setIsCollapsed={handleSetCollapsed}
+          org={org}
         />
 
         <main
           className={
             lockMainScroll
-              ? "flex min-h-0 flex-1 flex-col overflow-hidden p-5 lg:p-8"
-              : "min-h-0 flex-1 overflow-y-auto p-5 lg:p-8"
+              ? "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden p-4 lg:p-6"
+              : "min-h-0 min-w-0 flex-1 overflow-y-auto p-4 lg:p-6"
           }
         >
           <Outlet
