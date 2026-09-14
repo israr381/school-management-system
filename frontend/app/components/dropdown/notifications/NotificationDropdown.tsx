@@ -117,14 +117,14 @@ export default function NotificationDropdown() {
         render={
           <button
             type="button"
-            className="relative cursor-pointer rounded-xl border border-transparent p-2.5 text-icon-muted transition-all hover:border-border-main/60 hover:bg-surface-soft hover:text-brand"
+            className="relative cursor-pointer rounded-full p-2.5 text-text-muted transition-colors hover:bg-surface-soft hover:text-text-main dark:hover:bg-white/5"
             aria-label="Open notifications"
           />
         }
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold text-white ring-2 ring-panel-bg">
+          <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold text-white ring-2 ring-panel-bg dark:ring-[#152036]">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}

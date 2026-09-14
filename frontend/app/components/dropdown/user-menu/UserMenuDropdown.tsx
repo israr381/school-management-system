@@ -1,4 +1,4 @@
-import { LogOut, Settings, Shield } from "lucide-react";
+import { ChevronDown, LogOut, Settings, Shield } from "lucide-react";
 import { useNavigate } from "react-router";
 import {
   DropdownMenu,
@@ -37,7 +37,7 @@ export default function UserMenuDropdown({
         render={
           <button
             type="button"
-            className="flex cursor-pointer items-center gap-2 rounded-xl border border-transparent p-1.5 transition-all hover:border-border-main/60 hover:bg-surface-soft sm:gap-3 sm:pr-2.5"
+            className="flex cursor-pointer items-center gap-2 rounded-full border border-transparent p-1.5 transition-all hover:bg-surface-soft sm:gap-2.5 sm:pr-2.5 dark:hover:bg-white/5"
             aria-label="Open user menu"
           />
         }
@@ -53,6 +53,7 @@ export default function UserMenuDropdown({
           </span>
           <span className="mt-1 text-[11px] capitalize text-text-muted">{roleLabel}</span>
         </div>
+        <ChevronDown className="hidden h-4 w-4 shrink-0 text-text-muted sm:block" />
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
