@@ -56,7 +56,7 @@ export default function AdminOverview({ user, org, data }: AdminOverviewProps) {
   ];
 
   return (
-    <div className="mx-auto max-w-350 space-y-5">
+    <div className="space-y-5">
       <DashboardHero
         userName={user.full_name}
         schoolName={schoolName}
