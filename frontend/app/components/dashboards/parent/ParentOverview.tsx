@@ -189,7 +189,7 @@ export default function ParentOverview({ user, orgName, data }: ParentOverviewPr
   );
 
   return (
-    <div className="mx-auto max-w-350 space-y-5">
+    <div className=" space-y-5">
       {children.length === 0 ? (
         <>
           {hero}

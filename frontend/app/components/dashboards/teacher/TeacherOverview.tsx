@@ -36,7 +36,7 @@ export default function TeacherOverview({ user, orgName, data }: TeacherOverview
     : "Not assigned";
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-5">
+    <div className="space-y-5">
       <RoleDashboardHero
         userName={user.full_name}
         subtitle={`Here's your class overview for ${orgName} today.`}

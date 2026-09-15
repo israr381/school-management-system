@@ -7,22 +7,10 @@ import {
   TopOrganizationsCard,
 } from "./SuperAdminLists";
 import { getSuperAdminKpis, type TenantApiResponse } from "./systemData";
-
-interface UserResponse {
-  id: number;
-  email: string;
-  full_name: string;
-  role: string;
-  organization_id: number | null;
-  organization: {
-    id: number;
-    name: string;
-    domain: string;
-  } | null;
-}
+import type { UserPayload } from "../../../store/user";
 
 interface SuperAdminOverviewProps {
-  user: UserResponse;
+  user: UserPayload;
   tenantData: TenantApiResponse | null;
   statsLoading: boolean;
 }
@@ -38,14 +26,13 @@ export default function SuperAdminOverview({
   const tenants = tenantData?.tenants ?? [];
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-5">
+    <div className="space-y-5">
       <SuperAdminHero
         userName={user.full_name}
         tenantData={tenantData}
         statsLoading={statsLoading}
       />
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpiCards.map((stat, idx) => {
           const Icon = kpiIcons[idx];
