@@ -229,7 +229,7 @@ export default function ProfileSettings({ user, onUserChange }: ProfileSettingsP
                 name="full_name"
                 defaultValue={user.full_name}
                 placeholder="Your full name"
-                className="bg-input-bg border-border-main h-10"
+                className="bg-input-bg border-border-main h-10 rounded-md"
               />
             </div>
             <div className="space-y-2">
@@ -240,7 +240,7 @@ export default function ProfileSettings({ user, onUserChange }: ProfileSettingsP
                 type="email"
                 defaultValue={user.email}
                 placeholder="you@school.edu"
-                className="bg-input-bg border-border-main h-10"
+                className="bg-input-bg border-border-main h-10 rounded-md"
               />
             </div>
           </div>
@@ -249,10 +249,10 @@ export default function ProfileSettings({ user, onUserChange }: ProfileSettingsP
           </div>
         </CardContent>
         <CardFooter className="justify-end gap-2 bg-transparent border-border-main">
-          <Button variant="outline" type="button">
+          <Button variant="outline" type="button" className="rounded-md">
             Cancel
           </Button>
-          <Button type="button">Save changes</Button>
+          <Button type="button" className="rounded-md">Save changes</Button>
         </CardFooter>
       </Card>
 
@@ -288,6 +288,7 @@ export default function ProfileSettings({ user, onUserChange }: ProfileSettingsP
               <Button
                 variant="outline"
                 type="button"
+                className="rounded-md"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isBusy}
               >
@@ -298,6 +299,7 @@ export default function ProfileSettings({ user, onUserChange }: ProfileSettingsP
                 <Button
                   variant="ghost"
                   type="button"
+                  className="rounded-md"
                   onClick={handleRemoveAvatar}
                   disabled={isBusy}
                 >
@@ -313,6 +315,7 @@ export default function ProfileSettings({ user, onUserChange }: ProfileSettingsP
           <Button
             variant="outline"
             type="button"
+            className="rounded-md"
             onClick={handleReset}
             disabled={!hasAvatarChanges || isBusy}
           >
@@ -320,6 +323,7 @@ export default function ProfileSettings({ user, onUserChange }: ProfileSettingsP
           </Button>
           <Button
             type="button"
+            className="rounded-md"
             onClick={handleSaveAvatar}
             disabled={!hasAvatarChanges || isUploadingAvatar}
           >
