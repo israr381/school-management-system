@@ -63,7 +63,7 @@ export default function NotificationSettings() {
           ))}
         </CardContent>
         <CardFooter className="justify-end bg-transparent border-border-main">
-          <Button type="button">Save notification preferences</Button>
+          <Button type="button" className="rounded-md">Save notification preferences</Button>
         </CardFooter>
       </Card>
     </div>
