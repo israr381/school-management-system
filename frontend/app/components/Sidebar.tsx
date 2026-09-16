@@ -83,7 +83,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
     >
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-7 z-50 hidden h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-border-main bg-panel-bg text-text-muted shadow-sm transition-colors hover:text-text-main lg:flex dark:border-white/10 dark:bg-[#152036]"
+        className="absolute -right-3 top-0 z-50 hidden h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-border-main bg-panel-bg text-text-muted shadow-sm transition-colors hover:text-text-main lg:flex dark:border-white/10 dark:bg-[#152036]"
         title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
       >
         <ChevronLeft className={`h-3.5 w-3.5 transition-transform duration-200 ${isCollapsed ? "rotate-180" : ""}`} />

@@ -30,7 +30,7 @@ export default function SecuritySettings() {
               name="current_password"
               type="password"
               placeholder="••••••••"
-              className="bg-input-bg border-border-main h-10"
+              className="bg-input-bg border-border-main h-10 rounded-md"
             />
           </div>
           <div className="space-y-2">
@@ -40,7 +40,7 @@ export default function SecuritySettings() {
               name="new_password"
               type="password"
               placeholder="••••••••"
-              className="bg-input-bg border-border-main h-10"
+              className="bg-input-bg border-border-main h-10 rounded-md"
             />
           </div>
           <div className="space-y-2">
@@ -50,12 +50,12 @@ export default function SecuritySettings() {
               name="confirm_password"
               type="password"
               placeholder="••••••••"
-              className="bg-input-bg border-border-main h-10"
+              className="bg-input-bg border-border-main h-10 rounded-md"
             />
           </div>
         </CardContent>
         <CardFooter className="justify-end bg-transparent border-border-main">
-          <Button type="button">Update password</Button>
+          <Button type="button" className="rounded-md">Update password</Button>
         </CardFooter>
       </Card>
 
@@ -88,10 +88,10 @@ export default function SecuritySettings() {
           </div>
         </CardContent>
         <CardFooter className="justify-between gap-2 bg-transparent border-border-main">
-          <Button variant="destructive" type="button">
+          <Button variant="destructive" type="button" className="rounded-md">
             Sign out all devices
           </Button>
-          <Button type="button">Save security settings</Button>
+          <Button type="button" className="rounded-md">Save security settings</Button>
         </CardFooter>
       </Card>
     </div>
