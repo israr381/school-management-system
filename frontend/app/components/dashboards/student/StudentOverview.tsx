@@ -32,7 +32,7 @@ export default function StudentOverview({ user, orgName, data }: StudentOverview
   const classLabel = `${data.class_name} ${data.section_name}`.trim();
 
   return (
-    <div className="pace-y-5">
+    <div className="space-y-5">
       <RoleDashboardHero
         userName={user.full_name}
         subtitle={`Your student overview for ${orgName}.`}
