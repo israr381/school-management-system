@@ -13,7 +13,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
-import { fetchCurrentUser, clearAuthSession, getAccessToken, isRememberMeEnabled, refreshAccessToken, startTokenRefresh } from "./store/auth";
+import { fetchCurrentUser, clearAuthSession, getAccessToken, isRememberMeEnabled, logoutCurrentSession, refreshAccessToken, startTokenRefresh } from "./store/auth";
 import { fetchTenantStats } from "./store/organization";
 import { useRbacStore } from "./store/rbacStore";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -253,8 +253,8 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [user?.must_change_password]);
 
-  const handleLogout = () => {
-    clearAuthSession();
+  const handleLogout = async () => {
+    await logoutCurrentSession();
     useRbacStore.getState().clearPermissions();
     setUser(null);
     setOrg(null);
