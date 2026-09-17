@@ -223,3 +223,63 @@ export async function resetPassword(payload: {
 
   return data as { message: string };
 }
+
+export interface AuthSession {
+  id: number;
+  device_label: string;
+  ip_address?: string | null;
+  last_seen_at: string;
+  created_at: string;
+  is_current: boolean;
+}
+
+export async function fetchAuthSessions(token: string) {
+  const response = await fetch(`${API_BASE_URL}/auth/sessions`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(parseApiError(data, "Failed to load sessions."));
+  }
+
+  return (data.sessions ?? []) as AuthSession[];
+}
+
+export async function logoutOtherSessions(token: string) {
+  const response = await fetch(`${API_BASE_URL}/auth/sessions/logout-others`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(parseApiError(data, "Failed to sign out other devices."));
+  }
+
+  return data as { message: string; revoked_count: number };
+}
+
+export async function logoutCurrentSession() {
+  const token = getAccessToken();
+  if (token) {
+    try {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch {
+      // Local sign-out should still proceed if the API is unreachable.
+    }
+  }
+
+  clearAuthSession();
+}

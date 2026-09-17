@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -62,7 +62,7 @@ def _validate_new_password(new_password: str, confirm_password: str, current_has
 
 
 @router.post("/signup", response_model=schemas.Token)
-def signup(user_data: schemas.UserSignup, db: Session = Depends(get_db)):
+def signup(user_data: schemas.UserSignup, request: Request, db: Session = Depends(get_db)):
     existing_user = db.query(models.User).filter(models.User.email == user_data.email).first()
     if existing_user:
         raise HTTPException(
@@ -120,12 +120,11 @@ def signup(user_data: schemas.UserSignup, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    access_token = auth.create_access_token(data={"sub": new_user.email})
-    return {"access_token": access_token, "token_type": "bearer", "remember_me": False}
+    return auth.issue_session_tokens(db, new_user, request, remember_me=False)
 
 
 @router.post("/login", response_model=schemas.Token)
-def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
+def login(login_data: schemas.UserLogin, request: Request, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == login_data.email).first()
     if not user or not auth.verify_password(login_data.password, user.password_hash):
         raise HTTPException(
@@ -135,22 +134,15 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
 
     _ensure_account_usable(user)
 
-    access_token = auth.create_access_token(data={"sub": user.email})
-    refresh_token = None
-    if login_data.remember_me:
-        refresh_token = auth.create_refresh_token(data={"sub": user.email})
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "refresh_token": refresh_token,
-        "remember_me": login_data.remember_me,
-        "must_change_password": bool(user.must_change_password),
-    }
+    return auth.issue_session_tokens(db, user, request, remember_me=login_data.remember_me)
 
 
 @router.post("/refresh", response_model=schemas.Token)
-def refresh_access_token(payload: schemas.RefreshTokenRequest, db: Session = Depends(get_db)):
+def refresh_access_token(
+    payload: schemas.RefreshTokenRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or expired refresh token",
@@ -159,6 +151,7 @@ def refresh_access_token(payload: schemas.RefreshTokenRequest, db: Session = Dep
     try:
         token_data = auth.decode_token(payload.refresh_token, expected_type="refresh")
         email = token_data.get("sub")
+        sid = token_data.get("sid")
     except Exception:
         raise credentials_exception
 
@@ -171,15 +164,18 @@ def refresh_access_token(payload: schemas.RefreshTokenRequest, db: Session = Dep
 
     _ensure_account_usable(user)
 
-    access_token = auth.create_access_token(data={"sub": user.email})
-    refresh_token = auth.create_refresh_token(data={"sub": user.email})
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "refresh_token": refresh_token,
-        "remember_me": True,
-        "must_change_password": bool(user.must_change_password),
-    }
+    try:
+        session = auth.get_active_session(db, sid, user.id)
+    except HTTPException:
+        raise credentials_exception
+
+    return auth.issue_session_tokens(
+        db,
+        user,
+        request,
+        remember_me=True,
+        existing_session=session,
+    )
 
 
 @router.get("/me", response_model=schemas.UserResponse)
@@ -301,3 +297,47 @@ def reset_password(payload: schemas.ResetPasswordRequest, db: Session = Depends(
     db.commit()
 
     return {"message": "Password updated successfully"}
+
+
+@router.get("/sessions", response_model=schemas.AuthSessionListResponse)
+def list_sessions(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user),
+    current_session: models.UserSession = Depends(auth.get_current_session),
+):
+    sessions = auth.list_active_sessions(db, current_user.id)
+    payload = [
+        schemas.AuthSessionResponse(
+            id=session.id,
+            device_label=session.device_label,
+            ip_address=session.ip_address,
+            last_seen_at=session.last_seen_at,
+            created_at=session.created_at,
+            is_current=session.id == current_session.id,
+        )
+        for session in sessions
+    ]
+    payload.sort(key=lambda item: not item.is_current)
+    return {"sessions": payload}
+
+
+@router.post("/sessions/logout-others", response_model=schemas.LogoutOtherSessionsResponse)
+def logout_other_sessions(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user),
+    current_session: models.UserSession = Depends(auth.get_current_session),
+):
+    revoked_count = auth.revoke_other_sessions(db, current_user.id, current_session.id)
+    return {
+        "message": "Signed out of all other devices",
+        "revoked_count": revoked_count,
+    }
+
+
+@router.post("/logout", response_model=schemas.MessageResponse)
+def logout(
+    db: Session = Depends(get_db),
+    current_session: models.UserSession = Depends(auth.get_current_session),
+):
+    auth.revoke_session(db, current_session)
+    return {"message": "Signed out successfully"}

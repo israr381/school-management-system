@@ -122,6 +122,27 @@ class ResetPasswordRequest(BaseModel):
 class MessageResponse(BaseModel):
     message: str
 
+
+class AuthSessionResponse(BaseModel):
+    id: int
+    device_label: str
+    ip_address: Optional[str] = None
+    last_seen_at: datetime
+    created_at: datetime
+    is_current: bool = False
+
+    class Config:
+        from_attributes = True
+
+
+class AuthSessionListResponse(BaseModel):
+    sessions: List[AuthSessionResponse]
+
+
+class LogoutOtherSessionsResponse(BaseModel):
+    message: str
+    revoked_count: int
+
 class OrganizationUpdate(BaseModel):
     name: str = Field(..., min_length=1)
     domain: str = Field(..., min_length=3)

@@ -178,6 +178,7 @@ class User(TimestampMixin, SoftDeleteMixin, Base):
     student_profile = orm_relationship("Student", back_populates="user", uselist=False)
     parent_profile = orm_relationship("Parent", back_populates="user", uselist=False)
     teacher_profile = orm_relationship("Teacher", back_populates="user", uselist=False)
+    sessions = orm_relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
 
     @property
     def role(self) -> str:
@@ -215,6 +216,25 @@ class User(TimestampMixin, SoftDeleteMixin, Base):
         if not role.permissions:
             return []
         return sorted(f"{permission.module}.{permission.action}" for permission in role.permissions)
+
+
+class UserSession(TimestampMixin, Base):
+    __tablename__ = "user_sessions"
+    __table_args__ = (
+        Index("ix_user_sessions_user_revoked", "user_id", "revoked_at"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    jti = Column(String, unique=True, nullable=False, index=True)
+    user_agent = Column(String, nullable=True)
+    ip_address = Column(String, nullable=True)
+    device_label = Column(String, nullable=False, default="Unknown device")
+    last_seen_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    revoked_at = Column(DateTime, nullable=True, index=True)
+
+    user = orm_relationship("User", back_populates="sessions")
 
 
 class SchoolClass(TimestampMixin, SoftDeleteMixin, Base):
