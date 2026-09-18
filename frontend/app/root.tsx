@@ -13,7 +13,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
-import { fetchCurrentUser, clearAuthSession, getAccessToken, isRememberMeEnabled, logoutCurrentSession, refreshAccessToken, startTokenRefresh } from "./store/auth";
+import { fetchCurrentUser, getAccessToken, handleExpiredSession, installAuthFetchInterceptor, isRememberMeEnabled, logoutCurrentSession, refreshAccessToken, startTokenRefresh } from "./store/auth";
 import { fetchTenantStats } from "./store/organization";
 import { useRbacStore } from "./store/rbacStore";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -166,6 +166,10 @@ export default function App() {
   };
 
   useEffect(() => {
+    installAuthFetchInterceptor();
+  }, []);
+
+  useEffect(() => {
     if (isPublicRoute) {
       setLoading(false);
       return;
@@ -180,16 +184,13 @@ export default function App() {
           const refreshed = await refreshAccessToken();
           token = refreshed.access_token;
         } catch {
-          clearAuthSession();
-          useRbacStore.getState().clearPermissions();
-          navigate("/login");
+          handleExpiredSession();
           return;
         }
       }
 
       if (!token) {
-        useRbacStore.getState().clearPermissions();
-        navigate("/login");
+        handleExpiredSession();
         return;
       }
 
@@ -229,9 +230,7 @@ export default function App() {
             // fall through to logout
           }
         }
-        clearAuthSession();
-        useRbacStore.getState().clearPermissions();
-        navigate("/login");
+        handleExpiredSession();
       } finally {
         setLoading(false);
       }

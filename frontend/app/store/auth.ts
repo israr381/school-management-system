@@ -4,9 +4,18 @@ import type { UserPayload } from "./user";
 const ACCESS_TOKEN_KEY = "token";
 const REFRESH_TOKEN_KEY = "refresh_token";
 const REMEMBER_ME_KEY = "remember_me";
-const REFRESH_INTERVAL_MS = (9 * 60 + 50) * 60 * 1000; 
+const RBAC_STORAGE_KEY = "rbac-permissions";
+const REFRESH_INTERVAL_MS = (9 * 60 + 50) * 60 * 1000;
+const PUBLIC_AUTH_PATHS = [
+  "/auth/login",
+  "/auth/signup",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+];
 
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
+let sessionExpiredHandled = false;
+let refreshInFlight: Promise<AuthTokens> | null = null;
 
 export interface AuthTokens {
   access_token: string;
@@ -34,9 +43,114 @@ export function clearAuthSession() {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(REMEMBER_ME_KEY);
   localStorage.removeItem("remember_email");
+  localStorage.removeItem(RBAC_STORAGE_KEY);
+}
+
+function isPublicRoutePath(pathname: string) {
+  return (
+    pathname === "/login" ||
+    pathname === "/forgot-password" ||
+    pathname === "/change-password" ||
+    pathname === "/"
+  );
+}
+
+function requestUrl(input: RequestInfo | URL): string {
+  if (typeof input === "string") return input;
+  if (input instanceof URL) return input.toString();
+  return input.url;
+}
+
+function isPublicAuthRequest(url: string) {
+  return PUBLIC_AUTH_PATHS.some((path) => url.includes(path));
+}
+
+export function handleExpiredSession() {
+  if (sessionExpiredHandled || typeof window === "undefined") return;
+  sessionExpiredHandled = true;
+
+  const pathname = window.location.pathname;
+  clearAuthSession();
+
+  if (isPublicRoutePath(pathname)) {
+    return;
+  }
+
+  window.location.replace("/login");
+}
+
+export function installAuthFetchInterceptor() {
+  if (typeof window === "undefined") return;
+
+  const browserWindow = window as Window & { __smsOriginalFetch?: typeof fetch };
+  const originalFetch = browserWindow.__smsOriginalFetch ?? window.fetch.bind(window);
+  browserWindow.__smsOriginalFetch = originalFetch;
+
+  const interceptedFetch: typeof fetch = async (input, init) => {
+    const url = requestUrl(input);
+    const response = await originalFetch(input, init);
+
+    if (
+      response.status !== 401 ||
+      !url.startsWith(API_BASE_URL) ||
+      isPublicAuthRequest(url)
+    ) {
+      return response;
+    }
+
+    if (url.includes("/auth/refresh") || url.includes("/auth/logout")) {
+      if (url.includes("/auth/refresh")) {
+        handleExpiredSession();
+      }
+      return response;
+    }
+
+    if (isRememberMeEnabled() && getRefreshToken()) {
+      try {
+        await refreshSharedAccessToken();
+        const retried = await originalFetch(input, withUpdatedAuth(input, init));
+        if (retried.status !== 401) {
+          return retried;
+        }
+      } catch {
+        handleExpiredSession();
+        return response;
+      }
+    }
+
+    handleExpiredSession();
+    return response;
+  };
+
+  window.fetch = interceptedFetch;
+}
+
+function withUpdatedAuth(input: RequestInfo | URL, init?: RequestInit): RequestInit {
+  const headers = new Headers(
+    init?.headers ?? (input instanceof Request ? input.headers : undefined),
+  );
+  const token = getAccessToken();
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  return {
+    ...init,
+    headers,
+  };
+}
+
+function refreshSharedAccessToken() {
+  if (!refreshInFlight) {
+    refreshInFlight = refreshAccessToken().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
 }
 
 export function persistAuthSession(data: AuthTokens) {
+  sessionExpiredHandled = false;
   localStorage.setItem(ACCESS_TOKEN_KEY, data.access_token);
 
   if (data.remember_me && data.refresh_token) {
@@ -70,8 +184,7 @@ export function startTokenRefresh() {
       await refreshAccessToken();
     } catch (error) {
       console.error("Failed to refresh access token:", error);
-      clearAuthSession();
-      window.location.href = "/login";
+      handleExpiredSession();
     }
   }, REFRESH_INTERVAL_MS);
 }
@@ -282,4 +395,8 @@ export async function logoutCurrentSession() {
   }
 
   clearAuthSession();
+}
+
+if (typeof window !== "undefined") {
+  installAuthFetchInterceptor();
 }
