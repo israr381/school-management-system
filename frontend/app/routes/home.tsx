@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import {
   ArrowRight,
-  Bell,
   BookMarked,
   Building2,
   CalendarCheck,
@@ -15,6 +14,7 @@ import {
   Send,
   Settings,
   Shield,
+  Sparkles,
   User,
   UserCheck,
   UserRound,
@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import ThemeToggle from "../components/ThemeToggle";
-import loginIllustration from "../assets/login-illustration.png";
 
 export function meta() {
   return [
@@ -30,7 +29,7 @@ export function meta() {
     {
       name: "description",
       content:
-        "A multi-tenant school platform for dashboards, students, teachers, attendance, leave requests, classes, and security.",
+        "A refined school console for students, teachers, attendance, leave requests, classes, and security.",
     },
   ];
 }
@@ -40,90 +39,90 @@ const modules: {
   description: string;
   icon: LucideIcon;
   tone: string;
+  wide?: boolean;
 }[] = [
   {
     title: "Dashboard",
-    description: "Role-based overviews for super admins, school admins, teachers, students, and parents.",
+    description: "A live overview of school operations the moment you sign in.",
     icon: LayoutDashboard,
-    tone: "text-indigo-500 bg-indigo-50 dark:text-indigo-300 dark:bg-indigo-500/20",
+    tone: "from-indigo-500/20 to-violet-500/10 text-indigo-500 dark:text-indigo-300",
+    wide: true,
   },
   {
     title: "Organization",
-    description: "Manage school tenants, domains, logos, and active access from one platform console.",
+    description: "Schools, domains, logos, and access in one place.",
     icon: Building2,
-    tone: "text-violet-500 bg-violet-50 dark:text-violet-300 dark:bg-violet-500/20",
+    tone: "from-violet-500/20 to-fuchsia-500/10 text-violet-500 dark:text-violet-300",
   },
   {
     title: "Students",
-    description: "Create student records, attach parents, and place each student in a class and section.",
+    description: "Records, families, class, and section placement.",
     icon: GraduationCap,
-    tone: "text-cyan-500 bg-cyan-50 dark:text-cyan-300 dark:bg-cyan-500/20",
+    tone: "from-cyan-500/20 to-sky-500/10 text-cyan-500 dark:text-cyan-300",
   },
   {
     title: "Teachers",
-    description: "Maintain teacher profiles and keep staff status, contact details, and assignments current.",
+    description: "Staff profiles, status, and class assignments.",
     icon: User,
-    tone: "text-amber-500 bg-amber-50 dark:text-amber-300 dark:bg-amber-500/20",
+    tone: "from-amber-500/20 to-orange-500/10 text-amber-500 dark:text-amber-300",
   },
   {
     title: "Student Attendance",
-    description: "Mark present, absent, late, or leave for a class and section by date.",
+    description: "Mark present, absent, late, or leave by class and date.",
     icon: CalendarCheck,
-    tone: "text-sky-500 bg-sky-50 dark:text-sky-300 dark:bg-sky-500/20",
+    tone: "from-sky-500/20 to-blue-500/10 text-sky-500 dark:text-sky-300",
   },
   {
     title: "Teacher Attendance",
-    description: "Take and review daily teacher attendance across the organization.",
+    description: "Daily staff attendance across the school.",
     icon: Users,
-    tone: "text-violet-500 bg-violet-50 dark:text-violet-300 dark:bg-violet-500/20",
+    tone: "from-violet-500/20 to-indigo-500/10 text-violet-500 dark:text-violet-300",
   },
   {
     title: "My Attendance",
-    description: "Students and teachers can view their own attendance history and daily status.",
+    description: "Personal attendance history and daily status.",
     icon: CalendarCheck,
-    tone: "text-sky-500 bg-sky-50 dark:text-sky-300 dark:bg-sky-500/20",
+    tone: "from-sky-500/20 to-cyan-500/10 text-sky-500 dark:text-sky-300",
   },
   {
     title: "My Request",
-    description: "Submit leave requests with dates and reasons, then track approval status.",
+    description: "Submit leave with dates and follow the status.",
     icon: Send,
-    tone: "text-fuchsia-500 bg-fuchsia-50 dark:text-fuchsia-300 dark:bg-fuchsia-500/20",
+    tone: "from-fuchsia-500/20 to-pink-500/10 text-fuchsia-500 dark:text-fuchsia-300",
   },
   {
     title: "Requests",
-    description: "Admins review pending leave, approve or reject, and keep a complete request trail.",
+    description: "Review pending leave and keep a clean trail.",
     icon: MessageSquare,
-    tone: "text-violet-500 bg-violet-50 dark:text-violet-300 dark:bg-violet-500/20",
+    tone: "from-violet-500/20 to-purple-500/10 text-violet-500 dark:text-violet-300",
   },
   {
     title: "Settings",
-    description: "Profile, appearance, classes, sections, subjects, assignments, security, and notifications.",
+    description: "Profile, theme, structure, security, and notifications.",
     icon: Settings,
-    tone: "text-cyan-500 bg-cyan-50 dark:text-cyan-300 dark:bg-cyan-500/20",
+    tone: "from-cyan-500/20 to-teal-500/10 text-cyan-500 dark:text-cyan-300",
+    wide: true,
   },
 ];
 
-const setupTools: {
-  title: string;
-  description: string;
-  icon: LucideIcon;
-}[] = [
-  { title: "Classes", description: "Create school classes used by students and attendance.", icon: GraduationCap },
-  { title: "Sections", description: "Split each class into sections such as A, B, or Morning.", icon: LayoutList },
+const setupTools: { title: string; description: string; icon: LucideIcon }[] = [
+  { title: "Classes", description: "The classes students and attendance use.", icon: GraduationCap },
+  { title: "Sections", description: "Split a class into groups such as A or B.", icon: LayoutList },
   { title: "Subjects", description: "Attach subjects to a class and section.", icon: BookMarked },
-  { title: "Assign Class", description: "Give a teacher one class and section assignment.", icon: UserCheck },
-  { title: "Permissions", description: "Control what each role can view and change in that school.", icon: Shield },
-  { title: "Security", description: "See active devices, mark the current session, and sign out others.", icon: Lock },
-  { title: "Profile", description: "Update name and avatar for the signed-in account.", icon: UserRound },
-  { title: "Appearance", description: "Light, dark, or system theme for the console.", icon: Palette },
+  { title: "Assign Class", description: "Give a teacher a class and section.", icon: UserCheck },
+  { title: "Permissions", description: "Decide what each account can open.", icon: Shield },
+  { title: "Security", description: "Active devices and sign out others.", icon: Lock },
+  { title: "Profile", description: "Name and photo for the signed-in account.", icon: UserRound },
+  { title: "Appearance", description: "Light, dark, or system theme.", icon: Palette },
 ];
 
-const roles = [
-  { name: "Super Admin", detail: "Platform-wide organizations and tenants" },
-  { name: "Admin", detail: "School operations, people, and reviews" },
-  { name: "Teacher", detail: "Class, attendance, and own requests" },
-  { name: "Student", detail: "Own attendance and leave requests" },
-  { name: "Parent", detail: "Child overview and school updates" },
+const previewNav = [
+  { label: "Dashboard", icon: LayoutDashboard, active: true },
+  { label: "Students", icon: GraduationCap },
+  { label: "Teachers", icon: User },
+  { label: "Attendance", icon: CalendarCheck },
+  { label: "Requests", icon: MessageSquare },
+  { label: "Settings", icon: Settings },
 ];
 
 export default function Home() {
@@ -137,173 +136,214 @@ export default function Home() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-app-bg text-text-main">
-      <header className="sticky top-0 z-30 border-b border-border-main/80 bg-panel-bg-translucent backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
+    <div className="min-h-screen overflow-x-hidden bg-app-bg text-text-main">
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-linear-to-b from-brand-soft/70 via-app-bg to-app-bg dark:from-indigo-500/10 dark:via-app-bg dark:to-app-bg" />
+        <div className="absolute -top-32 left-1/2 h-[28rem] w-[44rem] -translate-x-1/2 rounded-full bg-indigo-500/15 blur-3xl dark:bg-indigo-500/20" />
+        <div className="absolute top-40 right-[-8rem] h-72 w-72 rounded-full bg-violet-500/10 blur-3xl" />
+      </div>
+
+      <header className="sticky top-0 z-30 border-b border-border-main/60 bg-panel-bg/70 backdrop-blur-2xl">
+        <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between px-5 sm:px-8">
           <Link to="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-btn-primary-from to-btn-primary-to text-white shadow-md shadow-indigo-500/25">
-              <GraduationCap className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-bold leading-tight">School Management</p>
-              <p className="text-[11px] leading-tight text-text-muted">Multi-tenant platform</p>
-            </div>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-btn-primary-from to-btn-primary-to text-white shadow-lg shadow-indigo-500/30">
+              <GraduationCap className="h-4.5 w-4.5" />
+            </span>
+            <span className="text-[15px] font-semibold tracking-tight">School Management</span>
           </Link>
-          <div className="flex items-center gap-3">
+          <nav className="hidden items-center gap-8 text-sm text-text-muted md:flex">
+            <a href="#modules" className="transition-colors hover:text-text-main">
+              Modules
+            </a>
+            <a href="#setup" className="transition-colors hover:text-text-main">
+              Setup
+            </a>
+          </nav>
+          <div className="flex items-center gap-2.5">
             <ThemeToggle />
             <Link
               to="/login"
-              className="inline-flex items-center gap-2 rounded-xl bg-text-main px-4 py-2.5 text-sm font-semibold text-panel-bg shadow-md transition-all hover:opacity-90 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-full bg-text-main px-4 py-2 text-sm font-semibold text-panel-bg transition-opacity hover:opacity-90"
             >
-              Sign In
-              <ArrowRight className="h-4 w-4" />
+              Sign in
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>
       </header>
 
       <main>
-        <section className="relative overflow-hidden">
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -top-24 left-16 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
-            <div className="absolute top-20 right-16 h-80 w-80 rounded-full bg-violet-500/10 blur-3xl" />
-          </div>
-          <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
-            <div className="space-y-7">
-              <span className="inline-flex items-center rounded-full border border-role-badge-border bg-role-badge-bg/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-role-active-text">
-                Live school console
+        <section className="mx-auto max-w-6xl px-5 pb-8 pt-16 sm:px-8 sm:pt-20 lg:pb-12">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-soft-border bg-panel-bg/80 px-3 py-1 text-xs font-medium text-brand shadow-sm">
+              <Sparkles className="h-3.5 w-3.5" />
+              Built for daily school work
+            </span>
+            <h1 className="mt-6 text-4xl font-semibold tracking-[-0.04em] text-text-main sm:text-5xl lg:text-[3.5rem] lg:leading-[1.08]">
+              A calm console
+              <span className="block bg-linear-to-r from-btn-primary-from to-btn-primary-to bg-clip-text text-transparent">
+                for the school day.
               </span>
-              <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl lg:leading-[1.05]">
-                Everything your school already runs,
-                <span className="bg-linear-to-r from-btn-primary-from to-btn-primary-to bg-clip-text text-transparent">
-                  {" "}
-                  in one place.
+            </h1>
+            <p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-text-muted sm:text-base">
+              Students, teachers, attendance, leave, classes, and security — the same workspace you open after sign in, designed with quiet precision.
+            </p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                to="/login"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-linear-to-r from-btn-primary-from to-btn-primary-to px-7 text-sm font-semibold text-white shadow-[0_12px_40px_rgba(79,70,229,0.35)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Enter the console
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a
+                href="#modules"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-border-main bg-panel-bg/80 px-7 text-sm font-medium text-text-main backdrop-blur-sm transition-colors hover:bg-surface-soft"
+              >
+                Browse modules
+              </a>
+            </div>
+          </div>
+
+          <div className="relative mx-auto mt-16 max-w-5xl">
+            <div className="absolute -inset-4 rounded-[2rem] bg-linear-to-br from-indigo-500/20 via-transparent to-violet-500/20 blur-2xl" />
+            <div className="relative overflow-hidden rounded-[1.75rem] border border-white/20 bg-panel-bg shadow-[0_30px_80px_rgba(15,23,42,0.14)] dark:border-white/10 dark:shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
+              <div className="flex items-center gap-2 border-b border-border-main/80 bg-surface-soft/80 px-4 py-3">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+                <span className="ml-3 text-[11px] font-medium tracking-wide text-text-muted">
+                  school-management.app
                 </span>
-              </h1>
-              <p className="max-w-xl text-base leading-relaxed text-text-muted sm:text-lg">
-                Dashboards, organizations, students, teachers, attendance, leave requests, classes, and session security — the same modules you use after sign-in, presented clearly before you enter the console.
-              </p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Link
-                  to="/login"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-btn-primary-from to-btn-primary-to px-7 py-3.5 text-sm font-bold text-white shadow-xl shadow-indigo-500/20 transition-all hover:from-btn-primary-from-hover hover:to-btn-primary-to-hover hover:scale-[1.01] active:scale-[0.99]"
-                >
-                  Sign in to console
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <a
-                  href="#modules"
-                  className="inline-flex items-center justify-center rounded-2xl border border-border-main bg-panel-bg px-7 py-3.5 text-sm font-semibold text-text-main transition-colors hover:bg-surface-soft"
-                >
-                  See what is included
-                </a>
               </div>
-              <div className="grid max-w-lg grid-cols-3 gap-3 pt-2">
-                {[
-                  { value: "5", label: "User roles" },
-                  { value: "10", label: "Core modules" },
-                  { value: "8", label: "Setup tools" },
-                ].map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-border-main bg-panel-bg px-3 py-3">
-                    <p className="text-xl font-extrabold text-text-main">{item.value}</p>
-                    <p className="mt-0.5 text-[11px] font-medium text-text-muted">{item.label}</p>
+              <div className="grid min-h-[22rem] grid-cols-1 md:grid-cols-[13.5rem_1fr]">
+                <aside className="hidden border-r border-border-main/80 bg-surface-soft/60 p-3 md:block">
+                  <div className="mb-4 flex items-center gap-2 px-2 pt-1">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-linear-to-br from-btn-primary-from to-btn-primary-to text-white">
+                      <GraduationCap className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="text-xs font-semibold">Workspace</span>
                   </div>
-                ))}
-              </div>
-            </div>
-            <div className="relative">
-              <div className="rounded-[28px] border border-border-main bg-panel-bg p-4 shadow-[0_24px_80px_rgba(15,23,42,0.08)] dark:shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
-                <div className="mb-4 flex items-center justify-between px-1">
+                  <div className="space-y-1">
+                    {previewNav.map(({ label, icon: Icon, active }) => (
+                      <div
+                        key={label}
+                        className={`flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] ${
+                          active
+                            ? "bg-linear-to-r from-btn-primary-from to-btn-primary-to font-semibold text-white shadow-md shadow-indigo-500/20"
+                            : "text-text-muted"
+                        }`}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                </aside>
+                <div className="space-y-4 p-5 sm:p-6">
                   <div>
-                    <p className="text-sm font-semibold">School console</p>
-                    <p className="text-xs text-text-muted">Students, attendance, requests, settings</p>
+                    <p className="text-xs font-medium text-text-muted">Today</p>
+                    <p className="mt-1 text-lg font-semibold tracking-tight">School overview</p>
                   </div>
-                  <span className="rounded-full bg-success-bg px-2.5 py-1 text-[11px] font-semibold text-success">
-                    In production
-                  </span>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { label: "Students", value: "248" },
+                      { label: "Present", value: "96%" },
+                      { label: "Requests", value: "4" },
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        className="rounded-2xl border border-border-main/80 bg-surface-soft/80 px-3 py-3"
+                      >
+                        <p className="text-[11px] text-text-muted">{item.label}</p>
+                        <p className="mt-1 text-xl font-semibold tracking-tight">{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-border-main/80 bg-surface-soft/50 p-4">
+                      <p className="text-xs font-medium text-text-muted">Attendance</p>
+                      <div className="mt-4 flex h-20 items-end gap-1.5">
+                        {[40, 70, 55, 88, 64, 92, 78].map((height, index) => (
+                          <div
+                            key={index}
+                            className="flex-1 rounded-t-md bg-linear-to-t from-indigo-500/20 to-indigo-500"
+                            style={{ height: `${height}%` }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="rounded-2xl border border-border-main/80 bg-surface-soft/50 p-4">
+                      <p className="text-xs font-medium text-text-muted">Recent activity</p>
+                      <div className="mt-3 space-y-2.5">
+                        {["Leave reviewed", "Attendance saved", "Class updated"].map((item) => (
+                          <div key={item} className="flex items-center gap-2 text-sm">
+                            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <img
-                  src={loginIllustration}
-                  alt="School management workspace"
-                  className="h-auto w-full rounded-2xl object-contain"
-                />
               </div>
             </div>
           </div>
         </section>
 
-        <section id="modules" className="scroll-mt-24 border-t border-border-main bg-panel-bg">
-          <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
-            <div className="max-w-2xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Console modules</p>
-              <h2 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-                The same sections you open after login
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-text-muted sm:text-base">
-                These are the live navigation areas in the app today — not placeholders. Each card maps to a real page in the sidebar.
+        <section id="modules" className="scroll-mt-24 mx-auto max-w-6xl px-5 py-20 sm:px-8">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div className="max-w-lg">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Modules</p>
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight">What you work with</h2>
+              <p className="mt-2 text-sm leading-6 text-text-muted">
+                Each card is a real page in the console. Nothing here is a placeholder.
               </p>
             </div>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {modules.map(({ title, description, icon: Icon, tone }) => (
-                <article
-                  key={title}
-                  className="rounded-2xl border border-border-main bg-surface-soft/80 p-5 transition-colors hover:border-brand/30 hover:bg-brand-soft/40"
-                >
-                  <span className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl ${tone}`}>
-                    <Icon className="h-4.5 w-4.5" />
-                  </span>
-                  <h3 className="text-base font-bold">{title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-text-muted">{description}</p>
-                </article>
-              ))}
-            </div>
+          </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {modules.map(({ title, description, icon: Icon, tone, wide }) => (
+              <article
+                key={title}
+                className={`group relative min-h-[11.5rem] overflow-hidden rounded-3xl border border-border-main/80 bg-panel-bg/80 p-6 shadow-[0_8px_30px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-[0_18px_40px_rgba(79,70,229,0.12)] dark:bg-panel-bg/60 ${
+                  wide ? "sm:col-span-2 lg:col-span-2" : ""
+                }`}
+              >
+                <div className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-linear-to-br opacity-60 blur-2xl ${tone}`} />
+                <div className={`relative mb-5 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br ${tone}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="relative text-[15px] font-semibold tracking-tight">{title}</h3>
+                <p className="relative mt-2 max-w-md text-sm leading-6 text-text-muted">{description}</p>
+              </article>
+            ))}
           </div>
         </section>
 
-        <section className="border-t border-border-main">
-          <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
-            <div className="max-w-2xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Settings & setup</p>
-              <h2 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-                School structure and account controls
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-text-muted sm:text-base">
-                Inside Settings you configure classes, sections, subjects, teacher assignments, profile, theme, notifications, and device sessions.
+        <section id="setup" className="scroll-mt-24 border-y border-border-main/80 bg-panel-bg/50">
+          <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+            <div className="max-w-lg">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Setup</p>
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight">Structure, quietly organized</h2>
+              <p className="mt-2 text-sm leading-6 text-text-muted">
+                Settings holds the school skeleton and the account controls — classes through appearance.
               </p>
             </div>
-            <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {setupTools.map(({ title, description, icon: Icon }) => (
-                <article key={title} className="rounded-2xl border border-border-main bg-panel-bg p-4">
-                  <Icon className="mb-3 h-4.5 w-4.5 text-brand" />
-                  <h3 className="text-sm font-bold">{title}</h3>
-                  <p className="mt-1 text-xs leading-relaxed text-text-muted">{description}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-t border-border-main bg-panel-bg">
-          <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
-            <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Access by role</p>
-                <h2 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-                  Five roles, one platform
-                </h2>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted sm:text-base">
-                  Permissions decide which modules appear. Super admins see every organization. School admins run operations. Teachers, students, and parents only see what they need.
-                </p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                {roles.map((role) => (
-                  <div key={role.name} className="flex items-start gap-3 rounded-2xl border border-border-main bg-surface-soft px-4 py-4">
-                    <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-xs font-bold text-brand">
-                      {role.name.charAt(0)}
+            <div className="mt-10 overflow-hidden rounded-3xl border border-border-main/80 bg-panel-bg">
+              <div className="grid sm:grid-cols-2">
+                {setupTools.map(({ title, description, icon: Icon }, index) => (
+                  <div
+                    key={title}
+                    className={`flex gap-4 p-5 sm:p-6 ${
+                      index % 2 === 0 ? "sm:border-r border-border-main/70" : ""
+                    } ${index < setupTools.length - 2 ? "border-b border-border-main/70" : ""}`}
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
+                      <Icon className="h-4.5 w-4.5" />
                     </span>
                     <div>
-                      <p className="text-sm font-bold">{role.name}</p>
-                      <p className="mt-0.5 text-xs text-text-muted">{role.detail}</p>
+                      <h3 className="text-sm font-semibold">{title}</h3>
+                      <p className="mt-1 text-sm leading-6 text-text-muted">{description}</p>
                     </div>
                   </div>
                 ))}
@@ -312,37 +352,36 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-t border-border-main">
-          <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
-            <div className="overflow-hidden rounded-[28px] border border-border-main bg-linear-to-br from-indigo-600 to-violet-700 p-8 text-white shadow-xl shadow-indigo-500/20 sm:p-12">
-              <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-                <div className="max-w-xl">
-                  <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]">
-                    <Bell className="h-3.5 w-3.5" />
-                    Ready for your school
-                  </div>
-                  <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-                    Sign in and work in the live console
-                  </h2>
-                  <p className="mt-3 text-sm leading-relaxed text-indigo-100 sm:text-base">
-                    Open the same Dashboard, Students, Attendance, Requests, and Settings modules you see here. Sign out other devices from Security when you need to lock a session.
-                  </p>
-                </div>
-                <Link
-                  to="/login"
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-7 py-3.5 text-sm font-bold text-indigo-700 shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  Continue to sign in
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+        <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+          <div className="relative overflow-hidden rounded-[2rem] border border-border-main/70 bg-text-main px-8 py-12 text-panel-bg sm:px-14 sm:py-16">
+            <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-indigo-400/30 blur-3xl" />
+            <div className="pointer-events-none absolute bottom-0 left-1/3 h-40 w-40 rounded-full bg-violet-400/20 blur-3xl" />
+            <div className="relative flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
+              <div className="max-w-xl">
+                <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Ready when you are.</h2>
+                <p className="mt-3 text-sm leading-7 text-panel-bg/70 sm:text-base">
+                  Sign in to the same dashboard, people, attendance, requests, and settings you just saw.
+                </p>
               </div>
+              <Link
+                to="/login"
+                className="inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-linear-to-r from-btn-primary-from to-btn-primary-to px-7 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition-transform hover:scale-[1.02]"
+              >
+                Continue to sign in
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-border-main py-8 text-center text-xs text-text-muted">
-        © {new Date().getFullYear()} School Management. All rights reserved.
+      <footer className="border-t border-border-main/70 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 text-xs text-text-muted sm:flex-row sm:px-8">
+          <span>© {new Date().getFullYear()} School Management</span>
+          <Link to="/login" className="transition-colors hover:text-text-main">
+            Sign in
+          </Link>
+        </div>
       </footer>
     </div>
   );
