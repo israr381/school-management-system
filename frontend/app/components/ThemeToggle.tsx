@@ -1,7 +1,8 @@
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import { cn } from "../lib/utils";
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ className }: { className?: string }) {
   const { theme, resolvedTheme, toggleTheme } = useTheme();
 
   const title =
@@ -14,7 +15,10 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="flex cursor-pointer items-center justify-center rounded-xl border border-toggle-border bg-toggle-bg p-2.5 text-toggle-text transition-all duration-300 hover:scale-[1.02] hover:bg-toggle-bg-hover active:scale-[0.98] focus:outline-none"
+      className={cn(
+        "flex cursor-pointer items-center justify-center rounded-xl border border-toggle-border bg-toggle-bg p-2.5 text-toggle-text transition-all duration-300 hover:scale-[1.02] hover:bg-toggle-bg-hover active:scale-[0.98] focus:outline-none",
+        className,
+      )}
       aria-label="Toggle theme"
       title={title}
     >
