@@ -163,7 +163,7 @@ export default function Home() {
             <ThemeToggle />
             <Link
               to="/login"
-              className="inline-flex items-center gap-1.5 rounded-full bg-text-main px-4 py-2 text-sm font-semibold text-panel-bg transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-1.5 rounded-md bg-text-main px-4 py-2 text-sm font-semibold text-panel-bg transition-opacity hover:opacity-90"
             >
               Sign in
               <ArrowRight className="h-3.5 w-3.5" />
@@ -191,14 +191,14 @@ export default function Home() {
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 to="/login"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-linear-to-r from-btn-primary-from to-btn-primary-to px-7 text-sm font-semibold text-white shadow-[0_12px_40px_rgba(79,70,229,0.35)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-linear-to-r from-btn-primary-from to-btn-primary-to px-7 text-sm font-semibold text-white shadow-[0_12px_40px_rgba(79,70,229,0.35)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 Enter the console
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <a
                 href="#modules"
-                className="inline-flex h-12 items-center justify-center rounded-full border border-border-main bg-panel-bg/80 px-7 text-sm font-medium text-text-main backdrop-blur-sm transition-colors hover:bg-surface-soft"
+                className="inline-flex h-12 items-center justify-center rounded-md border border-border-main bg-panel-bg/80 px-7 text-sm font-medium text-text-main backdrop-blur-sm transition-colors hover:bg-surface-soft"
               >
                 Browse modules
               </a>
@@ -365,7 +365,7 @@ export default function Home() {
               </div>
               <Link
                 to="/login"
-                className="inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-linear-to-r from-btn-primary-from to-btn-primary-to px-7 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition-transform hover:scale-[1.02]"
+                className="inline-flex h-12 shrink-0 items-center gap-2 rounded-md bg-linear-to-r from-btn-primary-from to-btn-primary-to px-7 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition-transform hover:scale-[1.02]"
               >
                 Continue to sign in
                 <ArrowRight className="h-4 w-4" />
