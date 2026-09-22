@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
-import { ArrowRight, Eye, EyeOff, Lock, ShieldCheck, User } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, GraduationCap, Lock, Mail } from "lucide-react";
 import { loginUser, persistAuthSession } from "../store/auth";
 import { useRbacStore } from "../store/rbacStore";
 import AuthLayout from "../components/auth/AuthLayout";
@@ -58,16 +58,14 @@ export default function Login() {
 
   return (
     <AuthLayout>
-      <div className="flex flex-col items-center text-center mb-8">
-        <div className="w-14 h-14 rounded-2xl bg-brand-soft text-brand flex items-center justify-center mb-4 border border-brand-soft-border">
-          <ShieldCheck className="w-7 h-7" />
+      <div className="mb-8">
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-sky-400 to-indigo-600 text-white shadow-lg shadow-sky-500/30">
+          <GraduationCap className="h-7 w-7" />
         </div>
-        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-text-main">
+        <h2 className="text-[1.75rem] font-extrabold tracking-tight text-text-main md:text-[2rem]">
           Welcome Back!
         </h2>
-        <p className="mt-2 text-sm text-text-muted">
-          Login to your account to continue
-        </p>
+        <p className="mt-1.5 text-sm text-text-muted">Login to your account to continue</p>
       </div>
 
       {error && (
@@ -85,7 +83,8 @@ export default function Login() {
           value={formData.email}
           onChange={handleChange}
           placeholder="Enter your email or username"
-          leftIcon={<User className="w-4.5 h-4.5" />}
+          leftIcon={<Mail className="w-4.5 h-4.5" />}
+          className="border-slate-200/80 rounded-lg bg-white/70 dark:border-white/12 dark:bg-white/[0.04]"
         />
 
         <Input
@@ -97,6 +96,7 @@ export default function Login() {
           onChange={handleChange}
           placeholder="Enter your password"
           leftIcon={<Lock className="w-4.5 h-4.5" />}
+          className="border-slate-200/80 bg-white/70 rounded-lg dark:border-white/12 dark:bg-white/[0.04]"
           rightAction={
             <button
               type="button"
@@ -127,7 +127,7 @@ export default function Login() {
           </Link>
         </div>
 
-        <Button type="submit" loading={loading} fullWidth className="mt-1">
+        <Button type="submit" loading={loading} fullWidth className="mt-2">
           Login
           <ArrowRight className="w-4.5 h-4.5" />
         </Button>
