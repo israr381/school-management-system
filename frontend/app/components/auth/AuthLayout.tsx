@@ -1,5 +1,12 @@
 import type { ReactNode } from "react";
-import { BarChart3, CalendarDays, GraduationCap, Shield, ShieldCheck, Users } from "lucide-react";
+import {
+  BarChart3,
+  CalendarDays,
+  GraduationCap,
+  Shield,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 import ThemeToggle from "../ThemeToggle";
 import loginHero from "../../assets/login-hero1.jpg";
 
@@ -25,7 +32,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </defs>
       </svg>
 
-      <section className="absolute inset-0 hidden lg:block">  
+      <section className="absolute inset-0 hidden lg:block">
         <img
           src={loginHero}
           alt="Students walking toward school"
@@ -41,8 +48,12 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                 <GraduationCap className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-bold leading-tight text-white">School Management</p>
-                <p className="text-xs leading-tight text-white/70">Multi-tenant platform</p>
+                <p className="text-sm font-bold leading-tight text-white">
+                  School Management
+                </p>
+                <p className="text-xs leading-tight text-white/70">
+                  Multi-tenant platform
+                </p>
               </div>
             </div>
 
@@ -55,17 +66,23 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                   </span>
                 </h1>
                 <p className="max-w-md text-sm leading-relaxed text-white/80 md:text-base">
-                  Manage students, staff, classes, attendance, exams and much more in one place.
+                  Manage students, staff, classes, attendance, exams and much
+                  more in one place.
                 </p>
               </div>
 
               <div className="flex flex-wrap gap-8 xl:gap-10">
                 {features.map(({ title, icon: Icon }) => (
-                  <div key={title} className="flex w-19 flex-col items-center gap-2.5 text-center xl:w-21">
+                  <div
+                    key={title}
+                    className="flex w-19 flex-col items-center gap-2.5 text-center xl:w-21"
+                  >
                     <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/25 bg-white/15 text-sky-100 shadow-lg shadow-indigo-950/20 backdrop-blur-md">
                       <Icon className="h-5 w-5" />
                     </span>
-                    <span className="text-[11px] font-medium leading-tight text-white/90">{title}</span>
+                    <span className="text-[11px] font-medium leading-tight text-white/90">
+                      {title}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -110,16 +127,16 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             <div className="pointer-events-none absolute -top-20 -right-8 h-44 w-44 rounded-full bg-sky-300/40 blur-3xl dark:bg-indigo-500/25" />
             <div className="pointer-events-none absolute -bottom-24 -left-4 h-48 w-48 rounded-full bg-violet-300/35 blur-3xl dark:bg-fuchsia-500/15" />
             <div className="relative z-10">
-            {children}
+              {children}
 
-            <div className="mt-8 flex items-center gap-3 text-[11px] font-medium text-text-muted">
-              <span className="h-px flex-1 bg-border-main dark:bg-white/12" />
-              <span className="inline-flex items-center gap-1.5">
-                <Shield className="h-3.5 w-3.5" />
-                Secure Access
-              </span>
-              <span className="h-px flex-1 bg-border-main dark:bg-white/12" />
-            </div>
+              <div className="mt-8 flex items-center gap-3 text-[11px] font-medium text-text-muted">
+                <span className="h-px flex-1 bg-border-main dark:bg-white/12" />
+                <span className="inline-flex items-center gap-1.5">
+                  <Shield className="h-3.5 w-3.5" />
+                  Secure Access
+                </span>
+                <span className="h-px flex-1 bg-border-main dark:bg-white/12" />
+              </div>
             </div>
           </div>
         </div>
