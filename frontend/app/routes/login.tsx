@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
-import { ArrowRight, Eye, EyeOff, GraduationCap, Lock, Mail } from "lucide-react";
+import {
+  ArrowRight,
+  Eye,
+  EyeOff,
+  GraduationCap,
+  Lock,
+  Mail,
+} from "lucide-react";
 import { loginUser, persistAuthSession } from "../store/auth";
 import { useRbacStore } from "../store/rbacStore";
 import AuthLayout from "../components/auth/AuthLayout";
@@ -10,7 +17,10 @@ import Input from "../components/input/Input";
 export function meta() {
   return [
     { title: "Sign In - School Management" },
-    { name: "description", content: "Access your dashboard and manage school operations." },
+    {
+      name: "description",
+      content: "Access your dashboard and manage school operations.",
+    },
   ];
 }
 
@@ -45,12 +55,18 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const data = await loginUser(formData.email, formData.password, rememberMe);
+      const data = await loginUser(
+        formData.email,
+        formData.password,
+        rememberMe,
+      );
       persistAuthSession(data);
       await useRbacStore.getState().loadPermissions();
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Connection failed. Make sure the backend is running.");
+      setError(
+        err.message || "Connection failed. Make sure the backend is running.",
+      );
     } finally {
       setLoading(false);
     }
@@ -65,7 +81,9 @@ export default function Login() {
         <h2 className="text-[1.75rem] font-extrabold tracking-tight text-text-main md:text-[2rem]">
           Welcome Back!
         </h2>
-        <p className="mt-1.5 text-sm text-text-muted">Login to your account to continue</p>
+        <p className="mt-1.5 text-sm text-text-muted">
+          Login to your account to continue
+        </p>
       </div>
 
       {error && (
@@ -104,7 +122,11 @@ export default function Login() {
               className="text-icon-muted hover:text-text-main transition-colors p-1 cursor-pointer"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+              {showPassword ? (
+                <EyeOff className="w-4.5 h-4.5" />
+              ) : (
+                <Eye className="w-4.5 h-4.5" />
+              )}
             </button>
           }
         />
