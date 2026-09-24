@@ -102,7 +102,7 @@ export default function Login() {
           onChange={handleChange}
           placeholder="Enter your email or username"
           leftIcon={<Mail className="w-4.5 h-4.5" />}
-          className="border-slate-200/80 rounded-lg bg-white/70 dark:border-white/12 dark:bg-white/[0.04]"
+          className="border-slate-200/80 rounded-lg bg-white/70 dark:border-white/12 dark:bg-white/4"
         />
 
         <Input
@@ -114,7 +114,7 @@ export default function Login() {
           onChange={handleChange}
           placeholder="Enter your password"
           leftIcon={<Lock className="w-4.5 h-4.5" />}
-          className="border-slate-200/80 bg-white/70 rounded-lg dark:border-white/12 dark:bg-white/[0.04]"
+          className="border-slate-200/80 bg-white/70 rounded-lg dark:border-white/12 dark:bg-white/4"
           rightAction={
             <button
               type="button"
