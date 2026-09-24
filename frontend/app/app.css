@@ -19,6 +19,8 @@
   --color-text-muted: var(--text-muted);
   --color-border-main: var(--border-main);
   --color-input-bg: var(--input-bg);
+  --color-auth-input-bg: var(--auth-input-bg);
+  --color-auth-input-border: var(--auth-input-border);
 
   --color-role-active-bg: var(--role-active-bg);
   --color-role-active-text: var(--role-active-text);
@@ -67,6 +69,8 @@
   --text-muted: #64748b;
   --border-main: #e2e8f0;
   --input-bg: #ffffff;
+  --auth-input-bg: rgba(255, 255, 255, 0.7);
+  --auth-input-border: rgba(226, 232, 240, 0.8);
 
   --brand: #4f46e5;
   --brand-hover: #4338ca;
@@ -169,6 +173,8 @@
   --text-muted: #94a3b8;
   --border-main: #334155;
   --input-bg: #1e293b;
+  --auth-input-bg: rgba(255, 255, 255, 0.04);
+  --auth-input-border: rgba(255, 255, 255, 0.12);
 
   --brand: #818cf8;
   --brand-hover: #a5b4fc;

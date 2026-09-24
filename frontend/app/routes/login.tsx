@@ -75,7 +75,7 @@ export default function Login() {
   return (
     <AuthLayout>
       <div className="mb-8">
-        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-sky-400 to-indigo-600 text-white shadow-lg shadow-sky-500/30">
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-btn-primary-from to-btn-primary-to text-primary-foreground shadow-lg shadow-brand/30">
           <GraduationCap className="h-7 w-7" />
         </div>
         <h2 className="text-[1.75rem] font-extrabold tracking-tight text-text-main md:text-[2rem]">
@@ -102,7 +102,7 @@ export default function Login() {
           onChange={handleChange}
           placeholder="Enter your email or username"
           leftIcon={<Mail className="w-4.5 h-4.5" />}
-          className="border-slate-200/80 rounded-lg bg-white/70 dark:border-white/12 dark:bg-white/4"
+          className="rounded-lg border-auth-input-border bg-auth-input-bg"
         />
 
         <Input
@@ -114,7 +114,7 @@ export default function Login() {
           onChange={handleChange}
           placeholder="Enter your password"
           leftIcon={<Lock className="w-4.5 h-4.5" />}
-          className="border-slate-200/80 bg-white/70 rounded-lg dark:border-white/12 dark:bg-white/4"
+          className="rounded-lg border-auth-input-border bg-auth-input-bg"
           rightAction={
             <button
               type="button"
