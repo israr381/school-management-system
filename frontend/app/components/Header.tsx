@@ -41,7 +41,7 @@ export default function Header({ user, isSuperAdmin, onLogout, org }: HeaderProp
   }, []);
 
   return (
-    <header className="flex h-[68px] shrink-0 items-center gap-4 rounded-xl border border-white/10 bg-panel-bg px-4 shadow-[0_8px_30px_rgba(15,23,42,0.08)] lg:px-5 dark:border-white/10 dark:bg-[#152036] dark:shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
+    <header className="flex h-17 shrink-0 items-center gap-4 rounded-xl border border-header-border bg-header-bg px-4 shadow-header lg:px-5">
       <div className="flex min-w-0 flex-1 basis-0 items-center gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-linear-to-br from-indigo-500 to-violet-600 text-white shadow-md shadow-indigo-500/25">
           {!isPlatformAdmin && org?.logo_url ? (
@@ -64,7 +64,7 @@ export default function Header({ user, isSuperAdmin, onLogout, org }: HeaderProp
         </div>
       </div>
 
-      <div className="hidden w-full max-w-[540px] min-w-0 md:block">
+      <div className="hidden w-full max-w-135 min-w-0 md:block">
         <div className="relative w-full">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
           <input
@@ -72,9 +72,9 @@ export default function Header({ user, isSuperAdmin, onLogout, org }: HeaderProp
             type="search"
             name="global_search"
             placeholder="Search students, teachers, classes..."
-            className="h-11 w-full rounded-md border border-border-main/70 bg-surface-soft pl-11 pr-24 text-sm text-text-main placeholder:text-text-muted/70 outline-none transition-colors focus:border-brand/40 focus:ring-2 focus:ring-brand/20 dark:border-white/10 dark:bg-[#0d1728]"
+            className="h-11 w-full rounded-md border border-header-search-border bg-header-search-bg pl-11 pr-24 text-sm text-text-main placeholder:text-text-muted/70 outline-none transition-colors focus:border-brand/40 focus:ring-2 focus:ring-brand/20"
           />
-          <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 items-center rounded-lg border border-border-main bg-panel-bg px-2 py-1 text-[10px] font-medium tracking-wide text-text-muted sm:inline-flex dark:border-white/10 dark:bg-white/5">
+          <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 items-center rounded-lg border border-header-kbd-border bg-header-kbd-bg px-2 py-1 text-[10px] font-medium tracking-wide text-text-muted sm:inline-flex">
             Ctrl + K
           </kbd>
         </div>
