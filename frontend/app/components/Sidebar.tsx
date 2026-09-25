@@ -27,26 +27,16 @@ interface SidebarProps {
 }
 
 const iconStyles: Record<string, string> = {
-  "/dashboard":
-    "text-indigo-500 bg-indigo-50 shadow-[0_0_12px_rgba(99,102,241,0.18)] dark:text-indigo-300 dark:bg-indigo-500/20 dark:shadow-[0_0_16px_rgba(129,140,248,0.35)]",
-  "/organization":
-    "text-violet-500 bg-violet-50 shadow-[0_0_12px_rgba(139,92,246,0.18)] dark:text-violet-300 dark:bg-violet-500/20 dark:shadow-[0_0_16px_rgba(167,139,250,0.4)]",
-  "/students":
-    "text-cyan-500 bg-cyan-50 shadow-[0_0_12px_rgba(6,182,212,0.18)] dark:text-cyan-300 dark:bg-cyan-500/20 dark:shadow-[0_0_16px_rgba(34,211,238,0.35)]",
-  "/teachers":
-    "text-amber-500 bg-amber-50 shadow-[0_0_12px_rgba(245,158,11,0.18)] dark:text-amber-300 dark:bg-amber-500/20 dark:shadow-[0_0_16px_rgba(251,191,36,0.35)]",
-  "/attendance/students":
-    "text-sky-500 bg-sky-50 shadow-[0_0_12px_rgba(14,165,233,0.18)] dark:text-sky-300 dark:bg-sky-500/20 dark:shadow-[0_0_16px_rgba(56,189,248,0.35)]",
-  "/attendance/teachers":
-    "text-violet-500 bg-violet-50 shadow-[0_0_12px_rgba(139,92,246,0.18)] dark:text-violet-300 dark:bg-violet-500/20 dark:shadow-[0_0_16px_rgba(167,139,250,0.4)]",
-  "/attendance/me":
-    "text-sky-500 bg-sky-50 shadow-[0_0_12px_rgba(14,165,233,0.18)] dark:text-sky-300 dark:bg-sky-500/20 dark:shadow-[0_0_16px_rgba(56,189,248,0.35)]",
-  "/requests/me":
-    "text-fuchsia-500 bg-fuchsia-50 shadow-[0_0_12px_rgba(217,70,239,0.18)] dark:text-fuchsia-300 dark:bg-fuchsia-500/20 dark:shadow-[0_0_16px_rgba(232,121,249,0.35)]",
-  "/requests":
-    "text-violet-500 bg-violet-50 shadow-[0_0_12px_rgba(139,92,246,0.18)] dark:text-violet-300 dark:bg-violet-500/20 dark:shadow-[0_0_16px_rgba(167,139,250,0.4)]",
-  "/settings":
-    "text-cyan-500 bg-cyan-50 shadow-[0_0_12px_rgba(6,182,212,0.18)] dark:text-cyan-300 dark:bg-cyan-500/20 dark:shadow-[0_0_16px_rgba(34,211,238,0.35)]",
+  "/dashboard": "text-nav-indigo bg-nav-indigo-bg shadow-nav-indigo",
+  "/organization": "text-nav-violet bg-nav-violet-bg shadow-nav-violet",
+  "/students": "text-nav-cyan bg-nav-cyan-bg shadow-nav-cyan",
+  "/teachers": "text-nav-amber bg-nav-amber-bg shadow-nav-amber",
+  "/attendance/students": "text-nav-sky bg-nav-sky-bg shadow-nav-sky",
+  "/attendance/teachers": "text-nav-violet bg-nav-violet-bg shadow-nav-violet",
+  "/attendance/me": "text-nav-sky bg-nav-sky-bg shadow-nav-sky",
+  "/requests/me": "text-nav-fuchsia bg-nav-fuchsia-bg shadow-nav-fuchsia",
+  "/requests": "text-nav-violet bg-nav-violet-bg shadow-nav-violet",
+  "/settings": "text-nav-cyan bg-nav-cyan-bg shadow-nav-cyan",
 };
 
 export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarProps) {
@@ -77,13 +67,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
 
   return (
     <aside
-      className={`relative mr-3 flex shrink-0 flex-col justify-between rounded-xl border border-white/10 bg-panel-bg py-4 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-[width] duration-200 ease-out dark:border-white/8 dark:bg-[#152036] dark:shadow-[0_8px_30px_rgba(0,0,0,0.25)] ${
-        isCollapsed ? "w-[84px] px-2.5" : "w-[260px] px-3.5"
+      className={`relative mr-3 flex shrink-0 flex-col justify-between rounded-xl border border-nav-shell-border bg-sidebar-bg py-4 shadow-sidebar transition-[width] duration-200 ease-out ${
+        isCollapsed ? "w-21 px-2.5" : "w-65 px-3.5"
       }`}
     >
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-0 z-50 hidden h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-border-main bg-panel-bg text-text-muted shadow-sm transition-colors hover:text-text-main lg:flex dark:border-white/10 dark:bg-[#152036]"
+        className="absolute -right-3 top-0 z-50 hidden h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-sidebar-toggle-border bg-sidebar-toggle-bg text-text-muted shadow-sm transition-colors hover:text-text-main lg:flex"
         title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
       >
         <ChevronLeft className={`h-3.5 w-3.5 transition-transform duration-200 ${isCollapsed ? "rotate-180" : ""}`} />
@@ -108,8 +98,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
                 isCollapsed ? "justify-center p-2.5" : "gap-3 px-2.5 py-2"
               } ${
                 isActive
-                  ? "text-white"
-                  : "text-text-muted hover:bg-surface-soft/80 hover:text-text-main dark:hover:bg-white/5"
+                  ? "text-primary-foreground"
+                  : "text-text-muted hover:bg-sidebar-hover-bg hover:text-text-main"
               }`}
               title={
                 isCollapsed
@@ -128,14 +118,14 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
 
               <span
                 className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-200 ease-out ${
-                  isActive ? "bg-white/20 text-white shadow-none" : colorClass
+                  isActive ? "bg-nav-active-icon-bg text-primary-foreground shadow-none" : colorClass
                 }`}
               >
                 <Icon className="h-4 w-4" />
                 {pendingLabel ? (
                   <span
                     className={`absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold ${
-                      isActive ? "bg-white text-brand" : "bg-danger text-white ring-2 ring-panel-bg dark:ring-[#152036]"
+                      isActive ? "bg-primary-foreground text-brand" : "bg-danger text-primary-foreground ring-2 ring-sidebar-bg"
                     }`}
                   >
                     {pendingLabel}
@@ -159,14 +149,14 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
       <div className={isCollapsed ? "px-0" : "px-0.5"}>
         {isCollapsed ? (
           <div
-            className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-500 dark:bg-indigo-500/20 dark:text-indigo-300"
+            className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-nav-indigo-bg text-nav-indigo"
             title={isPlatformAdmin ? "Core System" : `Domain: ${org?.domain || "system.local"}`}
           >
             <Building2 className="h-4 w-4" />
           </div>
         ) : (
-          <div className="flex items-center gap-3 rounded-xl border border-border-main/80 bg-surface-soft/80 px-3 py-3 dark:border-white/10 dark:bg-white/5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-indigo-50 text-indigo-500 dark:bg-indigo-500/25 dark:text-indigo-300">
+          <div className="flex items-center gap-3 rounded-xl border border-sidebar-footer-border bg-sidebar-footer-bg px-3 py-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-sidebar-mark-bg text-nav-indigo">
               <Building2 className="h-4 w-4" />
             </div>
             <div className="min-w-0">
