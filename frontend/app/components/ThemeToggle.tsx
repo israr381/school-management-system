@@ -2,7 +2,6 @@ import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { cn } from "../lib/utils";
 
-
 export default function ThemeToggle({ className }: { className?: string }) {
   const { theme, resolvedTheme, toggleTheme } = useTheme();
 
@@ -26,12 +25,16 @@ export default function ThemeToggle({ className }: { className?: string }) {
       <div className="relative flex h-5 w-5 items-center justify-center">
         <Sun
           className={`absolute h-5 w-5 transform transition-all duration-500 ${
-            resolvedTheme === "dark" ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"
+            resolvedTheme === "dark"
+              ? "rotate-90 scale-0 opacity-0"
+              : "rotate-0 scale-100 opacity-100"
           }`}
         />
         <Moon
           className={`absolute h-5 w-5 transform transition-all duration-500 ${
-            resolvedTheme === "light" ? "-rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"
+            resolvedTheme === "light"
+              ? "-rotate-90 scale-0 opacity-0"
+              : "rotate-0 scale-100 opacity-100"
           }`}
         />
         {theme === "system" && (

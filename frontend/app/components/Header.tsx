@@ -22,7 +22,12 @@ interface HeaderProps {
   } | null;
 }
 
-export default function Header({ user, isSuperAdmin, onLogout, org }: HeaderProps) {
+export default function Header({
+  user,
+  isSuperAdmin,
+  onLogout,
+  org,
+}: HeaderProps) {
   const roleLabel = isSuperAdmin ? "Super Admin" : formatRoleLabel(user.role);
   const searchRef = useRef<HTMLInputElement>(null);
   const isPlatformAdmin = !org;
@@ -82,7 +87,11 @@ export default function Header({ user, isSuperAdmin, onLogout, org }: HeaderProp
 
       <div className="flex min-w-0 flex-1 basis-0 items-center justify-end gap-1 lg:gap-2">
         <NotificationDropdown />
-        <UserMenuDropdown user={user} roleLabel={roleLabel} onLogout={onLogout} />
+        <UserMenuDropdown
+          user={user}
+          roleLabel={roleLabel}
+          onLogout={onLogout}
+        />
       </div>
     </header>
   );

@@ -13,7 +13,16 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
-import { fetchCurrentUser, getAccessToken, handleExpiredSession, installAuthFetchInterceptor, isRememberMeEnabled, logoutCurrentSession, refreshAccessToken, startTokenRefresh } from "./store/auth";
+import {
+  fetchCurrentUser,
+  getAccessToken,
+  handleExpiredSession,
+  installAuthFetchInterceptor,
+  isRememberMeEnabled,
+  logoutCurrentSession,
+  refreshAccessToken,
+  startTokenRefresh,
+} from "./store/auth";
 import { fetchTenantStats } from "./store/organization";
 import { useRbacStore } from "./store/rbacStore";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -268,7 +277,9 @@ export default function App() {
             <div className="absolute inset-0 rounded-full border-4 border-brand/20"></div>
             <div className="absolute inset-0 rounded-full border-4 border-t-brand animate-spin"></div>
           </div>
-          <p className="text-text-muted font-medium animate-pulse">Loading system workspace...</p>
+          <p className="text-text-muted font-medium animate-pulse">
+            Loading system workspace...
+          </p>
         </div>
       </div>
     );
@@ -284,7 +295,10 @@ export default function App() {
   const lockMainScroll = location.pathname === "/settings/permissions";
 
   return (
-    <div data-role={user.role} className="flex h-screen w-full animate-fade-in flex-col overflow-hidden bg-app-bg p-3 text-text-main">
+    <div
+      data-role={user.role}
+      className="flex h-screen w-full animate-fade-in flex-col overflow-hidden bg-app-bg p-3 text-text-main"
+    >
       <Header
         user={user}
         isSuperAdmin={isSuperAdmin}
