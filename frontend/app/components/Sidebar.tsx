@@ -39,26 +39,82 @@ const iconStyles: Record<string, string> = {
   "/settings": "text-nav-cyan bg-nav-cyan-bg shadow-nav-cyan",
 };
 
-export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarProps) {
+export default function Sidebar({
+  isCollapsed,
+  setIsCollapsed,
+  org,
+}: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
   const { hasPermission } = usePermission();
 
   const navigation = [
-    { name: "Dashboard", path: "/dashboard", icon: Home, permission: "dashboard.view" },
-    { name: "Organization", path: "/organization", icon: Building2, permission: "organization.view" },
-    { name: "Students", path: "/students", icon: GraduationCap, permission: "students.view" },
-    { name: "Teachers", path: "/teachers", icon: User, permission: "teachers.view" },
-    { name: "Student Attendance", path: "/attendance/students", icon: CalendarCheck, permission: "student_attendance.view" },
-    { name: "Teacher Attendance", path: "/attendance/teachers", icon: Users, permission: "teacher_attendance.view" },
-    { name: "My Attendance", path: "/attendance/me", icon: CalendarCheck, permission: "my_attendance.view" },
-    { name: "My Request", path: "/requests/me", icon: Send, permission: "my_requests.view" },
-    { name: "Requests", path: "/requests", icon: MessageSquare, permission: "requests.view" },
-    { name: "Settings", path: "/settings", icon: Settings, permission: "settings.view" },
+    {
+      name: "Dashboard",
+      path: "/dashboard",
+      icon: Home,
+      permission: "dashboard.view",
+    },
+    {
+      name: "Organization",
+      path: "/organization",
+      icon: Building2,
+      permission: "organization.view",
+    },
+    {
+      name: "Students",
+      path: "/students",
+      icon: GraduationCap,
+      permission: "students.view",
+    },
+    {
+      name: "Teachers",
+      path: "/teachers",
+      icon: User,
+      permission: "teachers.view",
+    },
+    {
+      name: "Student Attendance",
+      path: "/attendance/students",
+      icon: CalendarCheck,
+      permission: "student_attendance.view",
+    },
+    {
+      name: "Teacher Attendance",
+      path: "/attendance/teachers",
+      icon: Users,
+      permission: "teacher_attendance.view",
+    },
+    {
+      name: "My Attendance",
+      path: "/attendance/me",
+      icon: CalendarCheck,
+      permission: "my_attendance.view",
+    },
+    {
+      name: "My Request",
+      path: "/requests/me",
+      icon: Send,
+      permission: "my_requests.view",
+    },
+    {
+      name: "Requests",
+      path: "/requests",
+      icon: MessageSquare,
+      permission: "requests.view",
+    },
+    {
+      name: "Settings",
+      path: "/settings",
+      icon: Settings,
+      permission: "settings.view",
+    },
   ];
 
-  const sidebarItems = navigation.filter((item) => hasPermission(item.permission));
+  const sidebarItems = navigation.filter((item) =>
+    hasPermission(item.permission),
+  );
   const canViewRequests = hasPermission("requests.view");
   const pendingCounts = usePendingRequestCounts(canViewRequests);
   const pendingCount = pendingCounts.total;
@@ -76,7 +132,9 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
         className="absolute -right-3 top-0 z-50 hidden h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-sidebar-toggle-border bg-sidebar-toggle-bg text-text-muted shadow-sm transition-colors hover:text-text-main lg:flex"
         title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
       >
-        <ChevronLeft className={`h-3.5 w-3.5 transition-transform duration-200 ${isCollapsed ? "rotate-180" : ""}`} />
+        <ChevronLeft
+          className={`h-3.5 w-3.5 transition-transform duration-200 ${isCollapsed ? "rotate-180" : ""}`}
+        />
       </button>
 
       <nav className="space-y-1.5">
@@ -118,14 +176,18 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
 
               <span
                 className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-200 ease-out ${
-                  isActive ? "bg-nav-active-icon-bg text-primary-foreground shadow-none" : colorClass
+                  isActive
+                    ? "bg-nav-active-icon-bg text-primary-foreground shadow-none"
+                    : colorClass
                 }`}
               >
                 <Icon className="h-4 w-4" />
                 {pendingLabel ? (
                   <span
                     className={`absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold ${
-                      isActive ? "bg-primary-foreground text-brand" : "bg-danger text-primary-foreground ring-2 ring-sidebar-bg"
+                      isActive
+                        ? "bg-primary-foreground text-brand"
+                        : "bg-danger text-primary-foreground ring-2 ring-sidebar-bg"
                     }`}
                   >
                     {pendingLabel}
@@ -150,7 +212,11 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
         {isCollapsed ? (
           <div
             className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-nav-indigo-bg text-nav-indigo"
-            title={isPlatformAdmin ? "Core System" : `Domain: ${org?.domain || "system.local"}`}
+            title={
+              isPlatformAdmin
+                ? "Core System"
+                : `Domain: ${org?.domain || "system.local"}`
+            }
           >
             <Building2 className="h-4 w-4" />
           </div>
@@ -164,7 +230,9 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, org }: SidebarPro
                 {isPlatformAdmin ? "Environment" : "Domain"}
               </span>
               <span className="mt-0.5 block truncate text-sm font-semibold text-text-main">
-                {isPlatformAdmin ? "Multi-tenant Core" : org?.domain || "system.local"}
+                {isPlatformAdmin
+                  ? "Multi-tenant Core"
+                  : org?.domain || "system.local"}
               </span>
             </div>
           </div>
