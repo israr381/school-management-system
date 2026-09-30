@@ -10,9 +10,15 @@ import ProtectedRoute from "../components/auth/ProtectedRoute";
 import AccessRestricted from "../components/AccessRestricted";
 import { usePermission } from "../hooks/usePermission";
 import { getAccessToken } from "../store/auth";
-import { fetchRoleDashboard, type RoleDashboardResponse } from "../store/dashboard";
+import {
+  fetchRoleDashboard,
+  type RoleDashboardResponse,
+} from "../store/dashboard";
 import { toast } from "../components/toast/toast";
-import { DashboardLoading, EmptyDashboardCard } from "../components/dashboards/shared/dashboardUi";
+import {
+  DashboardLoading,
+  EmptyDashboardCard,
+} from "../components/dashboards/shared/dashboardUi";
 import type { UserPayload } from "../store/user";
 
 interface Tenant {
@@ -43,7 +49,13 @@ export function meta() {
   ];
 }
 
-function RoleDashboard({ user, org }: { user: UserPayload; org: UserPayload["organization"] }) {
+function RoleDashboard({
+  user,
+  org,
+}: {
+  user: UserPayload;
+  org: UserPayload["organization"];
+}) {
   const [data, setData] = useState<RoleDashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const orgName = org?.name ?? "your school";
@@ -64,7 +76,9 @@ function RoleDashboard({ user, org }: { user: UserPayload; org: UserPayload["org
         if (!cancelled) setData(result);
       } catch (err: unknown) {
         if (!cancelled) {
-          toast.error(err instanceof Error ? err.message : "Failed to load dashboard.");
+          toast.error(
+            err instanceof Error ? err.message : "Failed to load dashboard.",
+          );
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -82,11 +96,15 @@ function RoleDashboard({ user, org }: { user: UserPayload; org: UserPayload["org
   }
 
   if (user.role === "teacher" && data?.teacher) {
-    return <TeacherOverview user={user} orgName={orgName} data={data.teacher} />;
+    return (
+      <TeacherOverview user={user} orgName={orgName} data={data.teacher} />
+    );
   }
 
   if (user.role === "student" && data?.student) {
-    return <StudentOverview user={user} orgName={orgName} data={data.student} />;
+    return (
+      <StudentOverview user={user} orgName={orgName} data={data.student} />
+    );
   }
 
   if (user.role === "parent" && data?.parent) {
@@ -107,7 +125,8 @@ function RoleDashboard({ user, org }: { user: UserPayload; org: UserPayload["org
 }
 
 export default function Dashboard() {
-  const { user, org, tenantData, statsLoading } = useOutletContext<DashboardContext>();
+  const { user, org, tenantData, statsLoading } =
+    useOutletContext<DashboardContext>();
   const { hasPermission } = usePermission();
 
   return (
