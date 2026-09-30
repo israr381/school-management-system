@@ -9,7 +9,10 @@ import { requestPasswordReset } from "../store/auth";
 export function meta() {
   return [
     { title: "Forgot Password - School Management" },
-    { name: "description", content: "Enter your email to reset your password." },
+    {
+      name: "description",
+      content: "Enter your email to reset your password.",
+    },
   ];
 }
 
@@ -38,7 +41,9 @@ export default function ForgotPassword() {
       });
       navigate(`/change-password?${params.toString()}`);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Unable to start password reset.");
+      setError(
+        err instanceof Error ? err.message : "Unable to start password reset.",
+      );
     } finally {
       setLoading(false);
     }
