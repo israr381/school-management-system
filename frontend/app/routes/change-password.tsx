@@ -28,7 +28,11 @@ function PasswordToggle({
       className="text-icon-muted hover:text-text-main transition-colors p-1 cursor-pointer"
       aria-label={visible ? "Hide password" : "Show password"}
     >
-      {visible ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+      {visible ? (
+        <EyeOff className="w-4.5 h-4.5" />
+      ) : (
+        <Eye className="w-4.5 h-4.5" />
+      )}
     </button>
   );
 }
@@ -85,7 +89,9 @@ export default function ChangePassword() {
       toast.success("Password updated successfully.");
       navigate("/login");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to update password.");
+      setError(
+        err instanceof Error ? err.message : "Failed to update password.",
+      );
     } finally {
       setLoading(false);
     }
@@ -134,7 +140,10 @@ export default function ChangePassword() {
           autoComplete="current-password"
           leftIcon={<Lock className="w-4.5 h-4.5" />}
           rightAction={
-            <PasswordToggle visible={showCurrent} onToggle={() => setShowCurrent((prev) => !prev)} />
+            <PasswordToggle
+              visible={showCurrent}
+              onToggle={() => setShowCurrent((prev) => !prev)}
+            />
           }
         />
 
@@ -150,7 +159,10 @@ export default function ChangePassword() {
           autoComplete="new-password"
           leftIcon={<Lock className="w-4.5 h-4.5" />}
           rightAction={
-            <PasswordToggle visible={showNew} onToggle={() => setShowNew((prev) => !prev)} />
+            <PasswordToggle
+              visible={showNew}
+              onToggle={() => setShowNew((prev) => !prev)}
+            />
           }
         />
 
