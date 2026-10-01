@@ -81,7 +81,9 @@ export default function RequestsPanel() {
   const [unassignedMessage, setUnassignedMessage] = useState("");
   const [viewing, setViewing] = useState<LeaveRequest | null>(null);
   const [reviewing, setReviewing] = useState<LeaveRequest | null>(null);
-  const [reviewAction, setReviewAction] = useState<"approved" | "rejected" | null>(null);
+  const [reviewAction, setReviewAction] = useState<
+    "approved" | "rejected" | null
+  >(null);
   const [deleting, setDeleting] = useState<LeaveRequest | null>(null);
   const [deletingBusy, setDeletingBusy] = useState(false);
 
@@ -126,7 +128,9 @@ export default function RequestsPanel() {
         await loadRequests();
       } catch (err: unknown) {
         if (!cancelled) {
-          toast.error(err instanceof Error ? err.message : "Failed to load requests.");
+          toast.error(
+            err instanceof Error ? err.message : "Failed to load requests.",
+          );
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -139,15 +143,15 @@ export default function RequestsPanel() {
   }, [loadRequests]);
 
   const filtered = useMemo(
-    () => requests.filter((row) => statusFilter === "all" || row.status === statusFilter),
+    () =>
+      requests.filter(
+        (row) => statusFilter === "all" || row.status === statusFilter,
+      ),
     [requests, statusFilter],
   );
 
-  const { paginatedItems, totalPages, safePage, startIndex, endIndex } = paginateItems(
-    filtered,
-    currentPage,
-    pageSize,
-  );
+  const { paginatedItems, totalPages, safePage, startIndex, endIndex } =
+    paginateItems(filtered, currentPage, pageSize);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -168,10 +172,34 @@ export default function RequestsPanel() {
   );
 
   const kpiCards = [
-    { key: "all", title: "Total", value: totals.total, color: "#6366f1", icon: Inbox },
-    { key: "pending", title: "Pending", value: totals.pending, color: "#f59e0b", icon: Clock },
-    { key: "approved", title: "Approved", value: totals.approved, color: "#10b981", icon: CheckCircle2 },
-    { key: "rejected", title: "Rejected", value: totals.rejected, color: "#ef4444", icon: XCircle },
+    {
+      key: "all",
+      title: "Total",
+      value: totals.total,
+      color: "#6366f1",
+      icon: Inbox,
+    },
+    {
+      key: "pending",
+      title: "Pending",
+      value: totals.pending,
+      color: "#f59e0b",
+      icon: Clock,
+    },
+    {
+      key: "approved",
+      title: "Approved",
+      value: totals.approved,
+      color: "#10b981",
+      icon: CheckCircle2,
+    },
+    {
+      key: "rejected",
+      title: "Rejected",
+      value: totals.rejected,
+      color: "#ef4444",
+      icon: XCircle,
+    },
   ];
 
   const handleDelete = async () => {
@@ -188,159 +216,173 @@ export default function RequestsPanel() {
       toast.success("Request deleted.");
       await loadRequests();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete request.");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete request.",
+      );
     } finally {
       setDeletingBusy(false);
     }
   };
 
-  const columns = useMemo<TableColumn<LeaveRequest>[]>(
-    () => {
-      const cols: TableColumn<LeaveRequest>[] = [
-        {
-          key: "requester_name",
-          header: tab === "teacher" ? "Teacher" : "Student",
-          sortable: true,
-          sortValue: (row) => row.requester_name,
-          render: (row) => (
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-brand-soft text-sm font-bold text-brand">
-                {initials(row.requester_name)}
-              </div>
-              <div className="min-w-0">
-                <p className="truncate font-semibold text-text-main">{row.requester_name}</p>
-                <p className="truncate text-xs text-text-muted">{row.requester_email || "Leave request"}</p>
-              </div>
+  const columns = useMemo<TableColumn<LeaveRequest>[]>(() => {
+    const cols: TableColumn<LeaveRequest>[] = [
+      {
+        key: "requester_name",
+        header: tab === "teacher" ? "Teacher" : "Student",
+        sortable: true,
+        sortValue: (row) => row.requester_name,
+        render: (row) => (
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-brand-soft text-sm font-bold text-brand">
+              {initials(row.requester_name)}
             </div>
-          ),
-        },
-      ];
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-text-main">
+                {row.requester_name}
+              </p>
+              <p className="truncate text-xs text-text-muted">
+                {row.requester_email || "Leave request"}
+              </p>
+            </div>
+          </div>
+        ),
+      },
+    ];
 
-      // Class column only for student requests (teachers are not tied to a class/section).
-      if (tab !== "teacher") {
-        cols.push({
-          key: "class_name",
-          header: "Class",
-          sortable: true,
-          sortValue: (row) => row.class_name ?? "",
-          render: (row) => (
-            <span className="font-medium text-text-main">
-              {row.class_name ? `${row.class_name}${row.section_name ? ` / ${row.section_name}` : ""}` : "—"}
-            </span>
-          ),
-        });
-      }
+    // Class column only for student requests (teachers are not tied to a class/section).
+    if (tab !== "teacher") {
+      cols.push({
+        key: "class_name",
+        header: "Class",
+        sortable: true,
+        sortValue: (row) => row.class_name ?? "",
+        render: (row) => (
+          <span className="font-medium text-text-main">
+            {row.class_name
+              ? `${row.class_name}${row.section_name ? ` / ${row.section_name}` : ""}`
+              : "—"}
+          </span>
+        ),
+      });
+    }
 
-      cols.push(
-        {
-          key: "from_date",
-          header: "From",
-          sortable: true,
-          sortValue: (row) => row.from_date,
-          render: (row) => (
-            <span className="font-medium text-text-main">{formatRequestDate(row.from_date)}</span>
-          ),
-        },
-        {
-          key: "to_date",
-          header: "To",
-          sortable: true,
-          sortValue: (row) => row.to_date,
-          render: (row) => (
-            <span className="font-medium text-text-main">{formatRequestDate(row.to_date)}</span>
-          ),
-        },
-        {
-          key: "days",
-          header: "Days",
-          sortable: true,
-          sortValue: (row) => row.days,
-          render: (row) => <span className="font-medium text-text-main">{row.days}</span>,
-        },
-        {
-          key: "status",
-          header: "Status",
-          sortable: true,
-          sortValue: (row) => row.status,
-          render: (row) => (
-            <span
-              className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${statusStyles(row.status)}`}
+    cols.push(
+      {
+        key: "from_date",
+        header: "From",
+        sortable: true,
+        sortValue: (row) => row.from_date,
+        render: (row) => (
+          <span className="font-medium text-text-main">
+            {formatRequestDate(row.from_date)}
+          </span>
+        ),
+      },
+      {
+        key: "to_date",
+        header: "To",
+        sortable: true,
+        sortValue: (row) => row.to_date,
+        render: (row) => (
+          <span className="font-medium text-text-main">
+            {formatRequestDate(row.to_date)}
+          </span>
+        ),
+      },
+      {
+        key: "days",
+        header: "Days",
+        sortable: true,
+        sortValue: (row) => row.days,
+        render: (row) => (
+          <span className="font-medium text-text-main">{row.days}</span>
+        ),
+      },
+      {
+        key: "status",
+        header: "Status",
+        sortable: true,
+        sortValue: (row) => row.status,
+        render: (row) => (
+          <span
+            className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${statusStyles(row.status)}`}
+          >
+            {statusLabel(row.status)}
+          </span>
+        ),
+      },
+      {
+        key: "actions",
+        header: "Actions",
+        headerClassName: "text-right",
+        className: "text-right",
+        render: (row) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <UiButton
+                  variant="ghost"
+                  size="icon-sm"
+                  className="cursor-pointer text-text-muted hover:bg-surface-soft hover:text-text-main"
+                  aria-label="Request actions"
+                />
+              }
             >
-              {statusLabel(row.status)}
-            </span>
-          ),
-        },
-        {
-          key: "actions",
-          header: "Actions",
-          headerClassName: "text-right",
-          className: "text-right",
-          render: (row) => (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <UiButton
-                    variant="ghost"
-                    size="icon-sm"
-                    className="cursor-pointer text-text-muted hover:bg-surface-soft hover:text-text-main"
-                    aria-label="Request actions"
-                  />
-                }
+              <MoreVertical className="size-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-36">
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => setViewing(row)}
               >
-                <MoreVertical className="size-4" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-36">
-                <DropdownMenuItem className="cursor-pointer" onClick={() => setViewing(row)}>
-                  <Eye className="size-4" />
-                  View
-                </DropdownMenuItem>
-                {row.can_review ? (
-                  <>
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => {
-                        setReviewing(row);
-                        setReviewAction("approved");
-                      }}
-                    >
-                      <Check className="size-4" />
-                      Approve
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      variant="destructive"
-                      className="cursor-pointer"
-                      onClick={() => {
-                        setReviewing(row);
-                        setReviewAction("rejected");
-                      }}
-                    >
-                      <X className="size-4" />
-                      Reject
-                    </DropdownMenuItem>
-                  </>
-                ) : null}
-                {row.can_delete ? (
-                  <PermissionGuard permission="requests.delete">
-                    <DropdownMenuItem
-                      variant="destructive"
-                      className="cursor-pointer"
-                      onClick={() => setDeleting(row)}
-                    >
-                      <Trash2 className="size-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </PermissionGuard>
-                ) : null}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ),
-        },
-      );
+                <Eye className="size-4" />
+                View
+              </DropdownMenuItem>
+              {row.can_review ? (
+                <>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setReviewing(row);
+                      setReviewAction("approved");
+                    }}
+                  >
+                    <Check className="size-4" />
+                    Approve
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    variant="destructive"
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setReviewing(row);
+                      setReviewAction("rejected");
+                    }}
+                  >
+                    <X className="size-4" />
+                    Reject
+                  </DropdownMenuItem>
+                </>
+              ) : null}
+              {row.can_delete ? (
+                <PermissionGuard permission="requests.delete">
+                  <DropdownMenuItem
+                    variant="destructive"
+                    className="cursor-pointer"
+                    onClick={() => setDeleting(row)}
+                  >
+                    <Trash2 className="size-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </PermissionGuard>
+              ) : null}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
+    );
 
-      return cols;
-    },
-    [tab],
-  );
+    return cols;
+  }, [tab]);
 
   const showingLabel =
     filtered.length === 0
@@ -350,7 +392,9 @@ export default function RequestsPanel() {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-text-main">Requests</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-text-main">
+          Requests
+        </h2>
         <p className="mt-1 text-sm text-text-muted">
           {isTeacher
             ? assignmentLabel
@@ -402,7 +446,8 @@ export default function RequestsPanel() {
       {isTeacher && assignmentLabel ? (
         <div className="flex items-center gap-2 text-sm font-medium text-text-muted">
           <School className="h-4 w-4 text-brand" />
-          Assigned class: <span className="text-text-main">{assignmentLabel}</span>
+          Assigned class:{" "}
+          <span className="text-text-main">{assignmentLabel}</span>
         </div>
       ) : null}
 
@@ -416,13 +461,19 @@ export default function RequestsPanel() {
         <div className="flex flex-col gap-4 p-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h3 className="text-[15px] font-semibold text-text-main">
-              {isAdmin ? (tab === "teacher" ? "Teacher Requests" : "Student Requests") : "Student Requests"}
+              {isAdmin
+                ? tab === "teacher"
+                  ? "Teacher Requests"
+                  : "Student Requests"
+                : "Student Requests"}
             </h3>
             <p className="mt-0.5 text-xs text-text-muted">{showingLabel}</p>
           </div>
           <div className="w-full sm:w-44">
             <div className="mb-2 flex items-center">
-              <Label className="block text-sm font-medium leading-5 text-text-main">Status</Label>
+              <Label className="block text-sm font-medium leading-5 text-text-main">
+                Status
+              </Label>
             </div>
             <Select
               value={statusFilter}
@@ -467,19 +518,29 @@ export default function RequestsPanel() {
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-3 p-16">
             <Loader2 className="h-8 w-8 animate-spin text-brand" />
-            <p className="text-sm font-medium text-text-muted">Loading requests...</p>
+            <p className="text-sm font-medium text-text-muted">
+              Loading requests...
+            </p>
           </div>
         ) : unassignedMessage ? (
           <div className="p-12 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-border-main bg-brand-soft text-brand">
               <School className="h-7 w-7" />
             </div>
-            <h4 className="mb-1 text-base font-semibold text-text-main">No class assigned</h4>
-            <p className="mx-auto max-w-sm text-sm text-text-muted">{unassignedMessage}</p>
+            <h4 className="mb-1 text-base font-semibold text-text-main">
+              No class assigned
+            </h4>
+            <p className="mx-auto max-w-sm text-sm text-text-muted">
+              {unassignedMessage}
+            </p>
           </div>
         ) : filtered.length > 0 ? (
           <>
-            <Table columns={columns} data={paginatedItems} rowKey={(row) => row.id} />
+            <Table
+              columns={columns}
+              data={paginatedItems}
+              rowKey={(row) => row.id}
+            />
             <Pagination
               currentPage={safePage}
               totalPages={totalPages}
@@ -495,7 +556,9 @@ export default function RequestsPanel() {
               <Inbox className="h-7 w-7" />
             </div>
             <h4 className="mb-1 text-base font-semibold text-text-main">
-              {requests.length === 0 ? "No Requests Yet" : "No Matching Requests"}
+              {requests.length === 0
+                ? "No Requests Yet"
+                : "No Matching Requests"}
             </h4>
             <p className="mx-auto max-w-sm text-sm text-text-muted">
               {requests.length === 0
