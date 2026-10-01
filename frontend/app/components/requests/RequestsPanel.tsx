@@ -195,139 +195,150 @@ export default function RequestsPanel() {
   };
 
   const columns = useMemo<TableColumn<LeaveRequest>[]>(
-    () => [
-      {
-        key: "requester_name",
-        header: tab === "teacher" ? "Teacher" : "Student",
-        sortable: true,
-        sortValue: (row) => row.requester_name,
-        render: (row) => (
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-brand-soft text-sm font-bold text-brand">
-              {initials(row.requester_name)}
+    () => {
+      const cols: TableColumn<LeaveRequest>[] = [
+        {
+          key: "requester_name",
+          header: tab === "teacher" ? "Teacher" : "Student",
+          sortable: true,
+          sortValue: (row) => row.requester_name,
+          render: (row) => (
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-brand-soft text-sm font-bold text-brand">
+                {initials(row.requester_name)}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-text-main">{row.requester_name}</p>
+                <p className="truncate text-xs text-text-muted">{row.requester_email || "Leave request"}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="truncate font-semibold text-text-main">{row.requester_name}</p>
-              <p className="truncate text-xs text-text-muted">{row.requester_email || "Leave request"}</p>
-            </div>
-          </div>
-        ),
-      },
-      {
-        key: "class_name",
-        header: "Class",
-        sortable: true,
-        sortValue: (row) => row.class_name ?? "",
-        render: (row) => (
-          <span className="font-medium text-text-main">
-            {row.class_name ? `${row.class_name}${row.section_name ? ` / ${row.section_name}` : ""}` : "—"}
-          </span>
-        ),
-      },
-      {
-        key: "from_date",
-        header: "From",
-        sortable: true,
-        sortValue: (row) => row.from_date,
-        render: (row) => (
-          <span className="font-medium text-text-main">{formatRequestDate(row.from_date)}</span>
-        ),
-      },
-      {
-        key: "to_date",
-        header: "To",
-        sortable: true,
-        sortValue: (row) => row.to_date,
-        render: (row) => (
-          <span className="font-medium text-text-main">{formatRequestDate(row.to_date)}</span>
-        ),
-      },
-      {
-        key: "days",
-        header: "Days",
-        sortable: true,
-        sortValue: (row) => row.days,
-        render: (row) => <span className="font-medium text-text-main">{row.days}</span>,
-      },
-      {
-        key: "status",
-        header: "Status",
-        sortable: true,
-        sortValue: (row) => row.status,
-        render: (row) => (
-          <span
-            className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${statusStyles(row.status)}`}
-          >
-            {statusLabel(row.status)}
-          </span>
-        ),
-      },
-      {
-        key: "actions",
-        header: "Actions",
-        headerClassName: "text-right",
-        className: "text-right",
-        render: (row) => (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <UiButton
-                  variant="ghost"
-                  size="icon-sm"
-                  className="cursor-pointer text-text-muted hover:bg-surface-soft hover:text-text-main"
-                  aria-label="Request actions"
-                />
-              }
+          ),
+        },
+      ];
+
+      // Class column only for student requests (teachers are not tied to a class/section).
+      if (tab !== "teacher") {
+        cols.push({
+          key: "class_name",
+          header: "Class",
+          sortable: true,
+          sortValue: (row) => row.class_name ?? "",
+          render: (row) => (
+            <span className="font-medium text-text-main">
+              {row.class_name ? `${row.class_name}${row.section_name ? ` / ${row.section_name}` : ""}` : "—"}
+            </span>
+          ),
+        });
+      }
+
+      cols.push(
+        {
+          key: "from_date",
+          header: "From",
+          sortable: true,
+          sortValue: (row) => row.from_date,
+          render: (row) => (
+            <span className="font-medium text-text-main">{formatRequestDate(row.from_date)}</span>
+          ),
+        },
+        {
+          key: "to_date",
+          header: "To",
+          sortable: true,
+          sortValue: (row) => row.to_date,
+          render: (row) => (
+            <span className="font-medium text-text-main">{formatRequestDate(row.to_date)}</span>
+          ),
+        },
+        {
+          key: "days",
+          header: "Days",
+          sortable: true,
+          sortValue: (row) => row.days,
+          render: (row) => <span className="font-medium text-text-main">{row.days}</span>,
+        },
+        {
+          key: "status",
+          header: "Status",
+          sortable: true,
+          sortValue: (row) => row.status,
+          render: (row) => (
+            <span
+              className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${statusStyles(row.status)}`}
             >
-              <MoreVertical className="size-4" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-36">
-              <DropdownMenuItem className="cursor-pointer" onClick={() => setViewing(row)}>
-                <Eye className="size-4" />
-                View
-              </DropdownMenuItem>
-              {row.can_review ? (
-                <>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setReviewing(row);
-                      setReviewAction("approved");
-                    }}
-                  >
-                    <Check className="size-4" />
-                    Approve
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    variant="destructive"
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setReviewing(row);
-                      setReviewAction("rejected");
-                    }}
-                  >
-                    <X className="size-4" />
-                    Reject
-                  </DropdownMenuItem>
-                </>
-              ) : null}
-              {row.can_delete ? (
-                <PermissionGuard permission="requests.delete">
-                  <DropdownMenuItem
-                    variant="destructive"
-                    className="cursor-pointer"
-                    onClick={() => setDeleting(row)}
-                  >
-                    <Trash2 className="size-4" />
-                    Delete
-                  </DropdownMenuItem>
-                </PermissionGuard>
-              ) : null}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ),
-      },
-    ],
+              {statusLabel(row.status)}
+            </span>
+          ),
+        },
+        {
+          key: "actions",
+          header: "Actions",
+          headerClassName: "text-right",
+          className: "text-right",
+          render: (row) => (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <UiButton
+                    variant="ghost"
+                    size="icon-sm"
+                    className="cursor-pointer text-text-muted hover:bg-surface-soft hover:text-text-main"
+                    aria-label="Request actions"
+                  />
+                }
+              >
+                <MoreVertical className="size-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-36">
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setViewing(row)}>
+                  <Eye className="size-4" />
+                  View
+                </DropdownMenuItem>
+                {row.can_review ? (
+                  <>
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setReviewing(row);
+                        setReviewAction("approved");
+                      }}
+                    >
+                      <Check className="size-4" />
+                      Approve
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      variant="destructive"
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setReviewing(row);
+                        setReviewAction("rejected");
+                      }}
+                    >
+                      <X className="size-4" />
+                      Reject
+                    </DropdownMenuItem>
+                  </>
+                ) : null}
+                {row.can_delete ? (
+                  <PermissionGuard permission="requests.delete">
+                    <DropdownMenuItem
+                      variant="destructive"
+                      className="cursor-pointer"
+                      onClick={() => setDeleting(row)}
+                    >
+                      <Trash2 className="size-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </PermissionGuard>
+                ) : null}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ),
+        },
+      );
+
+      return cols;
+    },
     [tab],
   );
 
